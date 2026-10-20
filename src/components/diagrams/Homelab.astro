@@ -1,0 +1,22 @@
+---
+// Privacy-safe: service categories only (CLAUDE.md homelab rule).
+interface Props { label?: string }
+const { label = 'Service categories running on the homelab' } = Astro.props;
+const cells = ['FPGA lab', 'Web services', 'Media and files', 'Remote access', 'Automation', 'Monitoring'];
+---
+<svg class="diagram" viewBox="0 0 320 200" role="img" aria-label={label} preserveAspectRatio="xMidYMid slice">
+  <rect width="320" height="200" fill="#183539" />
+  <g font-family="Hanken Grotesk Variable, Hanken Grotesk, sans-serif" font-size="13" fill="#eaf2f1" text-anchor="middle">
+    {cells.map((c, i) => {
+      const x = i % 2 ? 166 : 22;
+      const y = 30 + Math.floor(i / 2) * 50;
+      return (
+        <>
+          <rect x={x} y={y} width="132" height="40" rx="20" fill="#11282d" />
+          <text x={x + 66} y={y + 25}>{c}</text>
+        </>
+      );
+    })}
+  </g>
+  <circle cx="22" cy="50" r="5" fill="#5dffa8" />
+</svg>

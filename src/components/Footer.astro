@@ -1,0 +1,22 @@
+---
+interface Props {
+  home: boolean;
+}
+const { home } = Astro.props;
+const year = new Date().getFullYear();
+---
+<footer class="foot">
+  <div class="foot-in">
+  <div>
+    <b>Jason Nikas</b>
+    <p>Electrical and Computer Engineering, University of Thessaly</p>
+  </div>
+  <div class="links">
+    <a href="https://github.com/ACrispyCookie">GitHub</a>
+    <a href="https://www.linkedin.com/in/jason-nikas-b64163255">LinkedIn</a>
+    <a href={home ? '#contact' : '/#contact'}>Email</a>
+    <a href="https://acrispycookie.dev">Older portfolio</a>
+  </div>
+  <small><span>© {year} Jason Nikas</span><span>Built with Astro, self-hosted</span></small>
+  </div>
+</footer>

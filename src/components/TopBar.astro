@@ -1,0 +1,30 @@
+---
+interface Props {
+  current?: 'Projects' | 'Timeline' | 'Skills' | 'Contact';
+  home: boolean;
+}
+const { current, home } = Astro.props;
+const base = home ? '' : '/';
+const items = [
+  ['Projects', `${base}#projects`],
+  ['Timeline', `${base}#timeline`],
+  ['Skills', `${base}#skills`],
+  ['Contact', `${base}#contact`],
+] as const;
+---
+<header class="topbar">
+  <div class="in">
+    <a class="name" href={home ? '#top' : '/'}>Jason Nikas</a>
+    <nav aria-label="Main">
+      {items.map(([label, href]) => <a href={href} aria-current={label === current ? 'page' : undefined}>{label}</a>)}
+    </nav>
+    <a class="labpill" href="https://fpga.njason.dev"><i class="led" aria-hidden="true"></i><span>Live <span class="lg">FPGA </span>Lab</span></a>
+    <details class="menu">
+      <summary>Menu</summary>
+      <div class="menu-sheet">
+        {items.map(([label, href]) => <a href={href}>{label}</a>)}
+        <a class="lab" href="https://fpga.njason.dev">Live FPGA Lab</a>
+      </div>
+    </details>
+  </div>
+</header>

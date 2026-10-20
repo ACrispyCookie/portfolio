@@ -1,0 +1,123 @@
+{
+  "title": "Choose the look of njason.dev",
+  "question": "One direction is assigned. Keep it, take the alternative, or ask for a new hand.",
+  "options": [
+    {
+      "id": "assigned",
+      "kind": "assigned",
+      "label": "The circuit board",
+      "kicker": "THE ROLL",
+      "lineage": "printed circuit boards: solder mask, silkscreen, gold pads, copper traces",
+      "thesis": "The site is a dark teal circuit board; the live lab widget is the powered part, and traces carry you from it into the work.",
+      "palette": ["#0b1d21", "#11282d", "#eaf2f1", "#41e2f2", "#d8b46a"],
+      "materials": ["deep teal solder mask", "white silkscreen type", "gold round pads", "rounded copper traces"],
+      "viewport": "Cover photo left, your name very large in the middle, the live board on the right outlined in cyan with a gold pin header; traces run from it down into the page.",
+      "risk": "If the traces and pads are overdone it turns into a costume; they must stay quiet and only connect real things.",
+      "raised": [
+        {"from": "challenger-cracktro", "raise": "Hierarchy is depth: three mask shades (ground, panel, raised) do the work instead of borders or labels."},
+        {"from": "challenger-scope", "raise": "Every number is shown with its unit and its conditions, measured against one spacing grid."},
+        {"from": "challenger-glazier", "raise": "One card, one statement: a selected card floods with its colour instead of gaining chrome."},
+        {"from": "challenger-swiss", "raise": "One master grid governs every page; sections differ by content, never by layout improvisation."}
+      ],
+      "html": ".impeccable/mocks/decision/pcb.html"
+    },
+    {
+      "id": "model-pick",
+      "kind": "pick",
+      "label": "The dusk line",
+      "kicker": "IMPECCABLE’S PICK",
+      "lineage": "Japanese rail at dusk, taken from your Fuji photo: rounded station badges, departure boards, line colours",
+      "thesis": "The colours come from your photo (dusk navy, Fuji teal, peach sky); the live lab is a departure board and the timeline is three train lines.",
+      "palette": ["#121a2b", "#1a2539", "#f4ece6", "#3fd3e6", "#f2b49c", "#e8c46a"],
+      "materials": ["dusk gradient ground", "rounded Japanese gothic type", "rounded line badges", "departure board rows"],
+      "viewport": "An arched photo left, your name in a rounded gothic face, and the live lab as a departure board with Now, Queue and Temperature rows.",
+      "risk": "A transit-map metaphor for a career is familiar; it works only if the line colours carry real meaning (education, work, teaching).",
+      "html": ".impeccable/mocks/decision/transit.html"
+    },
+    {
+      "id": "challenger-glazier", "kind": "challenger", "catalogId": "craft-making-glazier-colorfield-partition",
+      "label": "Glass partition wall", "verdict": "declined",
+      "lineage": "a glazier's steel-framed glass wall",
+      "thesis": "Projects as glass panes in a black grid, lit one colour at a time.",
+      "palette": ["#111111", "#e9eef0", "#1f4fbf", "#d9902a"],
+      "materials": ["black glazing bars", "seeded glass"],
+      "viewport": "A wall of panes, one lit cyan for the live lab.",
+      "risk": "Reads as an art piece, not a hardware engineer.",
+      "case": "Fuses cleanly but recruiters and engineers don't see themselves in it; clarity is fine, identification is weak.",
+      "kept": "One pane, one statement: selection floods the card with colour."
+    },
+    {
+      "id": "challenger-storm", "kind": "challenger", "catalogId": "dream-surreal-impossible-worlds-alphabet-storm",
+      "label": "Alphabet storm", "verdict": "declined",
+      "lineage": "letters behaving as weather",
+      "thesis": "Your words turning into weather over a white field.",
+      "palette": ["#f7f7f5", "#111111", "#b8bcc2"],
+      "materials": ["monumental grotesk", "type particles"],
+      "viewport": "Your name breaking into rain.",
+      "risk": "Light, surreal and slow to read; fights the dark-only choice.",
+      "case": "Loses both axes: no link to hardware, and the message gets harder to read.",
+      "kept": "One typeface family carries everything."
+    },
+    {
+      "id": "challenger-cracktro", "kind": "challenger", "catalogId": "operate-c-cracktro-scroller-queue",
+      "label": "Cracktro screen", "verdict": "declined",
+      "lineage": "demo-scene title screens",
+      "thesis": "Bitmap text over drifting star layers.",
+      "palette": ["#050505", "#e8e4d8", "#7a7a7a", "#f2a33a"],
+      "materials": ["bitmap face", "parallax dust"],
+      "viewport": "One ivory line of bitmap text over drifting dots.",
+      "risk": "Exactly the 'too hacker' look you ruled out.",
+      "case": "Loses both: hacker costume, and bitmap type hurts clarity.",
+      "kept": "Hierarchy by depth: layered surface shades instead of boxes."
+    },
+    {
+      "id": "challenger-scope", "kind": "challenger", "catalogId": "scientific-notation-oscilloscope-signal-bench",
+      "label": "Oscilloscope bench", "verdict": "declined",
+      "lineage": "CRT oscilloscope on a signal bench",
+      "thesis": "The site as a scope screen with a phosphor trace.",
+      "palette": ["#0a0d0a", "#39ff6a", "#4b5a4b", "#f2b233"],
+      "materials": ["phosphor trace", "etched graticule"],
+      "viewport": "A green trace across a graticule.",
+      "risk": "Green phosphor is the 'too hacker' look.",
+      "case": "Identification is decent for engineers, but recruiters lose clarity and it reads as a costume.",
+      "kept": "Everything measured: numbers always carry units and conditions."
+    },
+    {
+      "id": "challenger-annual", "kind": "challenger", "catalogId": "design-annual-s-plate-section",
+      "label": "Design annual plates", "verdict": "declined",
+      "lineage": "a design annual's printed plate section",
+      "thesis": "Projects as printed plates with registration marks.",
+      "palette": ["#f5f4f6", "#16181a", "#dcddf3"],
+      "materials": ["uncoated stock", "hairline rules"],
+      "viewport": "A white sheet with one plate and a stamp.",
+      "risk": "Light, editorial and mono-labelled: three things already ruled out.",
+      "case": "Loses both: it speaks to designers, not hardware engineers.",
+      "kept": "Photographs stay untinted and uncropped where it matters."
+    },
+    {
+      "id": "challenger-swiss", "kind": "challenger", "catalogId": "design-canon-swiss-grid-poster-wall",
+      "label": "Swiss poster wall", "verdict": "declined",
+      "lineage": "International Style concert posters",
+      "thesis": "Every section a poster on one modular grid.",
+      "palette": ["#f4f2ee", "#111111", "#d62b1f"],
+      "materials": ["akzidenz type", "geometric bars"],
+      "viewport": "A grid of geometric posters.",
+      "risk": "Light and cold; red signal colour clashes with cyan.",
+      "case": "Clear, but nothing about it says hardware or you.",
+      "kept": "One master grid across every page."
+    }
+  ],
+  "reroll": {"registers": ["safer", "bolder"]},
+  "buildPath": {"value": "code", "toggle": false},
+  "canon": true,
+  "canonCard": {
+    "kind": "canon",
+    "label": "The standard dark developer portfolio",
+    "thesis": "What most developer portfolios ship, done well.",
+    "palette": ["#0f1115", "#171a21", "#e6e8eb", "#3fd3e6"],
+    "materials": ["neutral dark panels", "clean sans", "cyan accent"],
+    "viewport": "Name and line on the left, live widget on the right, equal cards below.",
+    "risk": "Looks like everyone else's portfolio by design."
+  },
+  "steer": true
+}

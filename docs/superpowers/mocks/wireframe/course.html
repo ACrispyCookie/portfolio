@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ECE415 Course Wireframe</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+:root{--bg:#f2f3f3;--box:#ffffff;--box2:#e4e6e6;--line:#c9cdcd;--fg:#1d2222;--muted:#5d6666;--live:#1b8a5a;--l1:#6b7a7a;--l2:#9aa6a6;--l3:#3f4a4a}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141717;--box:#1e2222;--box2:#2a2f2f;--line:#3a4040;--fg:#e8eded;--muted:#9aa5a5;--live:#3fcf8e;--l1:#8d9b9b;--l2:#5f6b6b;--l3:#c4cccc;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#141717;--box:#1e2222;--box2:#2a2f2f;--line:#3a4040;--fg:#e8eded;--muted:#9aa5a5;--live:#3fcf8e;--l1:#8d9b9b;--l2:#5f6b6b;--l3:#c4cccc;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:32px}
+main{max-width:1120px;margin:0 auto;display:grid;gap:72px}
+main>*{min-width:0}
+h1,h2,h3,p{margin:0}
+h2{font-size:1.6rem;margin-bottom:6px}
+.sub{color:var(--muted);margin-bottom:20px;max-width:65ch}
+.note{font-size:.85rem;color:var(--muted);border-left:3px solid var(--line);padding-left:10px;margin-top:14px;max-width:80ch}
+.box{background:var(--box);border-radius:16px;padding:20px;min-width:0}
+.pic{background:var(--box2);border-radius:12px;display:grid;place-items:center;color:var(--muted);font-size:.85rem;text-align:center;padding:12px}
+.btn{display:inline-block;background:var(--fg);color:var(--bg);border-radius:999px;padding:8px 16px;font-size:.9rem;text-decoration:none}
+.btn.ghost{background:transparent;color:var(--fg);box-shadow:inset 0 0 0 1.5px var(--line)}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.tag{background:var(--box2);border-radius:999px;padding:2px 10px;font-size:.8rem;color:var(--muted)}
+.av{display:flex}.av span{width:28px;height:28px;border-radius:50%;background:var(--line);border:2px solid var(--box);margin-left:-8px;font-size:.6rem;display:grid;place-items:center;color:var(--fg)}.av span:first-child{margin-left:0}
+
+/* top bar + footer */
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;margin:-32px 0 32px;padding-block:12px;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px)}
+.topbar .in{max-width:1120px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.topbar .name{font-weight:700;color:var(--fg);text-decoration:none}
+.topbar nav{display:flex;gap:4px}
+.topbar nav a{color:var(--fg);text-decoration:none;padding:6px 12px;border-radius:999px;font-size:.92rem}
+.topbar nav a[aria-current]{background:var(--box2)}
+.topbar .lablink{display:inline-flex;align-items:center;gap:6px;background:var(--fg);color:var(--bg);text-decoration:none;border-radius:999px;padding:6px 12px;font-size:.88rem}
+.topbar .lablink i{width:8px;height:8px;border-radius:50%;background:var(--live)}
+.menu{display:none}
+.menu summary{list-style:none;cursor:pointer;background:var(--box);border-radius:999px;padding:6px 14px;font-size:.9rem}
+.menu summary::-webkit-details-marker{display:none}
+.menu .sheet{position:absolute;right:0;left:0;top:52px;background:var(--box);border-radius:18px;padding:10px;display:grid;gap:2px;box-shadow:0 0 0 1px var(--line)}
+.menu .sheet a{padding:12px 14px;border-radius:12px;color:var(--fg);text-decoration:none}
+.menu .sheet a:hover{background:var(--box2)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.foot{color:var(--fg);max-width:1120px;margin:72px auto 0;background:var(--box);border-radius:24px;padding:24px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px;align-items:end}
+.foot b{font-size:1.2rem}
+.foot p{color:var(--muted);font-size:.9rem;margin-top:4px}
+.foot .links{display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:flex-end}
+.foot .links a{color:var(--fg);font-size:.92rem}
+.foot small{grid-column:1/-1;color:var(--muted);border-top:1px solid var(--box2);padding-top:14px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+@media (max-width:760px){.topbar nav,.topbar .lablink{display:none}.menu{display:block}.topbar .in{position:relative}.foot{grid-template-columns:1fr}.foot .links{justify-content:flex-start}}
+
+
+.crumb{font-size:.9rem;color:var(--muted)}.crumb a{color:var(--fg)}
+.chead{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:end}
+.chead h1{font-size:2.8rem;line-height:1.05}
+.chead .lead{font-size:1.15rem;color:var(--muted);max-width:55ch;margin-top:10px}
+.grade{background:var(--box);border-radius:20px;padding:16px 22px;text-align:center}
+.grade b{display:block;font-size:2.6rem;line-height:1}.grade span{color:var(--muted);font-size:.85rem}
+.steps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;counter-reset:s}
+.steps a{background:var(--box);border-radius:14px;padding:12px;color:var(--fg);text-decoration:none;display:grid;gap:2px}
+.steps a small{color:var(--muted)}
+.steps a:last-child{box-shadow:inset 0 0 0 2px var(--fg)}
+.proj{display:grid;gap:18px;background:var(--box);border-radius:24px;padding:24px;scroll-margin-top:80px}
+.proj.main{box-shadow:inset 0 0 0 2px var(--fg)}
+.proj h2{margin:0}.proj p{margin:0}
+.ph{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 24px;align-items:end}
+.ph > .row:last-child{grid-column:2;grid-row:1/3;align-self:start;justify-content:flex-end}
+.proj .big{font-size:1.3rem;font-weight:650;line-height:1.3;margin-top:4px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--box2);overflow-x:auto}
+.tabs button{appearance:none;border:0;background:none;font:inherit;font-size:.95rem;color:var(--muted);padding:10px 14px;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap}
+.tabs button[aria-selected="true"]{color:var(--fg);border-color:var(--fg);font-weight:600}
+.panel{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:24px;align-items:start}
+.js .panel:not(.on){display:none}
+.txt{display:grid;gap:10px;max-width:60ch}.txt ol{margin:0;padding-left:20px;display:grid;gap:4px}
+.gal{display:grid;grid-template-columns:1fr 1fr;gap:8px}.gal .pic{aspect-ratio:16/10}.gal .g0{grid-column:1/-1}
+.fig{aspect-ratio:16/10}
+.panel[data-p="code"]{grid-template-columns:1fr}
+.code{background:var(--fg);border-radius:14px;overflow:hidden}
+.cbar{display:flex;justify-content:space-between;padding:10px 14px;color:var(--bg);font-size:.85rem;border-bottom:1px solid color-mix(in srgb,var(--bg) 20%,transparent)}.cbar a{color:var(--bg)}
+.lines{padding:14px;display:grid;gap:9px}.lines span{display:block;height:8px;border-radius:4px;background:color-mix(in srgb,var(--bg) 30%,transparent)}
+.lines span:nth-child(3n+2){margin-left:24px}.lines span:nth-child(4n){margin-left:48px}
+.panel[data-p="rep"]{grid-template-columns:1fr}
+.rep{display:grid;grid-template-columns:160px minmax(0,1fr);gap:20px;align-items:center}.doc{aspect-ratio:1/1.414}
+@media (max-width:860px){.chead{grid-template-columns:1fr}.grade{justify-self:start}.steps{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:150px;overflow-x:auto}.ph{grid-template-columns:1fr}.ph > .row:last-child{grid-column:auto;grid-row:auto;justify-content:flex-start}.panel{grid-template-columns:1fr}.proj{padding:16px}.rep{grid-template-columns:110px 1fr}.chead h1{font-size:2.2rem}}
+
+</style></head><body>
+<header class="topbar"><div class="in">
+  <a class="name" href="index.html">Jason Nikas</a>
+  <nav aria-label="Main"><a href="index.html#projects">Projects</a><a href="index.html#skills">Skills</a><a href="index.html#timeline">Timeline</a><a href="index.html#contact">Contact</a></nav>
+  <a class="lablink" href="https://fpga.njason.dev"><i></i>Live FPGA Lab</a>
+  <details class="menu"><summary>Menu</summary><div class="sheet"><a href="index.html#projects">Projects</a><a href="index.html#skills">Skills</a><a href="index.html#timeline">Timeline</a><a href="index.html#contact">Contact</a><a href="https://fpga.njason.dev">Live FPGA Lab</a></div></details>
+</div></header>
+<main>
+
+<div class="chead">
+  <div><p class="crumb"><a href="index.html#projects">Projects</a> / ECE415</p><h1>ECE415 High Performance Computing</h1>
+  <p class="lead">One sentence on what the course covers and how the five projects build on each other, from tuning C code on a CPU to running on four GPUs at once.</p>
+  </div>
+  <div class="grade"><b>9.5</b><span>course grade</span></div>
+</div>
+<div><p class="crumb" style="margin-bottom:8px">The five projects, in the order we did them</p><div class="steps"><a href="#sobel"><small>Project 1</small><b>Sobel filter</b></a><a href="#kmeans"><small>Project 2</small><b>K-means</b></a><a href="#conv"><small>Project 3</small><b>CUDA convolution</b></a><a href="#clahe"><small>Project 4</small><b>CLAHE</b></a><a href="#nbody"><small>Project 5</small><b>N-body on GPUs</b></a></div></div>
+<section class="proj main" id="nbody">
+  <div class="ph">
+    <div><p class="crumb">Project 5 of 5</p><h2>N-body on GPUs</h2><p class="big">2,910× faster than the single-core version</p></div>
+    <div class="row"><span class="tag">CUDA</span><span class="tag">OpenMP</span><span class="tag">Team of 3</span><div class="av"><span>JN</span><span>DT</span><span>PT</span></div></div>
+    <div class="row"><a class="btn" href="project.html">Read the full page</a><a class="btn ghost" href="#">Code</a><a class="btn ghost" href="#nbody-report">Report (PDF)</a></div>
+  </div>
+  <div class="tabs" role="tablist" aria-label="N-body on GPUs">
+    <button role="tab" aria-selected="true" data-p="ov">Overview</button><button role="tab" aria-selected="false" data-p="how">How it works</button><button role="tab" aria-selected="false" data-p="res">Results</button><button role="tab" aria-selected="false" data-p="code">Code</button><button role="tab" aria-selected="false" data-p="rep">Report</button>
+  </div>
+  <div class="panel" data-p="ov"><div class="gal"><div class="pic g0">Main picture: Galaxy simulation</div><div class="pic">Picture 2</div><div class="pic">Picture 3</div></div>
+    <div class="txt"><p>A galaxy simulation spread over four Tesla K80 GPUs.</p><p>A few short paragraphs: what the task was, what we started from, and what made it hard.</p></div></div>
+  <div class="panel" data-p="how"><div class="txt"><p>The steps we took, in order, each with what it changed and why.</p><ol><li>Step and its effect</li><li>Step and its effect</li><li>Step and its effect</li></ol></div><div class="pic fig">Diagram or figure from the report (with caption)</div></div>
+  <div class="panel" data-p="res"><div class="pic fig">Chart: speed-up after each step</div><div class="txt"><p><b>2,910× faster than the single-core version</b></p><p>The conditions: hardware, input size and what it is compared against.</p></div></div>
+  <div class="panel" data-p="code"><div class="code"><div class="cbar"><span>nbody.cu</span><a href="#">View on GitHub</a></div><div class="lines"><span style="width:62%"></span><span style="width:48%"></span><span style="width:80%"></span><span style="width:70%"></span><span style="width:35%"></span><span style="width:74%"></span><span style="width:56%"></span><span style="width:40%"></span><span style="width:66%"></span><span style="width:30%"></span></div></div><p class="crumb">A short excerpt: the shared-memory force kernel, with a sentence on what to look at.</p></div>
+  <div class="panel" data-p="rep" id="nbody-report"><div class="rep"><div class="pic doc">Report cover, page 1</div><div class="txt"><p><b>N-body on GPUs: project report</b></p><p class="crumb">PDF, N pages. Cleaned copy: no student IDs or other students' names.</p><div class="row"><a class="btn" href="#">Read the report</a><a class="btn ghost" href="#">Download</a></div></div></div></div>
+</section>
+<section class="proj" id="clahe">
+  <div class="ph">
+    <div><p class="crumb">Project 4 of 5</p><h2>CLAHE</h2><p class="big">1334 megapixels per second on a Tesla K80</p></div>
+    <div class="row"><span class="tag">CUDA</span><span class="tag">Team of 3</span><div class="av"><span>JN</span><span>DT</span><span>PT</span></div></div>
+    <div class="row"><a class="btn ghost" href="#">Code</a><a class="btn ghost" href="#clahe-report">Report (PDF)</a></div>
+  </div>
+  <div class="tabs" role="tablist" aria-label="CLAHE">
+    <button role="tab" aria-selected="true" data-p="ov">Overview</button><button role="tab" aria-selected="false" data-p="how">How it works</button><button role="tab" aria-selected="false" data-p="res">Results</button><button role="tab" aria-selected="false" data-p="code">Code</button><button role="tab" aria-selected="false" data-p="rep">Report</button>
+  </div>
+  <div class="panel" data-p="ov"><div class="gal"><div class="pic g0">Main picture: Before and after</div><div class="pic">Picture 2</div><div class="pic">Picture 3</div></div>
+    <div class="txt"><p>Contrast enhancement on the GPU, about 24× the CPU version.</p><p>A few short paragraphs: what the task was, what we started from, and what made it hard.</p></div></div>
+  <div class="panel" data-p="how"><div class="txt"><p>The steps we took, in order, each with what it changed and why.</p><ol><li>Step and its effect</li><li>Step and its effect</li><li>Step and its effect</li></ol></div><div class="pic fig">Diagram or figure from the report (with caption)</div></div>
+  <div class="panel" data-p="res"><div class="pic fig">Chart: speed-up after each step</div><div class="txt"><p><b>1334 megapixels per second on a Tesla K80</b></p><p>The conditions: hardware, input size and what it is compared against.</p></div></div>
+  <div class="panel" data-p="code"><div class="code"><div class="cbar"><span>clahe.cu</span><a href="#">View on GitHub</a></div><div class="lines"><span style="width:62%"></span><span style="width:48%"></span><span style="width:80%"></span><span style="width:70%"></span><span style="width:35%"></span><span style="width:74%"></span><span style="width:56%"></span><span style="width:40%"></span><span style="width:66%"></span><span style="width:30%"></span></div></div><p class="crumb">A short excerpt: the per-tile histogram kernel, with a sentence on what to look at.</p></div>
+  <div class="panel" data-p="rep" id="clahe-report"><div class="rep"><div class="pic doc">Report cover, page 1</div><div class="txt"><p><b>CLAHE: project report</b></p><p class="crumb">PDF, N pages. Cleaned copy: no student IDs or other students' names.</p><div class="row"><a class="btn" href="#">Read the report</a><a class="btn ghost" href="#">Download</a></div></div></div></div>
+</section>
+<section class="proj" id="conv">
+  <div class="ph">
+    <div><p class="crumb">Project 3 of 5</p><h2>CUDA convolution</h2><p class="big">Up to 16.97× faster than the CPU</p></div>
+    <div class="row"><span class="tag">CUDA</span><span class="tag">Team of 3</span><div class="av"><span>JN</span><span>DT</span><span>PT</span></div></div>
+    <div class="row"><a class="btn ghost" href="#">Code</a><a class="btn ghost" href="#conv-report">Report (PDF)</a></div>
+  </div>
+  <div class="tabs" role="tablist" aria-label="CUDA convolution">
+    <button role="tab" aria-selected="true" data-p="ov">Overview</button><button role="tab" aria-selected="false" data-p="how">How it works</button><button role="tab" aria-selected="false" data-p="res">Results</button><button role="tab" aria-selected="false" data-p="code">Code</button><button role="tab" aria-selected="false" data-p="rep">Report</button>
+  </div>
+  <div class="panel" data-p="ov"><div class="gal"><div class="pic g0">Main picture: Filter output</div><div class="pic">Picture 2</div><div class="pic">Picture 3</div></div>
+    <div class="txt"><p>Image filtering moved to an NVIDIA Tesla K80.</p><p>A few short paragraphs: what the task was, what we started from, and what made it hard.</p></div></div>
+  <div class="panel" data-p="how"><div class="txt"><p>The steps we took, in order, each with what it changed and why.</p><ol><li>Step and its effect</li><li>Step and its effect</li><li>Step and its effect</li></ol></div><div class="pic fig">Diagram or figure from the report (with caption)</div></div>
+  <div class="panel" data-p="res"><div class="pic fig">Chart: speed-up after each step</div><div class="txt"><p><b>Up to 16.97× faster than the CPU</b></p><p>The conditions: hardware, input size and what it is compared against.</p></div></div>
+  <div class="panel" data-p="code"><div class="code"><div class="cbar"><span>convolution.cu</span><a href="#">View on GitHub</a></div><div class="lines"><span style="width:62%"></span><span style="width:48%"></span><span style="width:80%"></span><span style="width:70%"></span><span style="width:35%"></span><span style="width:74%"></span><span style="width:56%"></span><span style="width:40%"></span><span style="width:66%"></span><span style="width:30%"></span></div></div><p class="crumb">A short excerpt: the tiled convolution kernel, with a sentence on what to look at.</p></div>
+  <div class="panel" data-p="rep" id="conv-report"><div class="rep"><div class="pic doc">Report cover, page 1</div><div class="txt"><p><b>CUDA convolution: project report</b></p><p class="crumb">PDF, N pages. Cleaned copy: no student IDs or other students' names.</p><div class="row"><a class="btn" href="#">Read the report</a><a class="btn ghost" href="#">Download</a></div></div></div></div>
+</section>
+<section class="proj" id="kmeans">
+  <div class="ph">
+    <div><p class="crumb">Project 2 of 5</p><h2>K-means</h2><p class="big">17.31× faster with 56 threads</p></div>
+    <div class="row"><span class="tag">OpenMP</span><span class="tag">C</span><span class="tag">Team of 3</span><div class="av"><span>JN</span><span>DT</span><span>PT</span></div></div>
+    <div class="row"><a class="btn ghost" href="#">Code</a><a class="btn ghost" href="#kmeans-report">Report (PDF)</a></div>
+  </div>
+  <div class="tabs" role="tablist" aria-label="K-means">
+    <button role="tab" aria-selected="true" data-p="ov">Overview</button><button role="tab" aria-selected="false" data-p="how">How it works</button><button role="tab" aria-selected="false" data-p="res">Results</button><button role="tab" aria-selected="false" data-p="code">Code</button><button role="tab" aria-selected="false" data-p="rep">Report</button>
+  </div>
+  <div class="panel" data-p="ov"><div class="gal"><div class="pic g0">Main picture: Clusters</div><div class="pic">Picture 2</div><div class="pic">Picture 3</div></div>
+    <div class="txt"><p>Clustering parallelised with OpenMP.</p><p>A few short paragraphs: what the task was, what we started from, and what made it hard.</p></div></div>
+  <div class="panel" data-p="how"><div class="txt"><p>The steps we took, in order, each with what it changed and why.</p><ol><li>Step and its effect</li><li>Step and its effect</li><li>Step and its effect</li></ol></div><div class="pic fig">Diagram or figure from the report (with caption)</div></div>
+  <div class="panel" data-p="res"><div class="pic fig">Chart: speed-up after each step</div><div class="txt"><p><b>17.31× faster with 56 threads</b></p><p>The conditions: hardware, input size and what it is compared against.</p></div></div>
+  <div class="panel" data-p="code"><div class="code"><div class="cbar"><span>kmeans.c</span><a href="#">View on GitHub</a></div><div class="lines"><span style="width:62%"></span><span style="width:48%"></span><span style="width:80%"></span><span style="width:70%"></span><span style="width:35%"></span><span style="width:74%"></span><span style="width:56%"></span><span style="width:40%"></span><span style="width:66%"></span><span style="width:30%"></span></div></div><p class="crumb">A short excerpt: the parallel assignment step, with a sentence on what to look at.</p></div>
+  <div class="panel" data-p="rep" id="kmeans-report"><div class="rep"><div class="pic doc">Report cover, page 1</div><div class="txt"><p><b>K-means: project report</b></p><p class="crumb">PDF, N pages. Cleaned copy: no student IDs or other students' names.</p><div class="row"><a class="btn" href="#">Read the report</a><a class="btn ghost" href="#">Download</a></div></div></div></div>
+</section>
+<section class="proj" id="sobel">
+  <div class="ph">
+    <div><p class="crumb">Project 1 of 5</p><h2>Sobel filter</h2><p class="big">21.49× faster than the original C code</p></div>
+    <div class="row"><span class="tag">C</span><span class="tag">Team of 3</span><div class="av"><span>JN</span><span>DT</span><span>PT</span></div></div>
+    <div class="row"><a class="btn ghost" href="#">Code</a><a class="btn ghost" href="#sobel-report">Report (PDF)</a></div>
+  </div>
+  <div class="tabs" role="tablist" aria-label="Sobel filter">
+    <button role="tab" aria-selected="true" data-p="ov">Overview</button><button role="tab" aria-selected="false" data-p="how">How it works</button><button role="tab" aria-selected="false" data-p="res">Results</button><button role="tab" aria-selected="false" data-p="code">Code</button><button role="tab" aria-selected="false" data-p="rep">Report</button>
+  </div>
+  <div class="panel" data-p="ov"><div class="gal"><div class="pic g0">Main picture: Edge-detection output</div><div class="pic">Picture 2</div><div class="pic">Picture 3</div></div>
+    <div class="txt"><p>Edge detection on a 4096×4096 image, tuned step by step on an Intel Core i5-1235U.</p><p>A few short paragraphs: what the task was, what we started from, and what made it hard.</p></div></div>
+  <div class="panel" data-p="how"><div class="txt"><p>The steps we took, in order, each with what it changed and why.</p><ol><li>Step and its effect</li><li>Step and its effect</li><li>Step and its effect</li></ol></div><div class="pic fig">Diagram or figure from the report (with caption)</div></div>
+  <div class="panel" data-p="res"><div class="pic fig">Chart: speed-up after each step</div><div class="txt"><p><b>21.49× faster than the original C code</b></p><p>The conditions: hardware, input size and what it is compared against.</p></div></div>
+  <div class="panel" data-p="code"><div class="code"><div class="cbar"><span>sobel.c</span><a href="#">View on GitHub</a></div><div class="lines"><span style="width:62%"></span><span style="width:48%"></span><span style="width:80%"></span><span style="width:70%"></span><span style="width:35%"></span><span style="width:74%"></span><span style="width:56%"></span><span style="width:40%"></span><span style="width:66%"></span><span style="width:30%"></span></div></div><p class="crumb">A short excerpt: the optimised inner loop, with a sentence on what to look at.</p></div>
+  <div class="panel" data-p="rep" id="sobel-report"><div class="rep"><div class="pic doc">Report cover, page 1</div><div class="txt"><p><b>Sobel filter: project report</b></p><p class="crumb">PDF, N pages. Cleaned copy: no student IDs or other students' names.</p><div class="row"><a class="btn" href="#">Read the report</a><a class="btn ghost" href="#">Download</a></div></div></div></div>
+</section>
+<p class="note">Each project carries its own team (tag and avatars), because teammates can change between projects of the same course; the course header shows no team. Each project on a course page is a full write-up with five tabs: Overview (pictures and description), How it works (steps and a figure), Results (chart and conditions), Code (an excerpt with a GitHub link) and Report (the PDF). Without JavaScript all five show one after another. The main project also links to its own full page. The step strip appears only when a course's projects form a sequence, as ECE415's do; a course like ECE348 just lists its projects.</p>
+
+</main>
+<script>
+document.documentElement.classList.add('js');
+document.querySelectorAll('.proj').forEach(p=>{const tabs=p.querySelectorAll('[role=tab]'),pans=p.querySelectorAll('.panel');
+ const show=k=>{tabs.forEach(t=>t.setAttribute('aria-selected',t.dataset.p==k));pans.forEach(x=>x.classList.toggle('on',x.dataset.p==k))};
+ tabs.forEach(t=>t.onclick=()=>show(t.dataset.p));show('ov');
+ p.querySelector('a[href$="-report"]').onclick=e=>{show('rep')}});
+</script>
+<footer class="foot">
+  <div><b>Jason Nikas</b><p>Electrical and Computer Engineering, University of Thessaly</p></div>
+  <div class="links"><a href="#">GitHub</a><a href="#">LinkedIn</a><a href="#">Email</a><a href="https://fpga.njason.dev">Live FPGA Lab</a><a href="https://acrispycookie.dev">Minecraft plugins</a></div>
+  <small><span>© 2026 Jason Nikas</span><span>Built with Astro, self-hosted</span></small>
+</footer>
+<p class="note" style="max-width:1120px;margin:16px auto 0">Wireframe only: layout and copy, no colours or type yet. <a href="index.html" style="color:var(--fg)">Back to the home wireframe</a></p>
+</body></html>

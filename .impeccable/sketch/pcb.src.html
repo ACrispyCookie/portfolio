@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Board direction sketch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--mask:#0b1d21;--mask2:#11282d;--mask3:#183539;--silk:#eaf2f1;--dim:#93aeb0;--cu:#2a5a60;--cyan:#41e2f2;--gold:#d8b46a;--led:#5dffa8;color-scheme:dark}
+*{box-sizing:border-box}html,body{margin:0}
+body{width:1440px;height:900px;overflow:hidden;background:var(--mask);color:var(--silk);font:16px/1.5 "Hanken Grotesk",system-ui,sans-serif;position:relative}
+/* copper pour hatch, very faint */
+body::before{content:"";position:absolute;inset:0;background:
+ radial-gradient(circle at 1px 1px,rgba(65,226,242,.07) 1px,transparent 1.5px) 0 0/22px 22px;pointer-events:none}
+svg.traces{position:absolute;inset:0;pointer-events:none}
+.top{position:relative;display:flex;align-items:center;justify-content:space-between;padding:22px 80px}
+.top b{font:700 1.05rem "Bricolage Grotesque";letter-spacing:-.01em}
+.top nav{display:flex;gap:6px}.top nav a{color:var(--silk);text-decoration:none;padding:7px 14px;border-radius:999px;font-size:.95rem}
+.top nav a:hover{background:var(--mask3)}
+.pill{display:inline-flex;align-items:center;gap:8px;background:var(--mask3);border-radius:999px;padding:7px 14px;font-size:.92rem;color:var(--silk);text-decoration:none;box-shadow:inset 0 0 0 1px rgba(65,226,242,.25)}
+.led{width:9px;height:9px;border-radius:50%;background:var(--led);box-shadow:0 0 0 3px rgba(93,255,168,.18)}
+.hero{position:relative;margin:14px 80px 0;display:grid;grid-template-columns:330px 1fr 440px;gap:40px;align-items:stretch}
+.cover{border-radius:26px;height:430px;background:url(PHOTO) center/cover;box-shadow:0 0 0 1px rgba(234,242,241,.08)}
+.who{align-self:center;display:grid;gap:18px}
+.who h1{font:800 5.4rem/0.95 "Bricolage Grotesque";letter-spacing:-.035em;margin:0}
+.who p{margin:0;font-size:1.2rem;color:var(--dim);max-width:30ch}
+.btns{display:flex;gap:10px}
+.btn{border-radius:999px;padding:11px 20px;font-weight:600;text-decoration:none;font-size:.98rem}
+.btn.p{background:var(--silk);color:var(--mask)}.btn.g{color:var(--silk);box-shadow:inset 0 0 0 1.5px rgba(234,242,241,.28)}
+/* the live board region */
+.board{position:relative;border-radius:28px;background:var(--mask2);padding:26px;display:grid;gap:18px;align-content:start;box-shadow:inset 0 0 0 1.5px rgba(65,226,242,.35),0 24px 48px -24px rgba(0,0,0,.6)}
+.board .hdr{display:flex;align-items:center;justify-content:space-between}
+.board .hdr span{display:flex;gap:10px;align-items:center;font-weight:600}
+.pins{display:flex;gap:6px}.pins i{width:12px;height:12px;border-radius:50%;background:var(--gold);box-shadow:inset 0 0 0 3px #b08c43}
+.board h2{font:700 1.75rem/1.15 "Bricolage Grotesque";margin:0;letter-spacing:-.015em}
+.board h2 em{font-style:normal;color:var(--cyan)}
+.meters{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.meters div{background:var(--mask3);border-radius:16px;padding:12px 14px}
+.meters small{display:block;color:var(--dim);font-size:.85rem}.meters b{font:700 1.35rem "Bricolage Grotesque"}
+.wave{height:54px;border-radius:14px;background:var(--mask3);overflow:hidden}
+.board .btn.p{background:var(--cyan);color:#062126;justify-self:start}
+.board .note{color:var(--dim);font-size:.85rem}
+.now{position:relative;margin:34px 80px 0;display:grid;grid-template-columns:auto 1fr 1fr;gap:16px;align-items:stretch}
+.now > span{align-self:center;color:var(--dim);font-size:.95rem;padding-right:8px}
+.w{background:var(--mask2);border-radius:22px;padding:16px;display:grid;grid-template-columns:120px 1fr;gap:16px;align-items:center}
+.w .t{height:78px;border-radius:14px;background:linear-gradient(135deg,var(--cu),var(--mask3))}
+.w h3{margin:0;font:700 1.15rem "Bricolage Grotesque"}.w p{margin:2px 0 0;color:var(--dim);font-size:.95rem}
+</style></head><body>
+<svg class="traces" viewBox="0 0 1440 900" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M1180 524 V640 Q1180 660 1160 660 H760 Q740 660 740 680 V900" stroke="#2a5a60" stroke-width="3"/>
+  <path d="M1220 524 V700 Q1220 720 1240 720 H1440" stroke="#2a5a60" stroke-width="3"/>
+  <path d="M1260 524 V610 Q1260 630 1280 630 H1440" stroke="#41e2f2" stroke-width="2.5" opacity=".9"/>
+  <circle cx="740" cy="900" r="7" fill="#d8b46a"/><circle cx="1260" cy="524" r="6" fill="#d8b46a"/><circle cx="1220" cy="524" r="6" fill="#d8b46a"/><circle cx="1180" cy="524" r="6" fill="#d8b46a"/>
+</svg>
+<header class="top"><b>Jason Nikas</b><nav><a href="#">Projects</a><a href="#">Skills</a><a href="#">Timeline</a><a href="#">Contact</a></nav><a class="pill" href="#"><i class="led"></i>Live FPGA Lab</a></header>
+<section class="hero">
+  <div class="cover" role="img" aria-label="Jason from behind, facing Mount Fuji"></div>
+  <div class="who">
+    <h1>Jason<br>Nikas</h1>
+    <p>Undergraduate student in Electrical and Computer Engineering at the University of Thessaly</p>
+    <div class="btns"><a class="btn p" href="#">GitHub</a><a class="btn g" href="#">LinkedIn</a><a class="btn g" href="#">Contact</a></div>
+  </div>
+  <div class="board">
+    <div class="hdr"><span><i class="led"></i>Live FPGA Lab</span><div class="pins"><i></i><i></i><i></i><i></i></div></div>
+    <h2>The Smart Zynq SL is running <em>GPGPU n-body</em></h2>
+    <div class="meters"><div><small>Status</small><b>In use</b></div><div><small>Queue</small><b>1 waiting</b></div><div><small>Temperature</small><b>47 °C</b></div></div>
+    <svg class="wave" viewBox="0 0 388 54" preserveAspectRatio="none"><polyline fill="none" stroke="#41e2f2" stroke-width="2" points="0,40 30,38 60,30 90,34 120,22 150,26 180,18 210,24 240,14 270,20 300,16 330,22 360,12 388,18"/></svg>
+    <a class="btn p" href="#">Open the lab</a>
+    <span class="note">Example state. The real panel reads the board's live stream.</span>
+  </div>
+</section>
+<section class="now"><span>Currently working on</span>
+  <div class="w"><div class="t"></div><div><h3>GPGPU v2</h3><p>Graphics, DDR, warp scheduling</p></div></div>
+  <div class="w"><div class="t"></div><div><h3>Homelab</h3><p>Hosts the live FPGA lab</p></div></div>
+</section>
+</body></html>

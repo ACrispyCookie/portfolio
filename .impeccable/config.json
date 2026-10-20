@@ -1,0 +1,24 @@
+{
+  "hook": {
+    "enabled": true,
+    "limits": {
+      "maxFindings": 5,
+      "maxChars": 8000
+    }
+  },
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "tight-leading",
+        "value": "*",
+        "files": [
+          ".impeccable/sketch/pcb.src.html"
+        ],
+        "createdAt": "2026-10-20T14:50:00.403Z",
+        "reason": "Claude: two-line display name at 0.95 line height is intentional display setting in a throwaway direction sketch; body text is 1.5"
+      }
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+reports/
+research/
+docs/GRADES.md
+node_modules/
+dist/
+.astro/
+.taste-skill/
+.gate/
+test-results/
+playwright-report/
+.superpowers/

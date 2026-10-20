@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>GPGPU Project Wireframe</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+:root{--bg:#f2f3f3;--box:#ffffff;--box2:#e4e6e6;--line:#c9cdcd;--fg:#1d2222;--muted:#5d6666;--live:#1b8a5a;--l1:#6b7a7a;--l2:#9aa6a6;--l3:#3f4a4a}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141717;--box:#1e2222;--box2:#2a2f2f;--line:#3a4040;--fg:#e8eded;--muted:#9aa5a5;--live:#3fcf8e;--l1:#8d9b9b;--l2:#5f6b6b;--l3:#c4cccc;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#141717;--box:#1e2222;--box2:#2a2f2f;--line:#3a4040;--fg:#e8eded;--muted:#9aa5a5;--live:#3fcf8e;--l1:#8d9b9b;--l2:#5f6b6b;--l3:#c4cccc;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:32px}
+main{max-width:1120px;margin:0 auto;display:grid;gap:72px}
+main>*{min-width:0}
+h1,h2,h3,p{margin:0}
+h2{font-size:1.6rem;margin-bottom:6px}
+.sub{color:var(--muted);margin-bottom:20px;max-width:65ch}
+.note{font-size:.85rem;color:var(--muted);border-left:3px solid var(--line);padding-left:10px;margin-top:14px;max-width:80ch}
+.box{background:var(--box);border-radius:16px;padding:20px;min-width:0}
+.pic{background:var(--box2);border-radius:12px;display:grid;place-items:center;color:var(--muted);font-size:.85rem;text-align:center;padding:12px}
+.btn{display:inline-block;background:var(--fg);color:var(--bg);border-radius:999px;padding:8px 16px;font-size:.9rem;text-decoration:none}
+.btn.ghost{background:transparent;color:var(--fg);box-shadow:inset 0 0 0 1.5px var(--line)}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.tag{background:var(--box2);border-radius:999px;padding:2px 10px;font-size:.8rem;color:var(--muted)}
+.av{display:flex}.av span{width:28px;height:28px;border-radius:50%;background:var(--line);border:2px solid var(--box);margin-left:-8px;font-size:.6rem;display:grid;place-items:center;color:var(--fg)}.av span:first-child{margin-left:0}
+
+/* top bar + footer */
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;margin:-32px 0 32px;padding-block:12px;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px)}
+.topbar .in{max-width:1120px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.topbar .name{font-weight:700;color:var(--fg);text-decoration:none}
+.topbar nav{display:flex;gap:4px}
+.topbar nav a{color:var(--fg);text-decoration:none;padding:6px 12px;border-radius:999px;font-size:.92rem}
+.topbar nav a[aria-current]{background:var(--box2)}
+.topbar .lablink{display:inline-flex;align-items:center;gap:6px;background:var(--fg);color:var(--bg);text-decoration:none;border-radius:999px;padding:6px 12px;font-size:.88rem}
+.topbar .lablink i{width:8px;height:8px;border-radius:50%;background:var(--live)}
+.menu{display:none}
+.menu summary{list-style:none;cursor:pointer;background:var(--box);border-radius:999px;padding:6px 14px;font-size:.9rem}
+.menu summary::-webkit-details-marker{display:none}
+.menu .sheet{position:absolute;right:0;left:0;top:52px;background:var(--box);border-radius:18px;padding:10px;display:grid;gap:2px;box-shadow:0 0 0 1px var(--line)}
+.menu .sheet a{padding:12px 14px;border-radius:12px;color:var(--fg);text-decoration:none}
+.menu .sheet a:hover{background:var(--box2)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.foot{color:var(--fg);max-width:1120px;margin:72px auto 0;background:var(--box);border-radius:24px;padding:24px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px;align-items:end}
+.foot b{font-size:1.2rem}
+.foot p{color:var(--muted);font-size:.9rem;margin-top:4px}
+.foot .links{display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:flex-end}
+.foot .links a{color:var(--fg);font-size:.92rem}
+.foot small{grid-column:1/-1;color:var(--muted);border-top:1px solid var(--box2);padding-top:14px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+@media (max-width:760px){.topbar nav,.topbar .lablink{display:none}.menu{display:block}.topbar .in{position:relative}.foot{grid-template-columns:1fr}.foot .links{justify-content:flex-start}}
+
+
+.crumb{font-size:.9rem;color:var(--muted)}.crumb a{color:var(--fg)}
+.phead{display:grid;gap:14px}
+.phead h1{font-size:3rem;line-height:1.05;max-width:18ch}
+.phead .lead{font-size:1.25rem;max-width:44ch}
+.media{aspect-ratio:16/8;border-radius:24px}
+.nums{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.nums .box b{display:block;font-size:2rem;line-height:1.1}.nums .box span{color:var(--muted);font-size:.9rem}
+.layout{display:grid;grid-template-columns:200px minmax(0,1fr);gap:48px;align-items:start}
+.layout>*{min-width:0}
+.toc{position:sticky;top:80px;display:grid;gap:2px;font-size:.92rem}
+.toc a{color:var(--muted);text-decoration:none;padding:6px 10px;border-radius:10px}
+.toc a:first-child{color:var(--fg);background:var(--box2)}
+.body{display:grid;gap:56px;grid-template-columns:minmax(0,1fr)}
+.body section{display:grid;gap:14px;max-width:72ch;min-width:0;grid-template-columns:minmax(0,1fr)}
+.body p{margin:0}
+.body ul{margin:0;padding-left:20px;display:grid;gap:6px}
+.fig{display:grid;gap:8px}.fig .pic{aspect-ratio:16/9}.fig small{color:var(--muted)}
+.team{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.person{display:grid;grid-template-columns:44px 1fr;gap:12px;align-items:center}
+.person span.a{width:44px;height:44px;border-radius:50%;background:var(--line);display:grid;place-items:center;font-size:.8rem}
+.person small{display:block;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}.chips a{background:var(--box2);border-radius:999px;padding:5px 12px;color:var(--fg);text-decoration:none;font-size:.9rem}
+.next{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.next a{color:var(--fg);text-decoration:none}.next small{color:var(--muted);display:block}
+.next a:last-child{text-align:right}
+@media (max-width:860px){.layout{grid-template-columns:1fr}.toc{position:static;display:flex;overflow-x:auto;gap:4px;white-space:nowrap}.nums{grid-template-columns:1fr 1fr}.team{grid-template-columns:1fr}.phead h1{font-size:2.3rem}.media{aspect-ratio:4/3}}
+
+</style></head><body>
+<header class="topbar"><div class="in">
+  <a class="name" href="index.html">Jason Nikas</a>
+  <nav aria-label="Main"><a href="index.html#projects">Projects</a><a href="index.html#skills">Skills</a><a href="index.html#timeline">Timeline</a><a href="index.html#contact">Contact</a></nav>
+  <a class="lablink" href="https://fpga.njason.dev"><i></i>Live FPGA Lab</a>
+  <details class="menu"><summary>Menu</summary><div class="sheet"><a href="index.html#projects">Projects</a><a href="index.html#skills">Skills</a><a href="index.html#timeline">Timeline</a><a href="index.html#contact">Contact</a><a href="https://fpga.njason.dev">Live FPGA Lab</a></div></details>
+</div></header>
+<main>
+
+<div class="phead">
+  <p class="crumb"><a href="course.html">ECE338 Parallel Computer Architecture</a> / RISC-V GPGPU</p>
+  <h1>RISC-V GPGPU</h1>
+  <p class="lead">32 RISC-V cores we designed, running on a real FPGA</p>
+  <div class="row"><span class="tag">ECE338 · 9</span><span class="tag">Team of 3</span><span class="tag">Live demo</span><span class="tag">v2 in progress</span></div>
+  <div class="row"><a class="btn" href="https://fpga.njason.dev">Run the demo</a><a class="btn ghost" href="#">Code</a><a class="btn ghost" href="#">Team repo</a></div>
+</div>
+
+<div class="pic media">Large picture or video: the n-body demo running on the board, or the Vivado floorplan</div>
+
+<div class="nums">
+  <div class="box"><b>2.38×</b><span>faster than the ARM core on the same chip, for one n-body step</span></div>
+  <div class="box"><b>32</b><span>RISC-V cores running in lockstep</span></div>
+  <div class="box"><b>1/17</b><span>of the ARM core's clock speed</span></div>
+  <div class="box"><b>Live</b><span>runs on the Smart Zynq SL in the lab</span></div>
+</div>
+
+<div class="layout">
+  <nav class="toc" aria-label="On this page"><a href="#what">What it is</a><a href="#hard">Why it's hard</a><a href="#how">How it works</a><a href="#results">Results</a><a href="#test">How we tested it</a><a href="#mine">My part</a><a href="#nextv">What's next</a><a href="#tools">Tools</a><a href="#team">Team</a></nav>
+  <div class="body">
+    <section id="what"><h2>What it is</h2><p>Short plain-language explanation: a small graphics-card-style processor, built from RISC-V cores, that a normal computer sends work to.</p></section>
+    <section id="hard"><h2>Why it's hard</h2><p>Two or three sentences for a non-specialist.</p></section>
+    <section id="how"><h2>How it works</h2><p>Architecture in a few short paragraphs, with one diagram.</p><div class="fig"><div class="pic">Diagram: host → shared fetch and decode → 32 lanes → memory</div><small>Caption saying what the diagram shows.</small></div></section>
+    <section id="results"><h2>Results</h2><p>The numbers with their conditions, and one chart.</p><div class="fig"><div class="pic">Chart: GPGPU vs ARM Cortex-A9, time per n-body step</div><small>Caption with board, clock and input size.</small></div></section>
+    <section id="test"><h2>How we tested it</h2><ul><li>Bullet</li><li>Bullet</li><li>Bullet</li></ul></section>
+    <section id="mine"><h2>My part</h2><p>What I did within the team.</p></section>
+    <section id="nextv"><h2>What's next</h2><p>Version 2: graphics, DDR memory, branch divergence and warp scheduling.</p></section>
+    <section id="tools"><h2>Tools</h2><div class="chips"><a href="index.html#skills">SystemVerilog</a><a href="index.html#skills">RISC-V</a><a href="index.html#skills">Vivado/Vitis</a><a href="index.html#skills">ARM/Zynq</a><a href="index.html#skills">Python</a><a href="index.html#skills">C</a></div><p class="crumb">Each tool opens the skills explorer with that tool selected.</p></section>
+    <section id="team"><h2>Team</h2><div class="team">
+      <div class="person"><span class="a">JN</span><div><b>Jason Nikas</b><small>GitHub</small></div></div>
+      <div class="person"><span class="a">DT</span><div><b>Dimitrios Tsiantos</b><small>GitHub, website</small></div></div>
+      <div class="person"><span class="a">PT</span><div><b>Panagiotis Nikolaos Tsogkas</b><small>GitHub</small></div></div>
+    </div></section>
+  </div>
+</div>
+
+<div class="box next"><a href="#"><small>Previous project</small><b>Live FPGA Lab</b></a><a href="#"><small>Next project</small><b>N-body on GPUs</b></a></div>
+
+</main>
+<footer class="foot">
+  <div><b>Jason Nikas</b><p>Electrical and Computer Engineering, University of Thessaly</p></div>
+  <div class="links"><a href="#">GitHub</a><a href="#">LinkedIn</a><a href="#">Email</a><a href="https://fpga.njason.dev">Live FPGA Lab</a><a href="https://acrispycookie.dev">Minecraft plugins</a></div>
+  <small><span>© 2026 Jason Nikas</span><span>Built with Astro, self-hosted</span></small>
+</footer>
+<p class="note" style="max-width:1120px;margin:16px auto 0">Wireframe only: layout and copy, no colours or type yet. <a href="index.html" style="color:var(--fg)">Back to the home wireframe</a></p>
+</body></html>

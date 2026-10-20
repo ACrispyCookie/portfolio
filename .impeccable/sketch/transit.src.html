@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dusk line direction sketch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--dusk:#121a2b;--d2:#1a2539;--d3:#24314a;--sky:#f4ece6;--dim:#a8b3c6;--cyan:#3fd3e6;--peach:#f2b49c;--gold:#e8c46a;color-scheme:dark}
+*{box-sizing:border-box}html,body{margin:0}
+body{width:1440px;height:900px;overflow:hidden;color:var(--sky);font:16px/1.55 "Zen Kaku Gothic New",system-ui,sans-serif;font-feature-settings:"palt";
+ background:linear-gradient(180deg,#1b2433 0%,var(--dusk) 38%,#0f1624 100%)}
+.top{display:flex;align-items:center;justify-content:space-between;padding:22px 80px}
+.top b{font:900 1.1rem "Zen Maru Gothic"}
+.top nav{display:flex;gap:4px}.top nav a{color:var(--sky);text-decoration:none;padding:7px 14px;border-radius:999px;font-size:.95rem}
+.lines{display:flex;gap:6px;align-items:center}
+.lines i{width:22px;height:8px;border-radius:4px}
+.hero{margin:10px 80px 0;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:48px;align-items:center}
+.left{display:grid;grid-template-columns:300px 1fr;gap:32px;align-items:center}
+.cover{height:420px;border-radius:150px 150px 28px 28px;background:url(PHOTO) center 30%/cover}
+.who{display:grid;gap:16px}
+.who h1{margin:0;font:900 4.6rem/1 "Zen Maru Gothic";letter-spacing:-.01em}
+.who p{margin:0;color:var(--dim);font-size:1.12rem;max-width:28ch}
+.btns{display:flex;gap:10px;flex-wrap:wrap}
+.btn{border-radius:999px;padding:10px 18px;font-weight:700;text-decoration:none;font-size:.95rem}
+.btn.p{background:var(--sky);color:var(--dusk)}.btn.g{color:var(--sky);box-shadow:inset 0 0 0 1.5px rgba(244,236,230,.3)}
+/* departure board */
+.board{background:#0b111d;border-radius:28px;padding:24px 26px;display:grid;gap:4px;box-shadow:inset 0 0 0 1.5px rgba(63,211,230,.35)}
+.bh{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.bh b{font:700 1.1rem "Zen Maru Gothic";display:flex;gap:10px;align-items:center}
+.bh b i{width:10px;height:10px;border-radius:50%;background:#5dffa8}
+.bh span{color:var(--dim);font-size:.9rem}
+.row{display:grid;grid-template-columns:44px 1fr auto;gap:14px;align-items:center;padding:12px 0;border-top:1px solid rgba(244,236,230,.08)}
+.badge{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font:900 .95rem "Zen Maru Gothic";color:#0b111d}
+.row .k{color:var(--dim);font-size:.85rem;display:block}.row .v{font:700 1.3rem "Zen Maru Gothic"}
+.row .r{color:var(--cyan);font:700 1rem "Zen Maru Gothic"}
+.board .btn.p{background:var(--cyan);color:#0b111d;justify-self:start;margin-top:12px}
+.now{margin:40px 80px 0;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.w{background:var(--d2);border-radius:22px;padding:16px 18px;display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center}
+.w .badge{width:52px;height:52px;border-radius:16px}
+.w .h3{margin:0;font:700 1.15rem "Zen Maru Gothic"}.w p{margin:0;color:var(--dim);font-size:.95rem}
+.w a{color:var(--sky);font-weight:700;text-decoration:none;border-radius:999px;padding:8px 14px;box-shadow:inset 0 0 0 1.5px rgba(244,236,230,.25);font-size:.9rem}
+.track{position:absolute;left:0;right:0;bottom:70px;height:8px;background:linear-gradient(90deg,var(--cyan) 0 40%,var(--peach) 40% 70%,var(--gold) 70%);opacity:.9}
+</style></head><body>
+<header class="top"><b>Jason Nikas</b><nav><a href="#">Projects</a><a href="#">Skills</a><a href="#">Timeline</a><a href="#">Contact</a></nav><span class="lines"><i style="background:var(--cyan)"></i><i style="background:var(--peach)"></i><i style="background:var(--gold)"></i></span></header>
+<section class="hero">
+  <div class="left">
+    <div class="cover" role="img" aria-label="Jason from behind, facing Mount Fuji"></div>
+    <div class="who"><h1>Jason Nikas</h1><p>Undergraduate student in Electrical and Computer Engineering at the University of Thessaly</p>
+      <div class="btns"><a class="btn p" href="#">GitHub</a><a class="btn g" href="#">LinkedIn</a><a class="btn g" href="#">Contact</a></div></div>
+  </div>
+  <div class="board">
+    <div class="bh"><b><i></i>Live FPGA Lab</b><span>Example state</span></div>
+    <div class="row"><span class="badge" style="background:var(--cyan)">NOW</span><div><span class="k">Running on the Smart Zynq SL</span><span class="v">GPGPU n-body</span></div><span class="r">In use</span></div>
+    <div class="row"><span class="badge" style="background:var(--peach)">Q</span><div><span class="k">Queue</span><span class="v">1 waiting</span></div><span class="r"></span></div>
+    <div class="row"><span class="badge" style="background:var(--gold)">°C</span><div><span class="k">Board temperature</span><span class="v">47 °C</span></div><span class="r">Healthy</span></div>
+    <a class="btn p" href="#">Open the lab</a>
+  </div>
+</section>
+<section class="now">
+  <div class="w"><span class="badge" style="background:var(--cyan)"></span><div><h2 class="h3">GPGPU v2</h2><p>Graphics, DDR, warp scheduling</p></div><a href="#">Run the demo</a></div>
+  <div class="w"><span class="badge" style="background:var(--peach)"></span><div><h2 class="h3">Homelab</h2><p>Hosts the live FPGA lab</p></div><a href="#">Learn more</a></div>
+</section>
+<div class="track"></div>
+</body></html>

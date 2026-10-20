@@ -4,4 +4,9 @@ import Hero from '../components/Hero.astro';
 ---
 <Base title="Jason Nikas" description="Jason Nikas, Electrical and Computer Engineering student at the University of Thessaly. Projects from code down to hardware: GPUs on FPGAs, CUDA, operating systems and distributed systems." home>
   <Hero />
+  <Fragment slot="scripts">
+    <script>
+      import '../scripts/board-client';
+    </script>
+  </Fragment>
 </Base>

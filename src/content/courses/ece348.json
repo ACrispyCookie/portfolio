@@ -1,0 +1,8 @@
+{
+  "code": "ECE348",
+  "name": "Distributed Systems",
+  "grade": 9.5,
+  "sequence": false,
+  "order": 8,
+  "featuredProject": "Distributed runtime"
+}

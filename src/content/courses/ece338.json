@@ -1,0 +1,8 @@
+{
+  "code": "ECE338",
+  "name": "Parallel Computer Architecture",
+  "grade": 9,
+  "sequence": false,
+  "order": 9,
+  "featuredProject": "GPGPU"
+}

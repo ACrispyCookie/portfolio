@@ -315,7 +315,7 @@ Project dates (for project pages, not the timeline): GPGPU (ECE338) ~03/2026 –
   - High school 09/2019 – 06/2022 confirmed for the timeline.
 - ✅ **Styled mock v4–v6 decisions (Jason, 2026-10-20):**
   - Hero: photo with "Currently working on" under it (left), name, one sentence, buttons and a compact live card (right). A small photo crop is fine.
-  - Hero sentence approved: "I build systems from code down to hardware: GPUs on FPGAs, CUDA programs, operating systems and distributed systems."
+  - Hero sentence approved: "I build systems from code down to hardware: GPUs on FPGAs, CUDA programs, operating systems and distributed systems." Changed by Jason (2026-10-21): "operating systems" overstated the OS work, so the sentence now ends "…CUDA programs, filesystems and distributed runtimes." (FUSE filesystem, ECE348 runtime) ✅
   - Hero buttons: See my projects (highlighted), GitHub, LinkedIn. No Contact button.
   - Live FPGA Lab mentioned less: removed from the footer and the contact card. The top-bar pill appears only once the hero widget is off screen.
   - Contact's last row and a footer link: "Older portfolio" (acrispycookie.dev).

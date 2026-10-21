@@ -146,7 +146,7 @@ Everything else is a section on its course page only. That includes homeworks an
        - Homelab: "Web, media, remote access, monitoring", to `/projects/homelab`.
    - **Right column:**
      - "Jason Nikas", very large, in two lines;
-     - one sentence on what he does: "I build systems from code down to hardware: GPUs on FPGAs, CUDA programs, operating systems and distributed systems." (Jason approved it);
+     - one sentence on what he does: "I build systems from code down to hardware: GPUs on FPGAs, CUDA programs, filesystems and distributed runtimes." (Jason approved it);
      - smaller: "Electrical and Computer Engineering student at the University of Thessaly";
      - buttons: **See my projects** (primary, to `#projects`), GitHub and LinkedIn (secondary, with their logos). On phone, See my projects spans the full width with the other two side by side under it.
      - the compact live lab widget (section 7.2).

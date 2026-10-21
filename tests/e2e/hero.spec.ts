@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const SENTENCE = 'I build systems from code down to hardware: GPUs on FPGAs, CUDA programs, operating systems and distributed systems.';
+const SENTENCE = 'I build systems from code down to hardware: GPUs on FPGAs, CUDA programs, filesystems and distributed runtimes.';
 const WIDTHS: [number, number, boolean][] = [
   [1440, 900, false], [1280, 720, false], [1100, 800, false], [1024, 768, false],
   [800, 1000, false], [760, 1000, true], [390, 844, true], [360, 640, true],

@@ -91,6 +91,7 @@ The site is a showcase only. It carries no job-seeking or availability message a
 | Course page | `/courses/<code>` (e.g. `/courses/ece415`) | Every project of that course, each in full (section 5.3) |
 | Course project page | `/courses/<code>/<project>` | Only for the main course projects (section 5.2) |
 | Personal project page | `/projects/<name>` | Live FPGA Lab, DVD Logo FPGA, Homelab (section 5.2) |
+| All projects | `/projects` | Every project and course on the site, as a list (section 5.4a; Jason, 2026-10-21) |
 
 **Which projects get their own page:** only the ten main projects.
 
@@ -107,6 +108,11 @@ The site is a showcase only. It carries no job-seeking or availability message a
 Everything else is a section on its course page only. That includes homeworks and assignments, such as ECE338 HW1–3, ECE433 HW1–2 and the ECE436 assignments.
 
 **Course pages:** one per course with a project on the site. There are 11: ECE338, ECE415, ECE455, ECE436, ECE433, ECE348, ECE321, ECE318, ECE494, ECE333, ECE340.
+
+**All projects page (Jason, 2026-10-21)** — section 5.4a
+- A plain list, no cards: a header with the counts ("28 projects · 11 courses", computed), then **Personal projects** (Homelab, Live FPGA Lab, DVD Logo FPGA → their pages), then the **11 courses** in home order. Each course is a row: code, name and grade linking to the course page; its main project first (→ project page), then its smaller projects (→ their course-page sections).
+- No tool filter (Jason: fine without it).
+- **Reached from:** a "See all 28 projects and 11 courses" link at the end of the home Projects section and under Other projects; a footer link named **Projects** on every page; the top-bar **Projects** link, which jumps to `#projects` on home and opens `/projects` on every other page.
 
 **Linking**
 

@@ -25,10 +25,16 @@ describe('buildTracePath', () => {
   test('no start element: a straight run from above the first pad', () => {
     const s = buildTracePath({ railX: 18.5, start: null, turnY: 0, pads: [800] });
     expect(s.d).toBe('M18.5 760 V800');
+    expect(s.railTop).toBe(760);
+  });
+
+  test('railTop is where the straight run down the rail begins (after the bends)', () => {
+    expect(r.railTop).toBe(742);
   });
 
   test('a start already on the rail runs straight down', () => {
     const s = buildTracePath({ railX: 11, start: { x: 20, y: 500 }, turnY: 526, pads: [700] });
     expect(s.d).toBe('M11 500 V700');
+    expect(s.railTop).toBe(500);
   });
 });

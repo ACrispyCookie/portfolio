@@ -1,0 +1,38 @@
+/* Timeline (spec §5.1 item 6): lanes on desktop, rails on phone. The quiet stretch is a plain break: the ground
+   colour laid over every lane's line and bar, no stripes or gradient. */
+.education { --c: var(--color-cyan); }
+.work { --c: var(--color-gold); }
+.teaching { --c: var(--color-mint); }
+
+.tlw { --m: 12px; display: grid; grid-template-columns: 56px repeat(3, minmax(0, 1fr)); column-gap: 18px; }
+.lanehead { font-weight: 600; padding-bottom: 12px; display: flex; align-items: center; gap: 8px; color: var(--color-silk); }
+.lanehead::before { content: ""; width: 11px; height: 11px; border-radius: 50%; background: var(--c); }
+.axis, .lane { position: relative; height: calc(var(--months) * var(--m)); }
+.lane::before { content: ""; position: absolute; left: 5px; top: 0; bottom: 0; width: 2px; border-radius: 2px; background: var(--color-hover); }
+.axis span { position: absolute; left: 0; font-size: var(--text-small); color: var(--color-dim); transform: translateY(-50%); }
+.ev { position: absolute; left: 0; right: 0; top: calc(var(--a) * var(--m)); display: grid; grid-template-columns: 12px minmax(0, 1fr); gap: 14px; }
+.ev i { display: block; width: 12px; height: calc(var(--n) * var(--m)); min-height: 12px; border-radius: 6px; background: var(--c); }
+.ev > div { line-height: 1.35; color: var(--color-silk); }
+.ev b { font-weight: 600; }
+.ev small { display: block; color: var(--color-dim); font-size: var(--text-small); margin-top: 2px; }
+.ev a, .tll a { color: var(--color-silk); }
+.brk { position: absolute; left: -4px; width: 20px; z-index: 2; background: var(--color-mask); }
+
+.tll { display: none; }
+.tlh { display: flex; gap: 16px; flex-wrap: wrap; font-size: var(--text-small); margin-bottom: 10px; color: var(--color-silk); }
+.tlh span { display: flex; gap: 7px; align-items: center; }
+.tlh span::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--c); }
+.tll .it { display: grid; grid-template-columns: 14px 14px 14px minmax(0, 1fr); column-gap: 3px; min-height: 68px; }
+.tll .it > div { padding: 9px 0 9px 12px; color: var(--color-silk); }
+.tll b { font-weight: 600; }
+.tll small { display: block; color: var(--color-dim); font-size: var(--text-small); }
+.r { position: relative; }
+.r::before { content: ""; position: absolute; left: 6px; top: 0; bottom: 0; width: 2px; background: var(--color-hover); }
+.r.a::before, .r.n::before { width: 4px; left: 5px; background: var(--c); }
+.r.n::after { content: ""; position: absolute; left: 1px; top: 15px; width: 12px; height: 12px; border-radius: 50%; background: var(--c); }
+.r.off::before { opacity: .45; }
+
+@media (max-width: 760px) {
+  .tlw { display: none; }
+  .tll { display: block; }
+}

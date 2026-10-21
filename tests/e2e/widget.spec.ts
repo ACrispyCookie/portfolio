@@ -218,7 +218,10 @@ for (const s of STATES) {
     await expect.poll(async () => (await read()).off, { timeout: 3000 }).toBe(0);
     const r = await read();
     expect(r.n).toBeGreaterThanOrEqual(3); // widget band, top-bar pill, the lab card's tag
-    expect(r.animated).toBe(0);
+    expect(r.animated).toBe(0); // the dot itself never dims or flashes
+    // Jason (2026-10-21): a ripple grows out of every dot while the board is in use or free; none on a fault
+    const ripples = await page.locator('.sdot').evaluateAll((ds) => ds.map((d) => getComputedStyle(d, '::after').animationName));
+    for (const a of ripples) expect(a === 'none', `ripple: ${a}`).toBe(s.name === 'fault');
   });
 }
 
@@ -228,6 +231,8 @@ test('offline: the dots are grey, and the widget says so', async ({ page }) => {
   await expect(page.locator('.hero .board [data-f="headline"]')).toHaveText('Status unavailable');
   const dim = await page.evaluate(() => { const p = document.createElement('i'); p.style.color = 'var(--color-dim)'; document.body.append(p); const c = getComputedStyle(p).color; p.remove(); return c; });
   await expect.poll(() => page.locator('.sdot').evaluateAll((ds, c) => ds.filter((d) => getComputedStyle(d).backgroundColor !== c).length, dim), { timeout: 3000 }).toBe(0);
+  const ripples = await page.locator('.sdot').evaluateAll((ds) => ds.map((d) => getComputedStyle(d, '::after').animationName));
+  for (const a of ripples) expect(a).toBe('none'); // unreachable: no ripple
 });
 
 test("other pages: the pill's dot shows the lab's status from one request", async ({ page }) => {
@@ -238,4 +243,15 @@ test("other pages: the pill's dot shows the lab's status from one request", asyn
   const amber = await page.evaluate(() => { const p = document.createElement('i'); p.style.color = 'var(--color-amber)'; document.body.append(p); const c = getComputedStyle(p).color; p.remove(); return c; });
   await expect.poll(() => page.locator('.topbar .labpill .sdot').evaluate((d) => getComputedStyle(d).backgroundColor)).toBe(amber);
   expect(calls).toBe(1);
+});
+
+test('reduced motion: the dots keep their colour but never ripple', async ({ browser, baseURL }) => {
+  const ctx = await browser.newContext({ baseURL, reducedMotion: 'reduce', viewport: { width: 1440, height: 900 } });
+  const page = await ctx.newPage();
+  await serveStream(page, event());
+  await open(page);
+  await expect(page.locator('.hero .board')).toHaveAttribute('data-state', 'running');
+  const ripples = await page.locator('.sdot').evaluateAll((ds) => ds.map((d) => getComputedStyle(d, '::after').animationName));
+  for (const a of ripples) expect(a).toBe('none');
+  await ctx.close();
 });

@@ -9,7 +9,7 @@ function render(root: HTMLElement, v: WidgetView) {
   const f = (name: string) => root.querySelector<HTMLElement>(`[data-f="${name}"]`);
   root.dataset.state = v.state;
   f('running')!.textContent = v.running;
-  f('sub')!.textContent = v.sub; // an empty sub keeps its line, so the widget never changes height
+  f('sub')!.textContent = v.sub; // an empty sub collapses; .running's min-height keeps the widget one height
   f('queue')!.textContent = v.queue === null ? '' : String(v.queue);
   f('queue-tag')!.hidden = v.queue === null;
   f('temp')!.textContent = v.tempC === null ? '' : `${Math.round(v.tempC)} °C`;

@@ -135,3 +135,16 @@ for (const outcome of ['online', 'offline'] as const) {
     expect(Math.max(...hs) - Math.min(...hs), `heights ${hs.join(', ')}`).toBeLessThanOrEqual(1);
   });
 }
+
+test('with one status line the text sits centred, with no blank line reserved below', async ({ page }) => {
+  await failLab(page);
+  await open(page);
+  const board = page.locator('.hero .board');
+  await expect(board).toHaveAttribute('data-state', 'offline');
+  const gaps = await board.locator('.running').evaluate((r) => {
+    const box = r.getBoundingClientRect();
+    const kids = [...r.children].filter((k) => k.textContent!.trim() && k.getBoundingClientRect().height > 0).map((k) => k.getBoundingClientRect());
+    return { top: kids[0].top - box.top, bottom: box.bottom - kids[kids.length - 1].bottom };
+  });
+  expect(Math.abs(gaps.top - gaps.bottom), JSON.stringify(gaps)).toBeLessThanOrEqual(2);
+});

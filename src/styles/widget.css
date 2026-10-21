@@ -7,10 +7,13 @@
 .board .body { display: grid; gap: 14px; padding: 18px 20px 20px; }
 .board .what { color: var(--color-dim); }
 .runrow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: stretch; }
-.running { display: grid; gap: 2px; align-content: center; background: var(--color-raised); border-radius: var(--radius-inner); padding: 12px 14px; min-width: 0; }
+.running { display: grid; gap: 2px; align-content: center; background: var(--color-raised); border-radius: var(--radius-inner); padding: 12px 14px; min-width: 0;
+  /* tall enough for label, status and sub line, so the widget keeps one height; shorter content sits centred */
+  min-height: calc(24px + 4px + 2 * 1.6 * var(--text-small) + 1.2 * var(--text-lead)); box-sizing: border-box; }
 .running small { color: var(--color-dim); font-size: var(--text-small); }
 .running b { font: 700 var(--text-lead) / 1.2 var(--font-display); color: var(--color-cyan); overflow-wrap: anywhere; }
-.running span { color: var(--color-dim); font-size: var(--text-small); overflow-wrap: anywhere; min-height: 1lh; }
+.running span { color: var(--color-dim); font-size: var(--text-small); overflow-wrap: anywhere; }
+.running span:empty { display: none; }
 .board[data-state="fault"] .running b { color: var(--color-amber); }
 .board[data-state="offline"] .running b, .board[data-state="connecting"] .running b { color: var(--color-dim); }
 .board[data-state="connecting"] .tags { visibility: hidden; }

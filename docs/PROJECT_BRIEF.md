@@ -79,13 +79,14 @@ Source of truth for content and priorities. Facts come from Jason's answers, his
   |---|---|
   | ECE338 GPGPU, ECE415 HPC 1–5, ECE494, ECE455, ECE318 OS 2–3 | Jason + Tsiantos + Tsogkas |
   | ECE436 Wireless | Jason + Tsiantos + **Panagiotis Balamotis** |
-  | ECE340 Embedded Lab 3, ECE433 Graphics | Jason + Tsogkas |
+  | ECE340 Embedded Lab 3 | Jason + Tsogkas |
+  | ECE433 Graphics (HW1–3, the 3D house included) | Jason + Tsogkas + **Anastasios Kalousis** ✅ (Jason, 2026-10-21; 📑 named in all three `Overleaf Projects/Computer Graphics - Homework 1–3/ece433_template.tex`; GitHub contributor AnastasisK126) |
   | ECE333 Digital Systems Lab | Jason alone |
   | ECE348 Distributed | **solo** ✅ |
   | ECE321 Concurrent | **team** ✅: Jason + Tsogkas + **Tvangos** (a colleague, ECE321 teammate ✅; GitHub https://github.com/Tvangos, no public name, so show the handle unless Jason gives a name) |
 - **tsiantosd.tech credits Jason** (🌐 2026-10-19) as "Project collaborator" on **Parallel Computer Architecture (Simple GPGPU)**, **Microprocessor Design**, **High Performance Computing**, **Operating Systems**, **Wireless Communications** and **Hardware Security**. Each is "Team of 3": Tsiantos + Jason + Tsogkas, except Wireless, which is Tsiantos + Jason + Balamotis. This matches the reports. Dimitrios's **Embedded Systems** team is with a different partner (Zerdalis), and Jason's ECE340 was with Tsogkas, so the two were separate teams. His site links Jason's LinkedIn, not GitHub.
   - His site also hosts a "GPGPU 3D Visualizer". ✅ That's the team's 3D n-body demo for the GPGPU, the same one the Live FPGA Lab serves.
-- Collaborator stacks approved ✅. **Avatars:** public GitHub avatars, fetched at build time, with an initials fallback ✅. Handles: Tsiantos https://github.com/TsiantosD · Tsogkas https://github.com/PANAGIVTHS ✅ · Balamotis https://github.com/Balamotakos ✅ · Tvangos https://github.com/Tvangos. Link each avatar to GitHub.
+- Collaborator stacks approved ✅. **Avatars:** public GitHub avatars, fetched at build time, with an initials fallback ✅. Handles: Tsiantos https://github.com/TsiantosD · Tsogkas https://github.com/PANAGIVTHS ✅ · Balamotis https://github.com/Balamotakos ✅ · Tvangos https://github.com/Tvangos · Kalousis https://github.com/AnastasisK126 ✅. Link each avatar to GitHub.
 
 ## Grades (for the score boxes)
 Source: `docs/GRADES.md` ✅ (Jason's file; **never publish the file itself**, it includes failed and ungraded courses). Rule from Jason: show only **relevant, strong** grades, nothing below the 8.5–9 line. Applied as **≥ 9.0**, and only courses with a project on the site:
@@ -273,7 +274,7 @@ Suggested `projects` collection fields: `title`, `slug`, `tier`, `order`, `summa
 - **Timeline:** like acrispycookie.dev's vertical timeline, but one section with **several parallel threads** (e.g. education, work, teaching).
 - **Card headlines must be accurate and the most impressive fact:** "0% bit errors" (RAMBO) is not accurate; "Day, night and a flashlight" (3D house) isn't the most impressive thing.
 - **Projects section:** not a separate "flagship" category. 7–10 normally sized cards; the flagships come first and look slightly different (more emphasis). The remaining course projects go in a **smaller grid** ("Other projects") placed below Personal projects.
-- **Cards, final list (Jason, 2026-10-19):** Projects + Personal projects together hold **9 cards**: GPGPU, N-body, RAMBO, Wi-Fi jammer, 3D house, Distributed runtime | Live FPGA Lab, DVD Logo FPGA, Homelab. **Everything else** (CV32E40P, RPC library, FUSE, user-level threads, multicast, NFS cache, CLAHE, K-means, Sobel, CUDA convolution, scheduler, ECE333 labs, Smith-Waterman) goes to the smaller **Other projects** grid. Homeworks and assignments (ECE338 HW1–3, ECE433 HW1–2, ECE436 assignments) appear only on their course pages.
+- **Cards, final list (Jason, 2026-10-19):** Projects + Personal projects together hold **9 cards**: GPGPU, N-body, RAMBO, Wi-Fi jammer, 3D house, Distributed runtime | Live FPGA Lab, DVD Logo FPGA, Homelab. **Everything else** (CV32E40P, RPC library, FUSE, user-level threads, multicast, NFS cache, CLAHE, K-means, Sobel, CUDA convolution, scheduler, ECE333 labs, Smith-Waterman) goes to the smaller **Other projects** grid. Homeworks and assignments (ECE338 HW1–3, ECE436 assignments) appear only on their course pages. **Exception (Jason, 2026-10-21): ECE433 HW1 (rasterization and antialiasing) and HW2 (polygon filling and clipping) are listed under Other projects**, team Jason + Tsogkas + Kalousis (📑 REPORTS_INDEX; research/ECE433-Computer-Graphics README).
 
 ## Timeline (Jason, 2026-10-19) ✅
 Projects are **not** on the timeline; it holds education, work and volunteering only.
@@ -290,7 +291,7 @@ Project dates (for project pages, not the timeline): GPGPU (ECE338) ~03/2026 –
 - **Now section (Jason, 2026-10-19):** modern widgets, not plain text. Project widgets (GPGPU v2, Homelab: name + 3–5 words) link to their project pages, and GPGPU v2 also has "Run the demo". A separate **Live FPGA Lab widget** shows live board state and links to https://fpga.njason.dev.
 - **Contact (Jason, 2026-10-19):** a simple, typical contact section.
 - **Live FPGA Lab card under Personal projects** is a normal card (picture, sentence, link to its page); the full live widget lives only in Now ✅. Contact: heading, one line, email with copy button, GitHub, LinkedIn; more links possibly later ✅.
-- **Summary statistics:** ~~2,910× biggest speedup~~ (Jason: not relevant there) → proposed replacement "2 demos you can run live on a real FPGA board" ❓; **27 projects** on the site (10 main + 17 smaller); 4 volunteer lab-assistant roles since 2025; writing code since 2019. No average grade.
+- **Summary statistics:** ~~2,910× biggest speedup~~ (Jason: not relevant there) → proposed replacement "2 demos you can run live on a real FPGA board" ❓; **29 projects** on the site (10 main + 19 smaller; was 27 before ECE433 HW1–2 were added); 4 volunteer lab-assistant roles since 2025; writing code since 2019. No average grade.
 - **Card headlines (approved 2026-10-19):** GPGPU "32 RISC-V cores we designed, running on a real FPGA" · N-body "2,910× faster than the single-core version" · RAMBO "Read data from a computer with no network, using only its memory's radio noise" (outcome only) · Wi-Fi jammer "One modified Wi-Fi card cut its neighbour from 87.7 to 0.02 Mbit/s" · 3D house "A 3D engine we wrote from scratch in C++ and OpenGL" · Distributed runtime "Running programs move between machines without stopping".
 - **Who + Now (approved):** one shared panel; photo, name, role line; the live lab widget beside the name on desktop; "Currently working on" with GPGPU v2 and Homelab widgets below.
 - **Courses (approved):** grouped by area (Hardware · Parallel and HPC · Systems · Networks and Security); each course shows what was built in it and its flagship; the grade is a small badge.

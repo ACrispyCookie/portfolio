@@ -1,10 +1,10 @@
 import { expect, test } from '@playwright/test';
 
-test('Other projects: 7 course cards, 17 rows linking to course sections, no borders', async ({ page }) => {
+test('Other projects: 8 course cards, 19 rows linking to course sections, no borders', async ({ page }) => {
   await page.goto('/');
-  await expect(page.locator('#other .group')).toHaveCount(7);
+  await expect(page.locator('#other .group')).toHaveCount(8);
   const rows = page.locator('#other .mini a');
-  await expect(rows).toHaveCount(17);
+  await expect(rows).toHaveCount(19);
   for (const href of await rows.evaluateAll((as) => as.map((a) => a.getAttribute('href')!))) expect(href).toMatch(/^\/courses\/ece\d{3}#[a-z0-9-]+$/);
   const borders = await rows.evaluateAll((as) => as.filter((a) => parseFloat(getComputedStyle(a).borderTopWidth) > 0 || getComputedStyle(a).boxShadow !== 'none').length);
   expect(borders).toBe(0);
@@ -64,4 +64,10 @@ test('desktop: entries in a lane never overlap', async ({ page }, info) => {
     return r.slice(1).filter((b, i) => b.top < r[i].bottom - 0.5).map((b) => `${l.className} @${Math.round(b.top)}`);
   }));
   expect(overlaps).toEqual([]);
+});
+
+test('ECE433 lists its two homeworks under Other projects', async ({ page }) => {
+  await page.goto('/');
+  const g = page.locator('#other .group', { has: page.locator('h3', { hasText: 'ECE433' }) });
+  await expect(g.locator('.mini a b')).toHaveText(['Rasterization and antialiasing', 'Polygon filling and clipping']);
 });

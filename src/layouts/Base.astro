@@ -18,6 +18,8 @@ const { title, description, home = false } = Astro.props;
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="theme-color" content="#0b1d21" />
+    {/* iOS turns dates and numbers into white links among grey text (Jason, 2026-10-21) */}
+    <meta name="format-detection" content="telephone=no, date=no, address=no, email=no" />
     <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
     <slot name="head" />
   </head>

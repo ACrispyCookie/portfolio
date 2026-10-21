@@ -1,8 +1,14 @@
 // Port of docs/superpowers/mocks/check.js (spec §7.3) plus the trace's home-page rules.
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 import { JSON_URL, STREAM, event, serveStream } from './helpers/lab';
 
 const BOXES = 'main .card, main .w, main .read, main .ccard, main .cproj, main .rc, main .skx2, main .origin, main .mini a, main .board, main .cover, main figure, main .people';
+
+// mobile WebKit has no wheel events in Playwright: scroll by script there
+const wheel = (page: Page, dy: number) =>
+  page.context().browser()?.browserType().name() === 'webkit' && page.viewportSize()!.width < 500
+    ? page.evaluate((d) => scrollBy(0, d), dy)
+    : page.mouse.wheel(0, dy);
 
 test('check.js: no errors or overflow, one edge for traced sections, trace clear of content and ≥28px from it, smooth pulse', async ({ page }) => {
   const errors: string[] = [];
@@ -42,7 +48,7 @@ test('check.js: no errors or overflow, one edge for traced sections, trace clear
     const pu = document.querySelector<SVGPathElement>('.t-pulse')!;
     (function f() { w.__l.push(parseFloat(pu.style.strokeDashoffset)); requestAnimationFrame(f); })();
   });
-  for (let i = 0; i < 30; i++) { await page.mouse.wheel(0, 70); await page.waitForTimeout(16); }
+  for (let i = 0; i < 30; i++) { await wheel(page, 70); await page.waitForTimeout(16); }
   await page.waitForTimeout(400);
   const l = await page.evaluate(() => (window as unknown as { __l: number[] }).__l.filter((x) => !isNaN(x)));
   expect(l.length).toBeGreaterThan(10);
@@ -69,7 +75,7 @@ test('home: the pulse stays dark while the lab is offline', async ({ page }) => 
   await page.locator('.hero .board').scrollIntoViewIfNeeded();
   const ops: string[] = [];
   for (let i = 0; i < 20; i++) {
-    await page.mouse.wheel(0, 60);
+    await wheel(page, 60);
     await page.waitForTimeout(100);
     ops.push(await page.locator('.t-pulse').evaluate((e) => getComputedStyle(e).opacity));
   }

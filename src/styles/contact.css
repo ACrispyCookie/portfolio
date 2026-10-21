@@ -1,15 +1,22 @@
-/* Contact card (spec §5.1 item 8): the last card on the page. No ring, no shadow. */
+/* Contact card (spec §5.1 item 8): the last card on the page. No ring, no shadow.
+   Every part sizes from its own width (container queries), so the address and the labels never break mid-word. */
+#contact { container: contact / inline-size; }
 .ccard { padding: clamp(22px, 3vw, 36px); display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 28px; align-items: center; }
-.ccard .cl { display: grid; gap: 16px; min-width: 0; }
+.ccard .cl { display: grid; gap: 16px; min-width: 0; container: mail / inline-size; }
 .ccard .lead { margin: 0; }
 .mail { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; font: 700 var(--text-title) / 1.2 var(--font-display); letter-spacing: -.015em; color: var(--color-silk); }
-.mail span { overflow-wrap: anywhere; }
+.mail span { white-space: nowrap; } /* an address never breaks; the size steps down instead */
 .mail .copy { font: 600 var(--text-small) var(--font-text); letter-spacing: 0; }
 .ccard .cr { display: grid; gap: 10px; }
-.clink { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; background: var(--color-raised); border-radius: var(--radius-inner); padding: 14px 18px; text-decoration: none; color: var(--color-silk); transition: background .2s; }
+/* label and note share a line; when they don't fit, the note moves under the label instead of the label breaking */
+.clink { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; column-gap: 12px; row-gap: 2px; background: var(--color-raised); border-radius: var(--radius-inner); padding: 14px 18px; text-decoration: none; color: var(--color-silk); transition: background .2s; }
+.clink b { white-space: nowrap; }
 .clink:hover { background: var(--color-hover); }
 .clink small { color: var(--color-dim); font-size: var(--text-small); }
-@media (max-width: 760px) {
-  .ccard { grid-template-columns: 1fr; padding: 20px 16px; gap: 20px; }
-  .mail { font-size: var(--text-lead); } /* the address on one line at phone width */
-}
+
+/* one column when the card can't hold the address and the links side by side */
+@container contact (max-width: 880px) { .ccard { grid-template-columns: 1fr; gap: 20px; } }
+@media (max-width: 760px) { .ccard { padding: 20px 16px; } }
+/* the address steps down the scale with its column: title, then lead, then body */
+@container mail (max-width: 440px) { .mail { font-size: var(--text-lead); } }
+@container mail (max-width: 290px) { .mail { font-size: var(--text-body); } }

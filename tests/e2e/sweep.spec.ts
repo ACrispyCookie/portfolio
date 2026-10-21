@@ -44,6 +44,8 @@ const overlaps = (page: Page) =>
 
 // Containers whose items are peers: items that share a row must be the same height.
 const PEERS = ['.now > a', '.glance > .read', '#projects .grid > .card', '.ccard .cr > .clink'];
+// Text that must stay on one line: an address, a label, a button.
+const ONE_LINE = ['.mail span', '.clink b', '.clink small', '.topbar .name', '.chip', '.btn:not(.origin .btn)', '.tag']; // the origin button may wrap below 400px (Plan 1)
 
 // Phones lay text out differently from desktop browsers at the same width (touch, mobile text sizing), so every
 // sweep runs as both.
@@ -71,7 +73,7 @@ test(`${path}, ${mode.name}, every width 320–2560: no sideways scroll, no over
   for (const w of WIDTHS) {
     await page.setViewportSize({ width: w, height: 900 });
     await page.waitForTimeout(60);
-    const f = await page.evaluate((peers) => {
+    const f = await page.evaluate(([peers, oneLine]) => {
       const uneven: string[] = [];
       for (const sel of peers) {
         // items whose vertical extents overlap share a row (grouping by top edge would miss centred items)
@@ -86,18 +88,32 @@ test(`${path}, ${mode.name}, every width 320–2560: no sideways scroll, no over
           if (g.length > 1 && Math.max(...hs) - Math.min(...hs) > 1) uneven.push(`${sel}: ${hs.join(' vs ')}px`);
         }
       }
-      return {
+      const res = {
         sideways: document.documentElement.scrollWidth > innerWidth,
         bar: Math.round(document.querySelector('.topbar')!.getBoundingClientRect().height),
         // two lines from 390px up (spec §11); below that, where only the body size is left on the scale, three
         heads: [...document.querySelectorAll('#projects p.head')].filter((p) => p.getBoundingClientRect().height / parseFloat(getComputedStyle(p).lineHeight) > (innerWidth < 390 ? 3.2 : 2.2)).map((p) => p.textContent!.slice(0, 30)),
         uneven,
       };
-    }, PEERS);
+      // a text run that breaks across lines (pieces side by side at different heights are not a wrap)
+      const breaks = (e: Element) => {
+        const w = document.createTreeWalker(e, NodeFilter.SHOW_TEXT);
+        for (let n = w.nextNode(); n; n = w.nextNode()) {
+          if (!n.textContent!.trim() || n.parentElement!.closest('.vh')) continue;
+          const r = document.createRange(); r.selectNodeContents(n);
+          const rects = [...r.getClientRects()].filter((x) => x.width > 1);
+          if (rects.length > 1 && rects.some((x) => x.top > rects[0].bottom - 2)) return true;
+        }
+        return false;
+      };
+      const wrapped = oneLine.flatMap((sel) => [...document.querySelectorAll<HTMLElement>(sel)].filter((e) => e.offsetParent && breaks(e)).map((e) => `${sel} "${e.textContent!.trim().slice(0, 30)}"`));
+      return { ...res, wrapped };
+    }, [PEERS, ONE_LINE] as const);
     if (f.sideways) failures.push(`${w}: page scrolls sideways`);
     if (f.bar > 75) failures.push(`${w}: top bar is ${f.bar}px (wrapped)`);
     for (const h of f.heads) failures.push(`${w}: headline too many lines: "${h}"`);
     for (const u of f.uneven) failures.push(`${w}: uneven row: ${u}`);
+    for (const t of f.wrapped) failures.push(`${w}: wraps onto two lines: ${t}`);
     for (const o of await overlaps(page)) failures.push(`${w}: text overlaps: ${o}`);
   }
   await ctx.close();

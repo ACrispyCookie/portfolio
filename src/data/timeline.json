@@ -1,0 +1,59 @@
+[
+  {
+    "lane": "education",
+    "title": "Electrical and Computer Engineering",
+    "sub": "University of Thessaly",
+    "from": "09/2022",
+    "to": "now"
+  },
+  {
+    "lane": "education",
+    "title": "High school",
+    "sub": "",
+    "from": "09/2019",
+    "to": "06/2022"
+  },
+  {
+    "lane": "work",
+    "title": "Freelance Minecraft plugin developer",
+    "sub": "",
+    "from": "07/2022",
+    "to": "05/2023"
+  },
+  {
+    "lane": "work",
+    "title": "Freelance Minecraft plugin developer",
+    "sub": "",
+    "from": "05/2021",
+    "to": "09/2021"
+  },
+  {
+    "lane": "work",
+    "title": "ColonyMC",
+    "sub": "My own Minecraft server, 20–30 players",
+    "from": "12/2019",
+    "to": "04/2021",
+    "href": "https://acrispycookie.dev"
+  },
+  {
+    "lane": "teaching",
+    "title": "Programming I, Computer Organization",
+    "sub": "Lab assistant, grading",
+    "from": "09/2026",
+    "to": "now"
+  },
+  {
+    "lane": "teaching",
+    "title": "Programming II, Numerical Analysis",
+    "sub": "Lab assistant",
+    "from": "02/2026",
+    "to": "06/2026"
+  },
+  {
+    "lane": "teaching",
+    "title": "Programming I",
+    "sub": "Lab assistant",
+    "from": "09/2025",
+    "to": "01/2026"
+  }
+]

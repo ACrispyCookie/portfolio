@@ -217,7 +217,7 @@ Labs 1–2 (floating-point adder, AXI IP) have no report in `reports/`.
 ---
 
 ## ECE433 Computer Graphics: Homeworks 1–3 (Tier 2)
-**Authors:** Jason + Tsogkas (all three). Written in Greek, Fall 2025.
+**Authors:** Jason + Tsogkas + Anastasios Kalousis (all three; corrected 2026-10-21, the earlier entry missed Kalousis). Written in Greek, Fall 2025.
 
 | File (`OL/`) | Summary |
 |---|---|
@@ -246,7 +246,7 @@ Labs 1–2 (floating-point adder, AXI IP) have no report in `reports/`.
 | Brief ❓ | Answer from reports |
 |---|---|
 | #1 GPGPU team | **Team of 3:** Jason, Tsiantos, Tsogkas (ECE338 p.1). Repo owner PANAGIVTHS is probably Tsogkas; confirm with Jason. |
-| #2 Team projects | T3 (Jason + Tsiantos + Tsogkas): ECE338, ECE415, ECE494, ECE455, ECE318. ECE436: Jason + Tsiantos + Balamotis. ECE340, ECE433: Jason + Tsogkas. ECE333: solo. ECE348: solo, ECE321: team (Jason). |
+| #2 Team projects | T3 (Jason + Tsiantos + Tsogkas): ECE338, ECE415, ECE494, ECE455, ECE318. ECE436: Jason + Tsiantos + Balamotis. ECE340: Jason + Tsogkas. ECE433: Jason + Tsogkas + Kalousis. ECE333: solo. ECE348: solo, ECE321: team (Jason). |
 | #5 ECE415 | Final N-body 2910× vs sequential CPU (431 B interactions/s), on 4× Tesla K80 (Jason). |
 | #6 ECE455 | Error-free to 32 bps at ≤1 m. **"2 m at 128 bps" is not supported.** |
 | #7 ECE494 | +9.6% Fmax, +3.4% LUTs, +1 mW; 8.7% faster on non-multiplier-dependent workloads |

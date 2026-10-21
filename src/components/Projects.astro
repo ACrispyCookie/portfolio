@@ -1,0 +1,29 @@
+---
+// Projects and personal projects (spec §5.1 items 3–4). Order comes from each project's `order`.
+import { getCollection } from 'astro:content';
+import ProjectCard from './ProjectCard.astro';
+import OriginCard from './OriginCard.astro';
+import '../styles/projects.css';
+
+const main = (await getCollection('projects', (p) => p.data.main)).sort((a, b) => a.data.order - b.data.order);
+const course = main.filter((p) => p.data.kind === 'course');
+const personal = main.filter((p) => p.data.kind === 'personal');
+const [flagship, ...rest] = course;
+const large = rest.filter((p) => p.data.media);
+const compact = rest.filter((p) => !p.data.media);
+---
+<section id="projects" class="sec" aria-labelledby="projects-h">
+  <h2 id="projects-h" data-pad>Projects</h2>
+  <p class="lead">Course projects, most of them built in teams.</p>
+  <div class="cards">
+    <ProjectCard project={flagship} size="wide" />
+    <div class="grid feat">{large.map((p) => <ProjectCard project={p} size="large" />)}</div>
+    <div class="grid compact">{compact.map((p) => <ProjectCard project={p} size="compact" />)}</div>
+  </div>
+  <div class="mine">
+    <h3 class="sub-h">Personal projects</h3>
+    <p class="lead">Built on my own, outside any course.</p>
+    <div class="grid three">{personal.map((p) => <ProjectCard project={p} size="personal" />)}</div>
+    <OriginCard />
+  </div>
+</section>

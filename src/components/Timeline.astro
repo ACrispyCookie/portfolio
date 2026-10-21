@@ -1,0 +1,48 @@
+---
+// Timeline (spec §5.1 item 6): three lanes on a shared month axis on desktop, three git-graph rails on phone.
+import timeline from '../data/timeline.json';
+import { layoutTimeline, railRows } from '../lib/timeline';
+import '../styles/timeline.css';
+
+const d = new Date();
+const now = `${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+const t = layoutTimeline(timeline, now);
+const rows = railRows(timeline);
+const LANES = [['education', 'Education'], ['work', 'Work'], ['teaching', 'Teaching']] as const;
+const dates = (e: { from: string; to: string }) => `${e.from} – ${e.to}`;
+const sub = (e: { sub: string; from: string; to: string }) => [e.sub, dates(e)].filter(Boolean).join(', ');
+const laneName = Object.fromEntries(LANES) as Record<string, string>;
+// teaching subs already name the role, so they skip the lane prefix
+const phoneSub = (e: { lane: string; sub: string; from: string; to: string }) => (e.lane === 'teaching' ? sub(e) : `${laneName[e.lane]}: ${sub(e)}`);
+---
+<section id="timeline" class="sec" aria-labelledby="timeline-h">
+  <h2 id="timeline-h" data-pad>Timeline</h2>
+  <p class="lead">Education, work and teaching on one time axis. I was picked as a volunteer lab assistant in each course for my grade.</p>
+  <div class="tlw" style={`--months:${t.months}`}>
+    <span></span>
+    {LANES.map(([k, name]) => <span class={`lanehead ${k}`}>{name}</span>)}
+    <div class="axis" aria-hidden="true">
+      {t.years.map((y) => <span style={`top:calc(${y.top} * var(--m))`}>{y.label}</span>)}
+    </div>
+    {LANES.map(([k]) => (
+      <div class={`lane ${k}`}>
+        <b class="brk" aria-hidden="true" style={`top:calc(${t.gap.top} * var(--m));height:calc(${t.gap.span} * var(--m))`}></b>
+        {t.events.filter((e) => e.lane === k).map((e) => (
+          <div class="ev" style={`--a:${e.top};--n:${e.span}`}>
+            <i></i>
+            <div><b>{e.href ? <a href={e.href}>{e.title}</a> : e.title}</b><small>{sub(e)}</small></div>
+          </div>
+        ))}
+      </div>
+    ))}
+  </div>
+  <div class="tll">
+    <div class="tlh">{LANES.map(([k, name]) => <span class={k}>{name}</span>)}</div>
+    {rows.map((e) => (
+      <div class="it">
+        {LANES.map(([k]) => <span class={`r ${k} ${e.rails[k]}`}></span>)}
+        <div><b>{e.href ? <a href={e.href}>{e.title}</a> : e.title}</b><small>{phoneSub(e)}</small></div>
+      </div>
+    ))}
+  </div>
+</section>

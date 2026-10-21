@@ -1,0 +1,44 @@
+---
+// Skills explorer (spec §7.4): one wrapped block of chips sorted by how many projects use each tool.
+// `self` is the href of the project whose page this is; the line then lists the other projects.
+import { getCollection } from 'astro:content';
+import { buildSkillIndex, toSkillProjects, type SkillEntry } from '../lib/skills';
+import skills from '../data/skills.json';
+import evidence from '../data/skills-evidence.json';
+import '../styles/skills.css';
+
+interface Props {
+  entries?: SkillEntry[];
+  self?: string;
+}
+const { self = '' } = Astro.props;
+let { entries } = Astro.props;
+if (!entries) {
+  const projects = await getCollection('projects');
+  const courses = await getCollection('courses');
+  const codes = Object.fromEntries(courses.map((c) => [c.id, c.data.code]));
+  const input = projects.map((p) => ({ ...p.data, id: p.id, course: p.data.course?.id }));
+  entries = buildSkillIndex(toSkillProjects(input, codes, skills.origin), { vocabulary: skills.vocabulary, coursework: evidence.coursework });
+}
+const json = JSON.stringify(entries).replace(/</g, '\\u003c');
+---
+<section id="skills" class="sec" aria-labelledby="skills-h">
+  <h2 id="skills-h" data-pad>Skills</h2>
+  <p class="lead">Tools from my projects. The number is how many projects on this site use each one.</p>
+  <div class="skx panel" data-self={self}>
+    <div class="chips">
+      {entries.map((e) => (
+        <button class="chip" type="button" aria-pressed="false" data-tool={e.tool}>
+          {e.tool}
+          {e.count > 0 && <span class="ct"><span class="vh">, used in </span>{e.count}<span class="vh"> projects</span></span>}
+        </button>
+      ))}
+    </div>
+    <button class="more btn btn-secondary" type="button" hidden>Show all {entries.length}</button>
+    <div class="lines" aria-live="polite">
+      <p class="usedline"></p>
+      <p class="cwline" hidden></p>
+    </div>
+    <script type="application/json" set:html={json} />
+  </div>
+</section>

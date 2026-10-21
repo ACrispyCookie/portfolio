@@ -1,0 +1,8 @@
+{
+  "code": "ECE333",
+  "name": "Digital Systems Lab",
+  "grade": 9,
+  "sequence": false,
+  "order": 10,
+  "featuredProject": "dvd-logo-fpga"
+}

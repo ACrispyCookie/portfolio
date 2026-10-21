@@ -1,0 +1,33 @@
+/* Live lab widget (spec §7.2): flat cyan band, no ring or shadow. */
+.board { border-radius: var(--radius-panel); background: var(--color-panel); color: var(--color-silk); overflow: hidden; }
+.board .band { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 20px; background: var(--color-cyan); color: var(--color-ink); }
+.board .title { display: flex; align-items: center; gap: 10px; font-weight: 700; }
+.board .band .led { background: var(--color-ink); }
+.board[data-state="online"] .band .led, .board[data-state="project"] .band .led { background: #0a7a45; }
+.board .body { display: grid; gap: 14px; padding: 18px 20px 20px; }
+.board .what { color: var(--color-dim); }
+.runrow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: stretch; }
+.running { display: grid; gap: 2px; align-content: center; background: var(--color-raised); border-radius: var(--radius-inner); padding: 12px 14px; min-width: 0;
+  /* tall enough for label, status and sub line, so the widget keeps one height; shorter content sits centred */
+  min-height: calc(24px + 4px + 2 * 1.6 * var(--text-small) + 1.2 * var(--text-lead)); box-sizing: border-box; }
+.running small { color: var(--color-dim); font-size: var(--text-small); }
+.running b { font: 700 var(--text-lead) / 1.2 var(--font-display); color: var(--color-cyan); overflow-wrap: anywhere; }
+.running span { color: var(--color-dim); font-size: var(--text-small); overflow-wrap: anywhere; }
+.running span:empty { display: none; }
+.board[data-state="fault"] .running b { color: var(--color-amber); }
+.board[data-state="offline"] .running b, .board[data-state="connecting"] .running b { color: var(--color-dim); }
+.board[data-state="connecting"] .tags { visibility: hidden; }
+.actions { display: grid; gap: 10px; align-content: center; justify-items: start; }
+.actions .tags { display: flex; gap: 8px; flex-wrap: wrap; }
+.actions .tag b { color: var(--color-silk); }
+.board[data-state="static"] [data-live] { display: none; }
+.board[data-state="static"] .runrow { grid-template-columns: 1fr; }
+[data-f][hidden] { display: none !important; }
+@media (max-width: 760px) {
+  .runrow { grid-template-columns: 1fr; }
+  .actions { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .board[data-state="online"] .band .led { animation: breathe 2.4s ease-in-out infinite; }
+}
+@keyframes breathe { 0%, 100% { opacity: 1; } 50% { opacity: .45; } }

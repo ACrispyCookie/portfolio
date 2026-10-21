@@ -1,0 +1,8 @@
+{
+  "code": "ECE340",
+  "name": "Embedded Systems",
+  "grade": 8.5,
+  "sequence": false,
+  "order": 11,
+  "featuredProject": "smith-waterman"
+}

@@ -1,0 +1,9 @@
+{
+  "code": "ECE415",
+  "name": "High Performance Computing",
+  "grade": 9.5,
+  "sequence": true,
+  "order": 6,
+  "featuredProject": "nbody",
+  "intro": "Five projects that build on each other, from tuning C code on one CPU to running a galaxy simulation on four GPUs at once."
+}

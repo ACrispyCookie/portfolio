@@ -4,7 +4,7 @@
 .lcol, .rcol { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
 .rcol { gap: 24px; justify-content: space-between; }
 
-.cover { flex: 1 1 auto; min-height: 380px; position: relative; border-radius: var(--radius-panel); overflow: hidden; background: var(--color-panel); }
+.cover { flex: 1 1 auto; min-height: min(380px, 60vh); max-height: 80vh; max-height: 80svh; position: relative; border-radius: var(--radius-panel); overflow: hidden; background: var(--color-panel); }
 .cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 62%; display: block; }
 
 .who { display: grid; gap: 16px; }
@@ -31,6 +31,7 @@
   .who { grid-area: who; align-self: center; }
   .side { grid-area: side; }
   .now { grid-area: now; grid-template-columns: auto 1fr 1fr; align-items: center; }
+  .now > a { align-self: stretch; } /* peers: one row, one height */
   .now > p { grid-column: auto; padding-right: 8px; }
 }
 @media (max-width: 900px) {
@@ -39,8 +40,15 @@
 }
 @media (max-width: 760px) {
   .top { grid-template-columns: 1fr; grid-template-areas: "cover" "who" "side" "now"; row-gap: 28px; }
-  .cover { aspect-ratio: 5 / 4; }
+  /* on short screens the photo yields so the name still makes the first screen */
+  .cover { aspect-ratio: 5 / 4; max-height: 35vh; max-height: 35svh; }
   .now { grid-template-columns: 1fr; }
   .cta .btn-primary { flex: 1 1 100%; }
   .cta .btn-secondary { flex: 1 1 150px; } /* side by side when both fit, stacked on the narrowest phones */
+}
+/* a phone held sideways: photo beside the name, as on tablets, so the name is on the first screen */
+@media (max-width: 760px) and (orientation: landscape) {
+  .top { grid-template-columns: minmax(0, 40%) minmax(0, 1fr); grid-template-areas: "cover who" "side side" "now now"; column-gap: 24px; }
+  .cover { aspect-ratio: 1 / 1; max-height: 80vh; max-height: 80svh; align-self: start; }
+  .now { grid-template-columns: 1fr 1fr; }
 }

@@ -14,7 +14,13 @@ export async function serveStream(page: Page, data: Record<string, unknown>) {
     route.fulfill({
       status: 200,
       headers: { 'content-type': 'text/event-stream', 'access-control-allow-origin': '*', 'cache-control': 'no-cache' },
-      body: `retry: 60000\nevent: board\ndata: ${JSON.stringify(data)}\n\n`,
+      // reconnect every few seconds and say it again, like the real lab: a stream silent past the 20s staleness limit
+      // reads as offline, which a slow test run would otherwise hit
+      body: `retry: 3000\nevent: board\ndata: ${JSON.stringify(data)}\n\n`,
     }),
+  );
+  // and the JSON snapshot the page falls back to when the stream errors before its first event, as the real lab does
+  await page.route(JSON_URL, (route) =>
+    route.fulfill({ status: 200, headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*' }, body: JSON.stringify(data) }),
   );
 }

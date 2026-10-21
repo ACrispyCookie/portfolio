@@ -128,7 +128,9 @@ test('home: the pill fades in and out, and nothing else in the top bar moves', a
   expect(await bar(), 'the name, links and Menu stay put when the pill appears').toEqual(before);
   const disappear = await frames(() => board.evaluate((b) => b.scrollIntoView({ block: 'center', behavior: 'instant' })));
   expect(disappear.ev, `disappear: an opacity transition runs and ends (frames ${disappear.o.join(' ')})`).toEqual(['transitionrun', 'transitionend']);
-  expect(disappear.o.at(-1)).toBe(-1); // ends invisible
+  // ends invisible: read after the transition has ended, not from the last sampled frame (a busy machine can fill
+  // the 40-frame window before the fade is over)
+  await expect.poll(() => page.locator('.topbar .labpill').evaluate((e) => (e as HTMLElement).inert && +getComputedStyle(e).opacity === 0)).toBe(true);
   expect(await bar(), 'and stay put when it disappears').toEqual(before);
 });
 

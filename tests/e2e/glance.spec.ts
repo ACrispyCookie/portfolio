@@ -7,7 +7,7 @@ test('At a glance: three readouts with the spec §5.1 sentences', async ({ page 
   const rows = await reads.evaluateAll((els) => els.map((e) => [e.querySelector('b')!.textContent!.trim(), e.querySelector('span')!.textContent!.trim()]));
   expect(rows).toEqual([
     ['27', 'projects on this site, 10 main and 17 smaller'],
-    ['4', 'volunteer teaching-assistant roles since 2025'],
+    ['4', 'volunteer lab-assistant roles since 2025'],
     ['8', 'courses graded 9.5 or higher, each with a project on this site'],
   ]);
 });

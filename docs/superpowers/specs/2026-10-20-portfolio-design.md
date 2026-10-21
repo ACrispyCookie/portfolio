@@ -155,7 +155,7 @@ Everything else is a section on its course page only. That includes homeworks an
 2. **At a glance.**
    - Three readouts:
      - "27 projects on this site, 10 main and 17 smaller";
-     - "4 volunteer teaching-assistant roles since 2025";
+     - "4 volunteer lab-assistant roles since 2025" (Jason, 2026-10-21: lab assistant, the clearer title);
      - "8 courses graded 9.5 or higher, each with a project on this site".
    - Under them, a folded "Course grades" report card. It opens to the 11 courses, each with a grade bar and a link to its project (the list is in the brief).
 3. **Projects.**

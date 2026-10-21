@@ -48,12 +48,12 @@ test('desktop: first rows of the groups in one row line up', async ({ page }, in
   expect(new Set(tops).size).toBe(1);
 });
 
-test('every teaching entry says it was a teaching-assistant role', async ({ page }, info) => {
+test('every teaching entry says it was a lab-assistant role', async ({ page }, info) => {
   await page.goto('/');
   const sel = info.project.name === 'phone' ? '#timeline .tll .it:has(.r.teaching.n)' : '#timeline .lane.teaching .ev';
   const texts = await page.locator(sel).allInnerTexts();
   expect(texts).toHaveLength(3);
-  for (const t of texts) expect(t).toMatch(/Teaching assistant/);
+  for (const t of texts) expect(t).toMatch(/Lab assistant/);
 });
 
 test('desktop: entries in a lane never overlap', async ({ page }, info) => {

@@ -13,7 +13,7 @@ const s = getGlanceStats(projects.map((p) => p.data), courses.map((c) => c.data)
 const TA_ROLES = new Set(timeline.filter((t) => t.lane === 'teaching').flatMap((t) => t.title.split(', '))).size;
 const reads = [
   [s.total, `projects on this site, ${s.main} main and ${s.smaller} smaller`],
-  [TA_ROLES, 'volunteer teaching-assistant roles since 2025'],
+  [TA_ROLES, 'volunteer lab-assistant roles since 2025'],
   [s.highGrades, 'courses graded 9.5 or higher, each with a project on this site'],
 ];
 ---

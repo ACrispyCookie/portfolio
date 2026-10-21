@@ -64,7 +64,8 @@ test('home: the pill fades out when the widget comes back, then ends invisible',
   await page.goto('/');
   await page.evaluate(() => scrollTo({ top: 1400, behavior: 'instant' }));
   await expect(page.locator('.topbar .labpill')).toBeVisible();
-  await page.waitForTimeout(400);
+  // listen only once the fade-in is over, or its own transitionend lands among the fade-out's events
+  await expect.poll(() => page.locator('.topbar .labpill').evaluate((el) => getComputedStyle(el).opacity)).toBe('1');
   await page.evaluate(() => {
     const pill = document.querySelector('.topbar .labpill')!;
     (window as any).__fade = [];

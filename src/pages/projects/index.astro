@@ -1,0 +1,45 @@
+---
+// All projects (spec §4, §5.4a): every project and course on the site, as a plain list. Personal projects first,
+// then the courses in report-card order, each with its main project first. Counts come from the collections.
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Thumb from '../../components/Thumb.astro';
+import { courseHref, pageHref } from '../../lib/links';
+import '../../styles/all.css';
+
+const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+const courses = (await getCollection('courses')).sort((a, b) => a.data.order - b.data.order);
+const link = (p: (typeof projects)[number]) => pageHref({ ...p.data, id: p.id, course: p.data.course?.id });
+const personal = projects.filter((p) => p.data.kind === 'personal');
+const featured = (c: (typeof courses)[number]) => projects.find((p) => p.id === c.data.featuredProject.id);
+const ofCourse = (id: string) =>
+  projects.filter((p) => p.data.course?.id === id).sort((a, b) => Number(b.data.main) - Number(a.data.main) || a.data.order - b.data.order);
+---
+<Base title="Projects | Jason Nikas" description={`All ${projects.length} projects on njason.dev, from ${courses.length} university courses and my own work, with links to each one.`}>
+  <header class="allhead" data-trace-start>
+    <h1>Projects</h1>
+    <p class="counts">{projects.length} projects and {courses.length} courses</p>
+    <p class="lead">Everything on this site: what I built on my own, then every course, each with its projects.</p>
+  </header>
+
+  <section id="personal" class="sec" aria-labelledby="personal-h">
+    <h2 id="personal-h" data-pad>Personal projects</h2>
+    <ul class="personal">
+      {personal.map((p) => <li><Thumb project={p} /><a href={link(p)}>{p.data.title}</a><span>{p.data.headline}</span></li>)}
+    </ul>
+  </section>
+
+  <section id="courses" class="sec" aria-labelledby="courses-h">
+    <h2 id="courses-h" data-pad>Courses</h2>
+    <div class="courses">
+      {courses.map((c) => (
+        <div class="course">
+          <a class="ch" href={courseHref(c.id)}><Thumb project={featured(c)} /><span class="cn"><b>{c.data.code}</b><span class="n">{c.data.name}</span></span><span class="g">{c.data.grade}</span></a>
+          <ul>
+            {ofCourse(c.id).map((p) => <li><a href={link(p)}>{p.data.title}</a><span>{p.data.headline}</span></li>)}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </section>
+</Base>

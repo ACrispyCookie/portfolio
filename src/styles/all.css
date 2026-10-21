@@ -1,0 +1,29 @@
+/* All projects (spec §5.4a): a list, not cards. Small thumbnails from approved pictures; courses in two columns
+   on wide screens so the page isn't a strip beside empty space. Text lines stay under 65ch. */
+.allhead { padding-top: 40px; display: grid; gap: 8px; }
+.allhead h1 { font: 800 clamp(2.4rem, 4.6vw, 3.6rem) / 1 var(--font-display); letter-spacing: -.03em; } /* a page title, a step above section headings */
+.allhead .lead { max-width: 65ch; color: var(--color-silk); }
+.counts { color: var(--color-dim); }
+
+.thumb { width: 56px; height: 56px; flex: none; border-radius: 12px; overflow: hidden; background: var(--color-raised); display: block; }
+.thumb { display: grid; place-items: center; }
+.thumb img, .thumb svg { width: 100%; height: 100%; object-fit: cover; display: block; }
+.thumb img.paper { object-fit: contain; background: var(--color-paper); padding: 4px; box-sizing: border-box; }
+.thumb .pad { width: 14px; height: 14px; border-radius: 50%; background: var(--color-gold); }
+
+.personal, .course ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.personal { grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 12px; }
+.personal li { display: grid; grid-template-columns: 56px minmax(0, 1fr); grid-template-rows: auto auto; column-gap: 14px; align-items: center; }
+.personal li .thumb { grid-row: 1 / 3; }
+.personal a, .course li a { color: var(--color-silk); font-weight: 600; text-underline-offset: 3px; }
+.personal span:not(.thumb), .course li span { color: var(--color-dim); font-size: var(--text-small); max-width: 65ch; }
+
+.courses { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 440px), 1fr)); gap: 28px 32px; align-items: start; }
+.course .ch { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 10px 16px 10px 10px; border-radius: var(--radius-inner); background: var(--color-panel); color: var(--color-silk); text-decoration: none; transition: background-color .2s; }
+.course .ch:hover { background: var(--color-raised); }
+.course .ch .thumb { width: 44px; height: 44px; border-radius: 10px; }
+.course .ch .cn { display: flex; flex-wrap: wrap; column-gap: 10px; min-width: 0; } /* code and name share a line until it's too narrow */
+.course .ch b { font-weight: 700; }
+.course .ch .g { color: var(--color-dim); }
+.course li { display: grid; gap: 2px; padding: 8px 0; }
+.course ul { padding-left: 16px; margin-top: 4px; }

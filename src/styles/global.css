@@ -93,7 +93,11 @@ a { color: inherit; text-underline-offset: 3px; }
   display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 4px 11px;
   background: var(--color-raised); color: var(--color-dim); font-size: var(--text-small); white-space: nowrap; text-decoration: none;
 }
+/* section headings, on every page */
+.sec > h2 { font: 700 var(--text-title) / 1.1 var(--font-display); letter-spacing: -.02em; margin-bottom: 20px; }
 .panel { background: var(--color-panel); color: var(--color-silk); border-radius: var(--radius-panel); }
+/* "See all 28 projects and 11 courses": the section's closing link, at its content edge */
+.seeall { display: inline-flex; margin-top: 22px; }
 .led { width: 9px; height: 9px; border-radius: 50%; background: var(--color-led); display: inline-block; flex: none; }
 
 /* top bar: solid, sticky */

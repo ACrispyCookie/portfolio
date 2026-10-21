@@ -3,6 +3,7 @@
 import { getCollection } from 'astro:content';
 import ProjectCard from './ProjectCard.astro';
 import OriginCard from './OriginCard.astro';
+import SeeAll from './SeeAll.astro';
 import '../styles/projects.css';
 
 const main = (await getCollection('projects', (p) => p.data.main)).sort((a, b) => a.data.order - b.data.order);
@@ -26,4 +27,5 @@ const compact = rest.filter((p) => !p.data.media);
     <div class="grid three">{personal.map((p) => <ProjectCard project={p} size="personal" />)}</div>
     <OriginCard />
   </div>
+  <SeeAll />
 </section>

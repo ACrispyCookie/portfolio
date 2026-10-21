@@ -1,0 +1,8 @@
+---
+// "See all 28 projects and 11 courses" (spec §4, §5.4a): counted from the collections, never typed in.
+import { getCollection } from 'astro:content';
+
+const projects = await getCollection('projects');
+const courses = await getCollection('courses');
+---
+<a class="seeall btn btn-secondary" href="/projects">See all {projects.length} projects and {courses.length} courses</a>

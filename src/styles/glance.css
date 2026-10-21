@@ -1,5 +1,4 @@
 /* At a glance + report card (spec §5.1, §7.5). Flat fills only. */
-.sec > h2 { font: 700 var(--text-title) / 1.1 var(--font-display); letter-spacing: -.02em; margin-bottom: 20px; }
 .glance { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
 .read { padding: 20px 22px; display: grid; gap: 4px; align-content: start; }
 .read b { font: 800 var(--text-title) / 1 var(--font-display); letter-spacing: -.03em; color: var(--color-silk); }

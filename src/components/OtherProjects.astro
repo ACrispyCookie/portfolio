@@ -3,6 +3,7 @@
 // section on the course page. Groups follow the projects' own order.
 import { getCollection, getEntry } from 'astro:content';
 import { projectHref } from '../lib/links';
+import SeeAll from './SeeAll.astro';
 import '../styles/other.css';
 
 const small = (await getCollection('projects', (p) => !p.data.main && !!p.data.course)).sort((a, b) => a.data.order - b.data.order);
@@ -29,4 +30,5 @@ const groups = await Promise.all(
       </div>
     ))}
   </div>
+  <SeeAll />
 </section>

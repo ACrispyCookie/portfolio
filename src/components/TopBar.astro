@@ -6,7 +6,8 @@ interface Props {
 const { current, home } = Astro.props;
 const base = home ? '' : '/';
 const items = [
-  ['Projects', `${base}#projects`],
+  // Projects: the home section on home, the All projects page everywhere else (spec §4)
+  ['Projects', home ? '#projects' : '/projects'],
   ['Timeline', `${base}#timeline`],
   ['Skills', `${base}#skills`],
   ['Contact', `${base}#contact`],

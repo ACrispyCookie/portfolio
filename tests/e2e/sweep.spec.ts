@@ -47,23 +47,26 @@ const PEERS = ['.now > a', '.glance > .read', '#projects .grid > .card', '.ccard
 
 // Phones lay text out differently from desktop browsers at the same width (touch, mobile text sizing), so every
 // sweep runs as both.
+// Every page the sweep covers. Plan 2 adds each new page type here as it lands.
+const PAGES = ['/', '/projects'];
+
 const MODES = [{ name: 'desktop browser', isMobile: false, hasTouch: false }, { name: 'phone browser', isMobile: true, hasTouch: true }];
 
-async function settle(page: Page) {
+async function settle(page: Page, path: string) {
   await page.route('https://fpga.njason.dev/**', (r) => r.abort());
-  await page.goto('/');
+  await page.goto(path);
   // pass the whole page once so every section is switched on and every lazy image has its size
   for (let y = 0; y < 20000; y += 600) await page.evaluate((y) => scrollTo({ top: y, behavior: 'instant' }), y);
   await page.evaluate(() => scrollTo({ top: 0, behavior: 'instant' }));
 }
 
-for (const mode of MODES)
-test(`${mode.name}, every width 320–2560: no sideways scroll, no overlapping text, short headlines, one-line top bar, even rows`, async ({ browser, baseURL }, info) => {
+for (const path of PAGES) for (const mode of MODES)
+test(`${path}, ${mode.name}, every width 320–2560: no sideways scroll, no overlapping text, short headlines, one-line top bar, even rows`, async ({ browser, baseURL }, info) => {
   test.skip(info.project.name !== 'desktop', 'resizes its own page; one run covers every width');
   test.setTimeout(900_000);
   const ctx = await browser.newContext({ baseURL, isMobile: mode.isMobile, hasTouch: mode.hasTouch, viewport: { width: 1440, height: 900 } });
   const page = await ctx.newPage();
-  await settle(page);
+  await settle(page, path);
   const failures: string[] = [];
   for (const w of WIDTHS) {
     await page.setViewportSize({ width: w, height: 900 });
@@ -100,13 +103,13 @@ test(`${mode.name}, every width 320–2560: no sideways scroll, no overlapping t
   expect(failures).toEqual([]);
 });
 
-for (const mode of MODES)
-test(`${mode.name}, every window shape, portrait and landscape: the name is on the first screen, no picture outgrows the screen, pictures fill their cards`, async ({ browser, baseURL }, info) => {
+for (const path of PAGES) for (const mode of MODES)
+test(`${path}, ${mode.name}, every window shape, portrait and landscape: the page's h1 is on the first screen, no picture outgrows the screen, pictures fill their cards`, async ({ browser, baseURL }, info) => {
   test.skip(info.project.name !== 'desktop', 'resizes its own page; one run covers every shape');
   test.setTimeout(900_000);
   const ctx = await browser.newContext({ baseURL, isMobile: mode.isMobile, hasTouch: mode.hasTouch, viewport: { width: 1440, height: 900 } });
   const page = await ctx.newPage();
-  await settle(page);
+  await settle(page, path);
   const failures: string[] = [];
   for (const [w, h] of SHAPES) {
     await page.setViewportSize({ width: w, height: h });
@@ -133,7 +136,7 @@ test(`${mode.name}, every window shape, portrait and landscape: the name is on t
       });
       return { nameBottom: Math.round(name.bottom), tall, narrow };
     });
-    if (f.nameBottom > h) failures.push(`${w}×${h}: the name is below the first screen (bottom at ${f.nameBottom}px)`);
+    if (f.nameBottom > h) failures.push(`${w}×${h}: the page's h1 is below the first screen (bottom at ${f.nameBottom}px)`);
     for (const t of f.tall) failures.push(`${w}×${h}: picture taller than allowed: ${t}`);
     for (const n of f.narrow) failures.push(`${w}×${h}: picture doesn't fill its card: ${n}`);
   }

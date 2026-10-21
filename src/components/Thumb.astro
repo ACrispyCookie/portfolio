@@ -1,0 +1,15 @@
+---
+// A small square thumbnail of a project (All projects page): its approved picture, its diagram, or the gold pad mark.
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import Runtime from './diagrams/Runtime.astro';
+import Threads from './diagrams/Threads.astro';
+import Homelab from './diagrams/Homelab.astro';
+
+interface Props { project?: CollectionEntry<'projects'> }
+const p = Astro.props.project?.data;
+const Diagram = p?.diagram ? { runtime: Runtime, threads: Threads, homelab: Homelab }[p.diagram] : null;
+---
+<span class="thumb" aria-hidden="true">
+  {p?.media ? <Image src={p.media.src} alt="" width={112} height={112} class:list={{ paper: p.media.paper }} /> : Diagram ? <Diagram label="" /> : <i class="pad"></i>}
+</span>

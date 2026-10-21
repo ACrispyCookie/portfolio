@@ -65,3 +65,19 @@ test('phone layout: the lab pill and the Menu pill are the same size and line up
   })));
   expect(lab).toEqual(menu);
 });
+
+test("iOS doesn't turn timeline dates into links: detection is off, and a detected link keeps the text's colour", async ({ page }) => {
+  await page.goto('/');
+  const fd = await page.locator('meta[name="format-detection"]').getAttribute('content');
+  for (const k of ['telephone=no', 'date=no', 'address=no', 'email=no']) expect(fd).toContain(k);
+  // what Safari's data detectors produce, if they ran anyway
+  const same = await page.evaluate(() => {
+    const small = document.querySelector('#timeline small')!;
+    const a = document.createElement('a');
+    a.setAttribute('x-apple-data-detectors', 'true');
+    a.textContent = '09/2022';
+    small.append(a);
+    return getComputedStyle(a).color === getComputedStyle(small).color && getComputedStyle(a).textDecorationLine === 'none';
+  });
+  expect(same).toBe(true);
+});

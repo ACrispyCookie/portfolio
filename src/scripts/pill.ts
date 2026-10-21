@@ -1,9 +1,13 @@
 // Home only: the top-bar lab pill is hidden while the hero widget is on screen (spec §4, Jason: "keep it as it was").
 export function initPill(board: HTMLElement, pill: HTMLElement): void {
+  // set here, not in the HTML, so without JS the pill stays clickable
+  pill.inert = pill.classList.contains('off');
   new IntersectionObserver(
     // a batch can hold several entries for the board; the last one is current
     (entries) => {
-      pill.classList.toggle('off', entries[entries.length - 1].isIntersecting);
+      const off = entries[entries.length - 1].isIntersecting;
+      pill.classList.toggle('off', off);
+      pill.inert = off; // not clickable or focusable while it can't be seen
     },
     { rootMargin: '-64px 0px 0px 0px' },
   ).observe(board);

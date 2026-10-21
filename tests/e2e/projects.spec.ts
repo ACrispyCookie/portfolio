@@ -40,15 +40,17 @@ test('GPGPU card: Run the demo goes to the lab', async ({ page }) => {
   await expect(demo).toHaveAttribute('href', 'https://fpga.njason.dev');
 });
 
-test('course tags, team avatars (Jason first) and Solo', async ({ page }) => {
+test('course tags, team avatars (Jason first); solo work shows only Jason (no Solo pill)', async ({ page }) => {
   await page.goto('/');
   const tag = page.locator('#projects .card[data-id="nbody"] a.tag');
   await expect(tag).toHaveText('ECE415Grade 9.5');
   await expect(tag).toHaveAttribute('href', '/courses/ece415');
   const threads = await page.locator('#projects .card[data-id="threads"] .av a').evaluateAll((as) => as.map((a) => a.getAttribute('title')));
   expect(threads).toEqual(['Jason Nikas', 'Panagiotis Nikolaos Tsogkas', 'Tvangos']);
-  await expect(page.locator('#projects .card[data-id="runtime"] .tag', { hasText: 'Solo' })).toHaveCount(1);
-  await expect(page.locator('#projects .card[data-id="runtime"] .av')).toHaveCount(0);
+  // Jason (2026-10-21): solo course work shows his avatar alone instead of a "Solo" pill
+  await expect(page.locator('#projects .tag', { hasText: /^Solo$/ })).toHaveCount(0);
+  const solo = await page.locator('#projects .card[data-id="runtime"] .av a').evaluateAll((as) => as.map((a) => a.getAttribute('title')));
+  expect(solo).toEqual(['Jason Nikas']);
   await expect(page.locator('#projects .card[data-id="dvd-logo-fpga"] .tag', { hasText: 'From ECE333' })).toHaveCount(1);
 });
 

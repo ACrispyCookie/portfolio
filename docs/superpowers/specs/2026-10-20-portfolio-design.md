@@ -382,7 +382,7 @@ The whole site is one dark circuit board. The live lab widget is the powered par
 
 - **Cards:** the mock's anatomy:
   - picture or video, course and name, headline;
-  - course tag with grade (linking to the course page), team avatars or "Solo".
+  - course tag with grade (linking to the course page), team avatars; solo work shows Jason's avatar alone (Jason, 2026-10-21: no "Solo" pill).
   - The whole card is clickable.
   - Videos are muted autoplay loops with a poster, and pause under reduced motion.
 - **Report card (grades):** a native `<details>`.

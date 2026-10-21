@@ -102,3 +102,7 @@ Every decision taken during Plan 1 (docs/superpowers/plans/2026-10-20-njason-hom
 - .impeccable cache/local files tracked in git
 - lab-assistant count splits timeline titles on ", "; stats match course code to id by lowercasing
 - no favicon
+
+## After the PR was opened
+
+- PR #1 follow-up (Jason, 2026-10-21): solo course cards show Jason's avatar alone instead of a "Solo" pill; spec §7.5 updated — cost if wrong: one line in ProjectCard.astro

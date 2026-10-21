@@ -1,5 +1,5 @@
 ---
-// Project card (spec §7.5): picture or video, name, headline, course tag with grade, team avatars or "Solo".
+// Project card (spec §7.5): picture or video, name, headline, course tag with grade, team avatars (Jason alone on solo work).
 // The whole card is one link: name and headline sit inside it and it stretches over the card; tags, avatars and
 // the demo button sit above it. Text inside the link keeps it from being covered by the stretched layer.
 import { Picture } from 'astro:assets';
@@ -46,7 +46,7 @@ const sizes = { wide: '(max-width: 760px) 100vw, 640px', large: '(max-width: 760
       {href === LAB_URL && <span class="tag"><i class="led"></i>Live</span>}
       <div class="row">
         {size === 'wide' && p.links.demo && <a class="btn btn-live" href={p.links.demo}>Run the demo</a>}
-        {p.kind === 'course' && (team.length ? <Avatars handles={['jason', ...team]} /> : <span class="tag">Solo</span>)}
+        {p.kind === 'course' && <Avatars handles={['jason', ...team]} />}
       </div>
     </div>
   </div>

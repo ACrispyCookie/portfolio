@@ -6,12 +6,12 @@ test('All projects: counts, personal first, then courses in report-card order', 
   await expect(page.locator('main h1')).toHaveText('Projects');
   await expect(page.locator('.counts')).toHaveText('28 projects and 11 courses');
   // personal first, then courses in report-card order (courses.order)
-  await expect(page.locator('.personal a')).toHaveText(['Homelab', 'Live FPGA Lab', 'DVD Logo FPGA']);
-  await expect(page.locator('.course > a.ch b')).toHaveText(['ECE494', 'ECE436', 'ECE433', 'ECE318', 'ECE321', 'ECE415', 'ECE455', 'ECE348', 'ECE338', 'ECE333', 'ECE340']);
+  await expect(page.locator('.personal a b')).toHaveText(['Homelab', 'Live FPGA Lab', 'DVD Logo FPGA']);
+  await expect(page.locator('.course a.ch b')).toHaveText(['ECE494', 'ECE436', 'ECE433', 'ECE318', 'ECE321', 'ECE415', 'ECE455', 'ECE348', 'ECE338', 'ECE333', 'ECE340']);
   // ECE415: grade, main project first to its page, then the four smaller to their sections
   const ece415 = page.locator('.course', { has: page.locator('b', { hasText: 'ECE415' }) });
   await expect(ece415.locator('.g')).toHaveText('9.5');
-  expect(await ece415.locator('li a').evaluateAll((as) => as.map((a) => a.getAttribute('href')))).toEqual(
+  expect(await ece415.locator('ul li a').evaluateAll((as) => as.map((a) => a.getAttribute('href')))).toEqual(
     ['/courses/ece415/nbody', '/courses/ece415#sobel', '/courses/ece415#kmeans', '/courses/ece415#conv', '/courses/ece415#clahe']);
   await expect(ece415.locator('a.ch')).toHaveAttribute('href', '/courses/ece415');
 });

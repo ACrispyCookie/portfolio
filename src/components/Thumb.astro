@@ -1,15 +1,19 @@
 ---
-// A small square thumbnail of a project (All projects page): its approved picture, its diagram, or the gold pad mark.
-import { Image } from 'astro:assets';
+// A project's picture on the All projects page: its approved image, its diagram, or the gold pad mark.
+// The box sets the size; the image is cropped to fill it (paper charts are shown whole on white).
+import { Picture } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import Runtime from './diagrams/Runtime.astro';
 import Threads from './diagrams/Threads.astro';
 import Homelab from './diagrams/Homelab.astro';
 
-interface Props { project?: CollectionEntry<'projects'> }
+interface Props { project?: CollectionEntry<'projects'>; sizes: string }
+const { sizes } = Astro.props;
 const p = Astro.props.project?.data;
 const Diagram = p?.diagram ? { runtime: Runtime, threads: Threads, homelab: Homelab }[p.diagram] : null;
 ---
 <span class="thumb" aria-hidden="true">
-  {p?.media ? <Image src={p.media.src} alt="" width={112} height={112} class:list={{ paper: p.media.paper }} /> : Diagram ? <Diagram label="" /> : <i class="pad"></i>}
+  {p?.media ? (
+    <Picture src={p.media.src} formats={['avif', 'webp']} widths={[240, 400, 640]} sizes={sizes} alt="" loading="lazy" class:list={{ paper: p.media.paper }} />
+  ) : Diagram ? <Diagram label="" /> : <i class="pad"></i>}
 </span>

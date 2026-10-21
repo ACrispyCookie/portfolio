@@ -1,29 +1,43 @@
-/* All projects (spec §5.4a): a list, not cards. Small thumbnails from approved pictures; courses in two columns
-   on wide screens so the page isn't a strip beside empty space. Text lines stay under 65ch. */
+/* All projects (spec §5.4a, Jason 2026-10-21: larger pictures). Personal projects as three picture tiles; each course
+   a block with its main project's picture beside its header and project list. Text lines stay under 65ch. */
 .allhead { padding-top: 40px; display: grid; gap: 8px; }
-.allhead h1 { font: 800 clamp(2.4rem, 4.6vw, 3.6rem) / 1 var(--font-display); letter-spacing: -.03em; } /* a page title, a step above section headings */
+.allhead h1 { font: 800 var(--text-display) / 1 var(--font-display); letter-spacing: -.035em; } /* a page title: the display size */
 .allhead .lead { max-width: 65ch; color: var(--color-silk); }
 .counts { color: var(--color-dim); }
 
-.thumb { width: 56px; height: 56px; flex: none; border-radius: 12px; overflow: hidden; background: var(--color-raised); display: block; }
-.thumb { display: grid; place-items: center; }
-.thumb img, .thumb svg { width: 100%; height: 100%; object-fit: cover; display: block; }
-.thumb img.paper { object-fit: contain; background: var(--color-paper); padding: 4px; box-sizing: border-box; }
-.thumb .pad { width: 14px; height: 14px; border-radius: 50%; background: var(--color-gold); }
+/* pictures: the box sets the size, the image fills it; paper charts sit whole on white */
+.thumb { display: block; position: relative; overflow: hidden; background: var(--color-raised); border-radius: var(--radius-inner); aspect-ratio: 16 / 10; width: 100%; max-height: 60vh; max-height: 60svh; } /* short screens crop, as on home */
+.thumb picture { display: contents; }
+.thumb img, .thumb svg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.thumb img.paper { object-fit: contain; background: var(--color-paper); padding: 8px; box-sizing: border-box; }
+.thumb .pad { position: absolute; inset: 0; margin: auto; width: 18px; height: 18px; border-radius: 50%; background: var(--color-gold); }
 
-.personal, .course ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
-.personal { grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 12px; }
-.personal li { display: grid; grid-template-columns: 56px minmax(0, 1fr); grid-template-rows: auto auto; column-gap: 14px; align-items: center; }
-.personal li .thumb { grid-row: 1 / 3; }
-.personal a, .course li a { color: var(--color-silk); font-weight: 600; text-underline-offset: 3px; }
-.personal span:not(.thumb), .course li span { color: var(--color-dim); font-size: var(--text-small); max-width: 65ch; }
+.personal { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 18px; }
+.personal a { display: grid; gap: 6px; color: var(--color-silk); text-decoration: none; }
+.personal a b { margin-top: 6px; font-weight: 700; }
+.personal a span:not(.thumb) { color: var(--color-dim); font-size: var(--text-small); max-width: 65ch; }
+.personal a:hover b { text-decoration: underline; text-underline-offset: 3px; }
 
-.courses { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 440px), 1fr)); gap: 28px 32px; align-items: start; }
-.course .ch { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 10px 16px 10px 10px; border-radius: var(--radius-inner); background: var(--color-panel); color: var(--color-silk); text-decoration: none; transition: background-color .2s; }
+.courses { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 500px), 1fr)); gap: 32px 40px; align-items: start; }
+.course { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 18px; align-items: start; }
+.course .cbody { display: grid; gap: 6px; min-width: 0; }
+.course .ch { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 10px 16px; border-radius: var(--radius-inner); background: var(--color-panel); color: var(--color-silk); text-decoration: none; transition: background-color .2s; }
 .course .ch:hover { background: var(--color-raised); }
-.course .ch .thumb { width: 44px; height: 44px; border-radius: 10px; }
-.course .ch .cn { display: flex; flex-wrap: wrap; column-gap: 10px; min-width: 0; } /* code and name share a line until it's too narrow */
+.course .ch .cn { display: flex; flex-wrap: wrap; column-gap: 10px; min-width: 0; }
 .course .ch b { font-weight: 700; }
 .course .ch .g { color: var(--color-dim); }
+.course ul { list-style: none; margin: 0; padding: 0 0 0 16px; display: grid; }
 .course li { display: grid; gap: 2px; padding: 8px 0; }
-.course ul { padding-left: 16px; margin-top: 4px; }
+.course li a { color: var(--color-silk); font-weight: 600; text-underline-offset: 3px; }
+.course li span { color: var(--color-dim); font-size: var(--text-small); }
+
+/* narrow: the picture goes above the course, capped so the list stays close */
+@container courses (max-width: 520px) {
+  .course { grid-template-columns: 1fr; }
+  .course .thumb { aspect-ratio: auto; height: 140px; }
+}
+.courses { container: courses / inline-size; }
+@media (max-width: 560px) {
+  .course { grid-template-columns: 1fr; }
+  .course .thumb { aspect-ratio: auto; height: 140px; }
+}

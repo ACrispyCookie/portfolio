@@ -25,7 +25,9 @@ const ofCourse = (id: string) =>
   <section id="personal" class="sec" aria-labelledby="personal-h">
     <h2 id="personal-h" data-pad>Personal projects</h2>
     <ul class="personal">
-      {personal.map((p) => <li><Thumb project={p} /><a href={link(p)}>{p.data.title}</a><span>{p.data.headline}</span></li>)}
+      {personal.map((p) => (
+        <li><a href={link(p)}><Thumb project={p} sizes="(max-width: 760px) 100vw, 360px" /><b>{p.data.title}</b><span>{p.data.headline}</span></a></li>
+      ))}
     </ul>
   </section>
 
@@ -34,10 +36,13 @@ const ofCourse = (id: string) =>
     <div class="courses">
       {courses.map((c) => (
         <div class="course">
-          <a class="ch" href={courseHref(c.id)}><Thumb project={featured(c)} /><span class="cn"><b>{c.data.code}</b><span class="n">{c.data.name}</span></span><span class="g">{c.data.grade}</span></a>
-          <ul>
-            {ofCourse(c.id).map((p) => <li><a href={link(p)}>{p.data.title}</a><span>{p.data.headline}</span></li>)}
-          </ul>
+          <a class="cpic" href={courseHref(c.id)} tabindex="-1" aria-hidden="true"><Thumb project={featured(c)} sizes="(max-width: 760px) 100vw, 200px" /></a>
+          <div class="cbody">
+            <a class="ch" href={courseHref(c.id)}><span class="cn"><b>{c.data.code}</b><span class="n">{c.data.name}</span></span><span class="g">{c.data.grade}</span></a>
+            <ul>
+              {ofCourse(c.id).map((p) => <li><a href={link(p)}>{p.data.title}</a><span>{p.data.headline}</span></li>)}
+            </ul>
+          </div>
         </div>
       ))}
     </div>

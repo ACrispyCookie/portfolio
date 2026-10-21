@@ -36,6 +36,7 @@
 :root {
   color-scheme: dark;
   --rail: 68px;
+  --rail-r: var(--rail); /* the trace gutter is mirrored on the right so the frame is centred */
   --trace-x: 18.5px;
   --gap: clamp(64px, 7vw, 96px);
   --side-l: max(20px, env(safe-area-inset-left, 0px));
@@ -44,6 +45,7 @@
 @media (max-width: 760px) {
   :root {
     --rail: 42px;
+    --rail-r: 0px;
     --trace-x: 11px;
     --side-l: max(12px, env(safe-area-inset-left, 0px));
     --side-r: max(16px, env(safe-area-inset-right, 0px));
@@ -61,14 +63,14 @@ body {
   -webkit-text-size-adjust: 100%;
 }
 h1, h2, h3 { font-family: var(--font-display); color: var(--color-silk); margin: 0; text-wrap: balance; }
-p { margin: 0; max-width: 65ch; }
+p { margin: 0; max-width: 65ch; text-wrap: pretty; }
 a { color: inherit; text-underline-offset: 3px; }
 ::selection { background: var(--color-cyan); color: var(--color-ink); }
 :focus-visible { outline: 2px solid var(--color-cyan); outline-offset: 3px; border-radius: 6px; }
 
 /* frame: one left content edge; the trace lives in the gutter left of it */
-.wrap { max-width: 1200px; margin-inline: auto; position: relative; }
-.wrap > main { padding-left: var(--rail); display: grid; gap: var(--gap); position: relative; z-index: 1; }
+.wrap { max-width: calc(1200px + var(--rail-r)); margin-inline: auto; position: relative; }
+.wrap > main { padding-inline: var(--rail) var(--rail-r); display: grid; gap: var(--gap); position: relative; z-index: 1; }
 
 /* controls */
 .btn {
@@ -99,7 +101,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   padding: 14px var(--side-r) 14px var(--side-l);
   background: var(--color-mask); color: var(--color-silk);
 }
-.topbar .in { max-width: 1200px; margin: 0 auto; padding-left: var(--rail); box-sizing: border-box; display: flex; align-items: center; gap: 16px; position: relative; }
+.topbar .in { max-width: calc(1200px + var(--rail-r)); margin: 0 auto; padding-inline: var(--rail) var(--rail-r); box-sizing: border-box; display: flex; align-items: center; gap: 16px; position: relative; }
 .topbar .name { font: 700 var(--text-body) var(--font-display); text-decoration: none; letter-spacing: -.01em; margin-right: auto; }
 .topbar nav { display: flex; gap: 2px; }
 .topbar nav a { text-decoration: none; padding: 8px 14px; border-radius: 999px; color: var(--color-dim); transition: background-color .2s, color .2s; }
@@ -135,7 +137,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   background: var(--color-panel); color: var(--color-silk);
 }
 .foot-in {
-  max-width: 1200px; margin: 0 auto; padding-left: var(--rail); box-sizing: border-box;
+  max-width: calc(1200px + var(--rail-r)); margin: 0 auto; padding-inline: var(--rail) var(--rail-r); box-sizing: border-box;
   display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 18px 24px; align-items: end;
 }
 .foot b { font: 700 var(--text-lead) var(--font-display); }
@@ -147,4 +149,28 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 @media (max-width: 760px) {
   .foot-in { grid-template-columns: 1fr; }
   .foot .links { justify-content: flex-start; }
+}
+
+/* copper trace (spec §7.3): drawn by src/scripts/trace.ts behind the content; no trace without JS */
+svg.trace { position: absolute; left: 0; top: 0; pointer-events: none; overflow: visible; z-index: 0; }
+.t-ghost, .t-drawn, .t-pulse, .t-stub { fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.t-ghost { stroke: var(--color-groove); }
+.t-drawn { stroke: var(--color-copper); }
+.t-pulse { stroke: var(--color-cyan); opacity: 0; transition: opacity .4s; }
+.t-stub { stroke: var(--color-groove); stroke-width: 2.5; transition: stroke .4s; }
+.t-stub.on { stroke: var(--color-copper); }
+.t-via { fill: var(--color-mask); stroke: var(--color-groove); stroke-width: 2; transition: stroke .4s; }
+.t-via.on { stroke: var(--color-copper); }
+.t-pad { fill: var(--color-hover); transition: fill .4s; }
+.t-pad.on { fill: var(--color-gold); stroke: var(--color-gold-ring); stroke-width: 3.5; }
+
+/* sections switch on when the copper reaches them; hidden start states only with JS (html.rv) and motion allowed */
+@media (prefers-reduced-motion: no-preference) {
+  html.rv main > section:not(.hero) > :not(h2) { opacity: 0; transform: translateY(16px); transition: opacity .45s ease-out, transform .45s cubic-bezier(.16, 1, .3, 1); }
+  html.rv main > section.lit > :not(h2) { opacity: 1; transform: none; }
+  html.rv main > section.lit > :nth-child(3) { transition-delay: 70ms; }
+  html.rv main > section.lit > :nth-child(4) { transition-delay: 140ms; }
+  html.rv main > section.lit > :nth-child(n + 5) { transition-delay: 210ms; }
+  html.rv main > section:not(.hero) > h2 { color: var(--color-dim); transition: color .4s; }
+  html.rv main > section.lit > h2 { color: var(--color-silk); }
 }

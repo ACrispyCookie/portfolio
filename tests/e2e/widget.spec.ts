@@ -1,22 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 
-const STREAM = 'https://fpga.njason.dev/api/public/board/stream';
-const JSON_URL = 'https://fpga.njason.dev/api/public/board';
-const event = (over: Record<string, unknown> = {}) => ({
-  online: true, name: 'Smart Zynq SL', fpga: 'xc7z020', status: 'running', mode: 'demo', temperature_c: 47,
-  healthy: true, faults: [], active_demo: 'gpgpu-nbody', queue_length: 1,
-  demos: [{ id: 'gpgpu-nbody', name: 'GPGPU n-body' }, { id: 'dvd', name: 'DVD logo' }], updated_at: '2026-10-20T20:00:00Z', ...over,
-});
+import { STREAM, JSON_URL, event, serveStream } from './helpers/lab';
 
-async function serveStream(page: Page, data: Record<string, unknown>) {
-  await page.route(STREAM, (route) =>
-    route.fulfill({
-      status: 200,
-      headers: { 'content-type': 'text/event-stream', 'access-control-allow-origin': '*', 'cache-control': 'no-cache' },
-      body: `retry: 60000\nevent: board\ndata: ${JSON.stringify(data)}\n\n`,
-    }),
-  );
-}
 // The stream opens only while the widget is on screen (spec §7.2), so bring it into view.
 async function open(page: Page) {
   await page.goto('/');

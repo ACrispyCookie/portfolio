@@ -23,12 +23,15 @@ const { title, description, home = false } = Astro.props;
   </head>
   <body>
     <TopBar home={home} />
-    <div class="wrap" data-trace>
+    <div class="wrap" data-trace={home ? 'board' : 'page'}>
       <main id="top">
         <slot />
       </main>
     </div>
     <Footer home={home} />
     <slot name="scripts" />
+    <script>
+      import '../scripts/trace';
+    </script>
   </body>
 </html>

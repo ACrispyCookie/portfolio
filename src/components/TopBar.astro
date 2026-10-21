@@ -19,10 +19,10 @@ const items = [
     <nav aria-label="Main">
       {items.map(([label, href]) => <a href={href} aria-current={label === current ? 'page' : undefined}>{label}</a>)}
     </nav>
-    {/* on home it starts hidden (home-wait), so a slow script can never show it fading away; pill.ts takes over once it
-        knows where the widget is. Without JS the noscript rule, later in the page, shows it. */}
-    <a class={home ? 'labpill home-wait' : 'labpill'} href="https://fpga.njason.dev"><i class="led" aria-hidden="true"></i><span>Live <span class="lg">FPGA </span>Lab</span></a>
-    {home && <noscript><style set:html=".topbar .labpill.home-wait { display: inline-flex; }" /></noscript>}
+    {/* on home it starts off (invisible, keeping its place), so a slow script can never show it fading away; pill.ts
+        takes over once it knows where the widget is. Without JS the noscript rule, later in the page, shows it. */}
+    <a class={home ? 'labpill off' : 'labpill'} href="https://fpga.njason.dev"><i class="led" aria-hidden="true"></i><span>Live <span class="lg">FPGA </span>Lab</span></a>
+    {home && <noscript><style set:html=".topbar .labpill.off { opacity: 1; visibility: visible; pointer-events: auto; display: inline-flex; }" /></noscript>}
     <details class="menu">
       <summary>Menu</summary>
       <div class="menu-sheet">

@@ -58,16 +58,17 @@ test('without JavaScript nothing in main is see-through and the pill is visible'
   await ctx.close();
 });
 
-test('home: the pill fades out when the widget comes back, then leaves the layout', async ({ page }) => {
+test('home: the pill fades out when the widget comes back, then ends invisible', async ({ page }) => {
   await page.route('https://fpga.njason.dev/**', (r) => r.abort());
   await page.goto('/');
   await page.evaluate(() => scrollTo({ top: 1400, behavior: 'instant' }));
   await expect(page.locator('.topbar .labpill')).toBeVisible();
   await page.waitForTimeout(400);
   await page.evaluate(() => document.querySelector('.hero .board')!.scrollIntoView({ block: 'center', behavior: 'instant' }));
-  // mid-fade: still laid out, already partly transparent
-  await expect.poll(() => page.locator('.topbar .labpill').evaluate((el) => { const cs = getComputedStyle(el); return cs.display !== 'none' && parseFloat(cs.opacity) < 1; }), { intervals: [20], timeout: 1000 }).toBe(true);
-  await expect.poll(() => page.locator('.topbar .labpill').evaluate((el) => getComputedStyle(el).display), { timeout: 2000 }).toBe('none');
+  // mid-fade: still visible, already partly transparent
+  await expect.poll(() => page.locator('.topbar .labpill').evaluate((el) => { const cs = getComputedStyle(el); return cs.visibility === 'visible' && parseFloat(cs.opacity) < 1; }), { intervals: [20], timeout: 1000 }).toBe(true);
+  // then invisible, keeping its place in the bar (nothing beside it moves)
+  await expect.poll(() => page.locator('.topbar .labpill').evaluate((el) => getComputedStyle(el).visibility), { timeout: 2000 }).toBe('hidden');
 });
 
 test('home: with the widget on screen, the pill never shows, not even for a frame at load', async ({ page }, info) => {
@@ -86,4 +87,33 @@ test('home: with the widget on screen, the pill never shows, not even for a fram
   await page.goto('/');
   await page.waitForTimeout(3200);
   expect(await page.evaluate(() => (window as any).__pillSeen)).toBe(false);
+});
+
+test('home: the pill fades in and out, and nothing else in the top bar moves', async ({ page }) => {
+  await page.route('https://fpga.njason.dev/**', (r) => r.abort());
+  await page.goto('/');
+  const board = page.locator('.hero .board');
+  const bar = () => page.locator('.topbar .name, .topbar nav a, .menu summary').evaluateAll((els) =>
+    els.filter((e) => (e as HTMLElement).offsetParent).map((e) => Math.round(e.getBoundingClientRect().left)));
+  // record the pill's opacity every frame while it changes
+  const frames = async (move: () => Promise<void>) => {
+    await page.evaluate(() => {
+      (window as any).__o = [];
+      const s = () => { const c = getComputedStyle(document.querySelector('.topbar .labpill')!); (window as any).__o.push(c.display === 'none' || c.visibility === 'hidden' ? -1 : +c.opacity); if ((window as any).__o.length < 40) requestAnimationFrame(s); };
+      requestAnimationFrame(s);
+    });
+    await move();
+    await page.waitForTimeout(900);
+    return page.evaluate(() => (window as any).__o as number[]);
+  };
+  await board.evaluate((b) => b.scrollIntoView({ block: 'center', behavior: 'instant' }));
+  await page.waitForTimeout(600);
+  const before = await bar();
+  const appear = await frames(() => page.evaluate(() => scrollTo({ top: 4000, behavior: 'instant' })));
+  expect(appear.some((o) => o > 0.05 && o < 0.95), `appear frames ${appear.join(' ')}`).toBe(true);
+  expect(await bar(), 'the name, links and Menu stay put when the pill appears').toEqual(before);
+  const disappear = await frames(() => board.evaluate((b) => b.scrollIntoView({ block: 'center', behavior: 'instant' })));
+  expect(disappear.some((o) => o > 0.05 && o < 0.95), `disappear frames ${disappear.join(' ')}`).toBe(true);
+  expect(disappear.at(-1)).toBe(-1); // ends invisible
+  expect(await bar(), 'and stay put when it disappears').toEqual(before);
 });

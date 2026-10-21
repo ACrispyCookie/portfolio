@@ -4,6 +4,7 @@ import { toWidgetView, type BoardEvent, type WidgetView } from '../lib/board';
 
 const ORIGIN = 'https://fpga.njason.dev';
 const STALE_MS = 20_000; // events arrive about every 2 s; silence this long means the stream is gone
+const POLL_MS = 5_000; // without the stream, the JSON snapshot is refreshed this often while on screen
 
 function render(root: HTMLElement, v: WidgetView) {
   const f = (name: string) => root.querySelector<HTMLElement>(`[data-f="${name}"]`);
@@ -25,6 +26,8 @@ export function connectBoard(root: HTMLElement): void {
   let last: BoardEvent | null = null;
   let gotEvent = false;
   let stale: number | undefined;
+  let poll: number | undefined;
+  let visible = false; // polling stops when the widget leaves the screen, even mid-request
 
   const show = (connected: boolean) => render(root, toWidgetView(last, connected));
   const armStale = () => {
@@ -32,23 +35,29 @@ export function connectBoard(root: HTMLElement): void {
     stale = window.setTimeout(() => show(false), STALE_MS);
   };
 
+  // Fallback when the stream can't be used: poll the JSON snapshot while on screen, so a snapshot is never
+  // presented as live for longer than the staleness limit.
   async function fetchOnce() {
     try {
       const res = await fetch(`${ORIGIN}/api/public/board`, { credentials: 'omit' });
       if (!res.ok) throw new Error(String(res.status));
       last = (await res.json()) as BoardEvent;
       show(true);
+      armStale();
     } catch {
       show(false);
     }
+    if (visible) poll = window.setTimeout(fetchOnce, POLL_MS);
   }
 
   function open() {
+    visible = true;
     if (source || typeof EventSource === 'undefined') {
       if (!source) void fetchOnce();
       return;
     }
     source = new EventSource(`${ORIGIN}/api/public/board/stream`);
+    armStale(); // a stream that opens but never sends must still give up
     source.addEventListener('board', (e) => {
       try {
         last = JSON.parse((e as MessageEvent<string>).data) as BoardEvent;
@@ -62,6 +71,7 @@ export function connectBoard(root: HTMLElement): void {
     source.addEventListener('error', () => {
       if (!gotEvent) {
         close();
+        visible = true; // still on screen: only the stream failed
         void fetchOnce();
       } else if (source?.readyState === EventSource.CLOSED) {
         show(false);
@@ -70,9 +80,12 @@ export function connectBoard(root: HTMLElement): void {
   }
 
   function close() {
+    visible = false;
     source?.close();
     source = null;
     clearTimeout(stale);
+    clearTimeout(poll);
+    poll = undefined;
   }
 
   // One callback can carry several entries for the same element (e.g. "out" then "in" after the photo loads); the last one is current.

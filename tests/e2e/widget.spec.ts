@@ -150,3 +150,37 @@ test('with one status line the text sits centred, with no blank line reserved be
   });
   expect(Math.abs(gaps.top - gaps.bottom), JSON.stringify(gaps)).toBeLessThanOrEqual(2);
 });
+
+test('a stream that opens but never sends gives up after the staleness limit', async ({ page }) => {
+  await page.clock.install();
+  await page.route(STREAM, () => new Promise(() => {})); // hangs: no event, no error
+  await page.route(JSON_URL, (r) => r.abort());
+  await open(page);
+  const board = page.locator('.hero .board');
+  await expect(board).toHaveAttribute('data-state', 'connecting');
+  await page.clock.fastForward(21_000);
+  await expect(board).toHaveAttribute('data-state', 'offline');
+  await expect(board.locator('[data-f="running"]')).toHaveText('Status unavailable');
+});
+
+test('without the stream, the JSON fallback keeps refreshing, and goes offline when it stops answering', async ({ page }) => {
+  await page.clock.install();
+  let calls = 0;
+  let up = true;
+  await page.route(STREAM, (r) => r.abort());
+  await page.route(JSON_URL, (r) => {
+    calls++;
+    return up ? r.fulfill({ status: 200, headers: { 'access-control-allow-origin': '*' }, contentType: 'application/json', body: JSON.stringify(event()) }) : r.abort();
+  });
+  await open(page);
+  const board = page.locator('.hero .board');
+  await expect(board).toHaveAttribute('data-state', 'online');
+  const first = calls;
+  await page.clock.fastForward(11_000);
+  await expect.poll(() => calls).toBeGreaterThan(first); // a snapshot is not presented as live forever
+  up = false;
+  const before = calls;
+  // advance until a poll has actually failed (a request already in flight may still land as a success)
+  await expect.poll(async () => { await page.clock.fastForward(6_000); return calls; }).toBeGreaterThan(before + 1);
+  await expect(board).toHaveAttribute('data-state', 'offline');
+});

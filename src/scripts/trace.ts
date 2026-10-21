@@ -48,13 +48,28 @@ export function initTrace(host: HTMLElement): void {
     drawnAt = -1; // re-check the 70% fallback even when the copper target hasn't moved
   };
 
+  // a section the copper can't reach must never stay hidden: switch it on at once
+  const allSecs = () => [...host.querySelectorAll<HTMLElement>('main > section:not(.hero)')];
+  const lightRest = () => { for (const sec of allSecs()) if (!secs.includes(sec)) sec.classList.add('lit'); };
+
   function build() {
+    try {
+      layout();
+    } catch (err) {
+      secs = [];
+      lightRest(); // a broken trace must not leave the page blank
+      throw err;
+    }
+  }
+
+  function layout() {
     const hb = host.getBoundingClientRect();
     const railX = parseFloat(getComputedStyle(host).getPropertyValue('--trace-x')) || 14;
     const rel = (r: DOMRect) => ({ x: r.left - hb.left, y: r.top - hb.top, w: r.width, h: r.height });
     const heads = [...host.querySelectorAll<HTMLElement>('[data-pad]')].filter((e) => e.offsetParent);
-    if (!heads.length) return;
     secs = heads.map((e) => e.closest('section'));
+    lightRest();
+    if (!heads.length) return;
     secTops = secs.map((sec) => (sec ? sec.getBoundingClientRect().top - hb.top : Infinity));
     const pads = heads.map((e) => { const r = rel(e.getBoundingClientRect()); return r.y + Math.min(r.h / 2, 24); });
     const s = host.querySelector<HTMLElement>('[data-trace-start]');

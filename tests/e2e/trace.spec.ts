@@ -131,3 +131,25 @@ test.describe('no JavaScript', () => {
     expect(hidden).toBe(0);
   });
 });
+
+test('a section the trace cannot reach is never left hidden', async ({ page }) => {
+  // serve home with the Contact heading's pad removed: the trace can't list that section
+  await page.route((u) => u.pathname === '/', async (route) => {
+    const res = await route.fetch();
+    const html = (await res.text()).replace(/(<h2 id="contact-h"[^>]*?) data-pad/, '$1');
+    await route.fulfill({ response: res, body: html });
+  });
+  await page.goto('/');
+  expect(await page.locator('#contact-h').getAttribute('data-pad')).toBeNull();
+  for (let y = 0; y < 20000; y += 500) await page.evaluate((y) => scrollTo({ top: y, behavior: 'instant' }), y);
+  await page.waitForTimeout(800);
+  const faint = await page.evaluate(() => [...document.querySelectorAll('#contact > *')].filter((e) => parseFloat(getComputedStyle(e).opacity) < 1).length);
+  expect(faint).toBe(0);
+});
+
+test('printing shows every section, lit or not', async ({ page }) => {
+  await page.goto('/');
+  await page.emulateMedia({ media: 'print' });
+  const faint = await page.evaluate(() => [...document.querySelectorAll('main > section > *')].filter((e) => parseFloat(getComputedStyle(e).opacity) < 1).length);
+  expect(faint).toBe(0);
+});

@@ -56,4 +56,11 @@ describe('toWidgetView', () => {
   test('a missing name leaves the sub line empty rather than guessing', () => {
     expect(toWidgetView({ ...online, name: undefined }, true).sub).toBe('');
   });
+
+  test('odd demo lists and non-string fields never throw or print nonsense', () => {
+    const odd = (patch: object) => toWidgetView({ ...online, active_demo: 'nbody', ...patch } as never, true);
+    for (const demos of [null, {}, 7, 'x']) expect(odd({ demos }).running, String(demos)).toBe('nbody');
+    expect(odd({ name: {} }).sub).toBe('');
+    expect(odd({ active_demo: 42 }).running).toBe('Idle');
+  });
 });

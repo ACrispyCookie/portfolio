@@ -366,7 +366,7 @@ The whole site is one dark circuit board. The live lab widget is the powered par
   - One wrapped block of chips, no groups (Jason rejected categories). Each chip carries a small count of the projects on this site that use it; chips are sorted by that count.
   - The first 14 show, then "Show all N" / "Show fewer".
   - Tapping a chip shows **one line** under the chips: "Used in X (COURSE), Y and Z." with the projects as links. Nothing is preselected; until a tap the line says "Tap a tool to see where I used it."
-  - Intro line: "Tools from my projects. The number is how many projects on this site use each one."
+  - Intro line: "What my projects are built with, and how often each tool comes back."
 - **Where it appears:**
   - **Home:** all tools.
   - **Project page:** that project's tools. The line lists the *other* projects ("Also used in …", or "Only this project uses it so far.").

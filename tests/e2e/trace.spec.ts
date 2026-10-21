@@ -42,6 +42,8 @@ test('check.js: no errors or overflow, one edge for traced sections, trace clear
 
   await page.locator('.hero .board').scrollIntoViewIfNeeded();
   await page.evaluate(() => window.scrollTo(0, 0));
+  // pulses run only once the board is powered, which waits for the lab's first status
+  await expect(page.locator('html')).toHaveAttribute('data-lab', 'running');
   await page.evaluate(() => {
     const w = window as unknown as { __l: number[] };
     w.__l = [];
@@ -55,7 +57,8 @@ test('check.js: no errors or overflow, one edge for traced sections, trace clear
   const frames: number[][] = [];
   let cur: number[] = [];
   for (const x of raw) { if (isNaN(x)) { frames.push(cur); cur = []; } else cur.push(x); }
-  expect(frames.filter((f) => f.length).length).toBeGreaterThan(5); // headless WebKit draws few frames
+  const diag = await page.evaluate(() => JSON.stringify({ lab: document.documentElement.dataset.lab, pulses: document.querySelectorAll('.t-pulse').length, y: scrollY }));
+  expect(frames.filter((f) => f.length).length, `frames with a pulse (${diag})`).toBeGreaterThan(5); // headless WebKit draws few frames
   let jumps = 0;
   for (let i = 1; i < frames.length; i++)
     frames[i].forEach((o, k) => { const p = frames[i - 1][k]; if (p !== undefined && p - o > 40) jumps++; }); // ahead by >40px in a frame

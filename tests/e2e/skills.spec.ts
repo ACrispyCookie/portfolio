@@ -11,7 +11,7 @@ test('section order ends Timeline, Skills, Contact', async ({ page }) => {
 
 test('skills: intro, the first 14 chips, and a hint until a tap', async ({ page }) => {
   await page.goto('/');
-  await expect(page.locator('#skills .lead')).toHaveText('Tools from my projects. The number is how many projects on this site use each one.');
+  await expect(page.locator('#skills .lead')).toHaveText('What my projects are built with, and how often each tool comes back.');
   await expect(page.locator('#skills .chip:visible')).toHaveCount(14);
   await expect(page.locator('#skills .usedline')).toHaveText('Tap a tool to see where I used it.');
 });

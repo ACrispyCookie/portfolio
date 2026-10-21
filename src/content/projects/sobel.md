@@ -6,7 +6,7 @@ main: false
 order: 100
 headline: "Image edges, 21× faster"
 summary: "Image edges, 21× faster"
-tools: ["C"]
+tools: ["C", "Python", "Bash", "OpenMP", "Git"]
 team: ["tsiantos", "tsogkas"]
 group: "Image edges, 21× faster"
 ---

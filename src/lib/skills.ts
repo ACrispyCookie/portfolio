@@ -3,7 +3,8 @@ import { projectHref } from './links';
 
 export interface SkillProject { slug: string; title: string; tools: string[]; courseCode?: string; href: string }
 export interface SkillUse { title: string; courseCode?: string; href: string }
-export interface SkillEntry { tool: string; count: number; usedIn: SkillUse[]; coursework: boolean }
+/** alsoIn: courses not on the site that used the tool; they are named in the line but never counted (option B). */
+export interface SkillEntry { tool: string; count: number; usedIn: SkillUse[]; alsoIn: string[] }
 
 /** Projects in site order, then the Minecraft origin entry, as the explorer's input. */
 export function toSkillProjects(
@@ -21,7 +22,7 @@ export function toSkillProjects(
   return [...list, origin];
 }
 
-export function buildSkillIndex(projects: SkillProject[], opts: { coursework: string[]; vocabulary: string[] }): SkillEntry[] {
+export function buildSkillIndex(projects: SkillProject[], opts: { coursework: Record<string, string[]>; vocabulary: string[] }): SkillEntry[] {
   const uses = new Map<string, SkillUse[]>(opts.vocabulary.map((t) => [t, []]));
   for (const p of projects) {
     for (const t of p.tools) {
@@ -31,6 +32,12 @@ export function buildSkillIndex(projects: SkillProject[], opts: { coursework: st
     }
   }
   return [...uses]
-    .map(([tool, usedIn]) => ({ tool, count: usedIn.length, usedIn, coursework: opts.coursework.includes(tool) }))
+    .map(([tool, usedIn]) => ({
+      tool,
+      count: usedIn.length,
+      usedIn,
+      // every repo has Git, so naming courses for it would say nothing
+      alsoIn: tool === 'Git' ? [] : Object.keys(opts.coursework).filter((c) => opts.coursework[c].includes(tool)),
+    }))
     .sort((a, b) => b.count - a.count || a.tool.localeCompare(b.tool));
 }

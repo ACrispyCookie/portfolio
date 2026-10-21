@@ -6,7 +6,7 @@ main: false
 order: 107
 headline: "Stores each block once"
 summary: "Stores each block once"
-tools: ["FUSE", "C"]
+tools: ["C", "Python", "Bash", "FUSE", "Git"]
 team: ["tsiantos", "tsogkas"]
 group: "Stores each block once"
 ---

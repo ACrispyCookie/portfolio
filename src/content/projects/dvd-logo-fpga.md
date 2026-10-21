@@ -5,7 +5,7 @@ main: true
 order: 10
 headline: "A hardware DVD logo you steer by tilting the board"
 summary: "Started as an optional extra in a lab, then ported to HDMI on the Smart Zynq SL. It is the second demo in the Live FPGA Lab."
-tools: ["Vivado/Vitis", "Verilog"]
+tools: ["Verilog", "Vivado/Vitis", "Git"]
 team: []
 links:
   repo: "https://github.com/ACrispyCookie/DVD-Logo-FPGA"

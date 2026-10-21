@@ -30,19 +30,23 @@ test('tapping a chip presses it and writes where it was used', async ({ page, is
   await expect(page.locator('#skills .usedline a')).toHaveCount(3);
 });
 
-test('coursework tools say they come from coursework', async ({ page }) => {
+test('coursework-only tools name the course; used tools add coursework after the projects', async ({ page }) => {
   await page.goto('/');
   await page.locator('#skills .more').click();
   await page.locator('#skills .chip[data-tool="MATLAB"]').click();
-  await expect(page.locator('#skills .usedline')).toHaveText("MATLAB From coursework that isn't on this site.");
+  await expect(page.locator('#skills .usedline')).toHaveText("MATLAB From coursework that isn't on this site: Numerical Analysis.");
+  await page.locator('#skills .chip[data-tool="MySQL"]').click();
+  await expect(page.locator('#skills .usedline')).toHaveText('MySQL Used in Homelab and Minecraft plugins. Also in coursework: ECE311 Databases.');
 });
 
-test('Show all 38 reveals every chip, Show fewer folds them back', async ({ page }) => {
+test('Show all reveals every chip, Show fewer folds them back', async ({ page }) => {
   await page.goto('/');
   const more = page.locator('#skills .more');
-  await expect(more).toHaveText('Show all 38');
+  const n = await page.locator('#skills .chip').count();
+  expect(n).toBeGreaterThan(14);
+  await expect(more).toHaveText(`Show all ${n}`);
   await more.click();
-  await expect(page.locator('#skills .chip:visible')).toHaveCount(38);
+  await expect(page.locator('#skills .chip:visible')).toHaveCount(n);
   await expect(more).toHaveText('Show fewer');
   await more.click();
   await expect(page.locator('#skills .chip:visible')).toHaveCount(14);
@@ -67,7 +71,7 @@ test('without JS every chip is visible', async ({ browser }) => {
   const ctx = await browser.newContext({ javaScriptEnabled: false });
   const page = await ctx.newPage();
   await page.goto('http://localhost:4321/');
-  await expect(page.locator('#skills .chip:visible')).toHaveCount(38);
+  await expect(page.locator('#skills .chip:visible')).toHaveCount(await page.locator('#skills .chip').count());
   await ctx.close();
 });
 

@@ -35,7 +35,15 @@ const PROJECTS = {
   cv32: ['ECE494-Microprocessor-Design'],
   'dvd-logo-fpga': ['DVD-Logo-FPGA'],
   'live-fpga-lab': ['Live-FPGA-Lab'],
+  homelab: ['homelab'], // private repo: tools only, never paths (CLAUDE.md homelab privacy)
 };
+const PRIVATE = new Set(['homelab']);
+
+// Jason's rulings on the scan (2026-10-21): drop weak or wrong hits, add what has no repo.
+const DROP = { clahe: ['pthreads'], gpgpu: ['SQLite'], cv32: ['ARM/Zynq'], 'live-fpga-lab': ['Traefik'] };
+// Jason's own list for the homelab (brief) plus SQLite; the scan finds the rest.
+const ADD = { homelab: ['Docker', 'Traefik', 'Proxmox', 'Nginx', 'WireGuard', 'Pi-hole', 'Ansible', 'SQLite'] };
+const ADD_COURSEWORK = { 'Numerical Analysis': ['MATLAB'] }; // 10 MATLAB labs; the course has no repo
 const COURSEWORK = {
   'ECE115 Programming I': ['ECE115-Programming-I'],
   'ECE116 Programming II': ['ECE116-Programming-II'],
@@ -44,9 +52,9 @@ const COURSEWORK = {
   'ECE216 Algorithms': ['ECE216-Algorithms'],
   'ECE219 Computer Organization': ['ECE219-Computer-Organization'],
   'ECE311 Databases': ['ECE311-Databases'],
-  'ECE318 Project 1 (kernel)': ['ECE318-Operating-Systems/Project1'],
-  'ECE333 Lab 1': ['ECE333-Digital-Systems-Lab/Lab1'],
-  'ECE433 Homeworks 1–2': ['ECE433-Computer-Graphics/homework-1-rasterization-antialiasing', 'ECE433-Computer-Graphics/homework-2-polygon-fill-clipping'],
+  'ECE318 Operating Systems (Project 1)': ['ECE318-Operating-Systems/Project1'],
+  'ECE333 Digital Systems Lab (Lab 1)': ['ECE333-Digital-Systems-Lab/Lab1'],
+  'ECE433 Computer Graphics (Homeworks 1–2)': ['ECE433-Computer-Graphics/homework-1-rasterization-antialiasing', 'ECE433-Computer-Graphics/homework-2-polygon-fill-clipping'],
 };
 // Not Jason's code: bundled third-party trees and generated output.
 const SKIP = /(^|\/)(\.git|node_modules|\.venv|venv|__pycache__|backports-[^/]+|\.Xil|build|dist|\.cache|vendor|example_designs)(\/|$)|(package-lock\.json|uv\.lock|\.rpt)$/;
@@ -133,14 +141,19 @@ const section = (title, map) => {
   const result = {};
   for (const [k, dirs] of Object.entries(map)) {
     const f = scan(dirs);
+    for (const t of DROP[k] ?? []) delete f[t];
+    for (const t of ADD[k] ?? []) f[t] ??= { n: 0, eg: 'Jason' };
     result[k] = Object.keys(f);
-    out.push(`| ${k} | ${Object.entries(f).map(([t, v]) => `**${t}** ${v.n}${v.n === 1 && t !== 'Git' ? ' ⚠' : ''} (\`${v.eg}\`)`).join('<br>')} |`);
+    const cell = ([t, v]) => (PRIVATE.has(k) ? `**${t}**` : `**${t}** ${v.n}${v.n === 1 && t !== 'Git' ? ' ⚠' : ''} (\`${v.eg}\`)`);
+    out.push(`| ${k} | ${Object.entries(f).map(cell).join('<br>')} |`);
   }
   out.push('');
   return result;
 };
 const projects = section('Projects on the site', PROJECTS);
-const coursework = section('Coursework not on the site (option B: named in the line, never counted)', COURSEWORK);
+const coursework = { ...section('Coursework not on the site (option B: named in the line, never counted)', COURSEWORK), ...ADD_COURSEWORK };
+out.push('## Added by hand', '', ...Object.entries(ADD_COURSEWORK).map(([k, v]) => `- ${k}: ${v.join(', ')} (Jason, no repo)`), '', ...Object.entries(ADD).map(([k, v]) => `- ${k}: ${v.join(', ')} (Jason)`), '', '## Dropped by Jason', '', ...Object.entries(DROP).map(([k, v]) => `- ${k}: ${v.join(', ')}`), '');
 writeFileSync('docs/SKILLS_EVIDENCE.md', out.join('\n'));
-writeFileSync('.gate/skills-evidence.json', JSON.stringify({ projects, coursework }, null, 1));
+// the site reads this: tools per project and per course not on the site, no paths
+writeFileSync('src/data/skills-evidence.json', JSON.stringify({ projects, coursework }, null, 2) + '\n');
 console.log(JSON.stringify({ projects, coursework }));

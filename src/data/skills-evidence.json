@@ -1,0 +1,267 @@
+{
+  "projects": {
+    "sobel": [
+      "C",
+      "Python",
+      "Bash",
+      "OpenMP",
+      "Git"
+    ],
+    "kmeans": [
+      "C",
+      "Python",
+      "Bash",
+      "OpenMP",
+      "Git"
+    ],
+    "conv": [
+      "C",
+      "Python",
+      "Bash",
+      "CUDA",
+      "Git"
+    ],
+    "clahe": [
+      "C++",
+      "Python",
+      "Bash",
+      "CUDA",
+      "Git"
+    ],
+    "nbody": [
+      "C",
+      "Python",
+      "Bash",
+      "CUDA",
+      "OpenMP",
+      "Git"
+    ],
+    "rpc": [
+      "C",
+      "Python",
+      "Bash",
+      "pthreads",
+      "Git"
+    ],
+    "multicast": [
+      "Python",
+      "Java",
+      "Gradle",
+      "Git"
+    ],
+    "nfs": [
+      "C",
+      "Python",
+      "Bash",
+      "pthreads",
+      "Git"
+    ],
+    "runtime": [
+      "Python",
+      "Git"
+    ],
+    "scheduler": [
+      "C",
+      "Python",
+      "Bash",
+      "Git"
+    ],
+    "fuse": [
+      "C",
+      "Python",
+      "Bash",
+      "FUSE",
+      "Git"
+    ],
+    "busy-wait": [
+      "C",
+      "Bash",
+      "pthreads",
+      "Git"
+    ],
+    "semaphores": [
+      "C",
+      "Bash",
+      "pthreads",
+      "Git"
+    ],
+    "monitors": [
+      "C",
+      "Java",
+      "Bash",
+      "pthreads",
+      "Git"
+    ],
+    "threads": [
+      "C",
+      "Bash",
+      "pthreads",
+      "Git"
+    ],
+    "uart": [
+      "Verilog",
+      "Vivado/Vitis",
+      "Git"
+    ],
+    "vga": [
+      "Python",
+      "Verilog",
+      "Vivado/Vitis",
+      "Git"
+    ],
+    "spi": [
+      "Verilog",
+      "Vivado/Vitis",
+      "Git"
+    ],
+    "gpgpu": [
+      "C",
+      "Python",
+      "Tcl",
+      "Bash",
+      "SystemVerilog",
+      "Vivado/Vitis",
+      "ARM/Zynq",
+      "RISC-V",
+      "Git"
+    ],
+    "smith-waterman": [
+      "C",
+      "C++",
+      "Python",
+      "Tcl",
+      "Bash",
+      "Verilog",
+      "OpenCL",
+      "OpenMP",
+      "Vivado/Vitis",
+      "Vitis HLS",
+      "ARM/Zynq",
+      "Git"
+    ],
+    "house": [
+      "C",
+      "C++",
+      "Python",
+      "OpenGL",
+      "Git"
+    ],
+    "wifi": [
+      "C",
+      "Bash",
+      "ath9k",
+      "Git"
+    ],
+    "rambo": [
+      "C",
+      "Python",
+      "pthreads",
+      "SDR (ADALM-PLUTO)",
+      "GNU Radio",
+      "Git"
+    ],
+    "cv32": [
+      "C",
+      "Python",
+      "Tcl",
+      "Bash",
+      "SystemVerilog",
+      "Vivado/Vitis",
+      "RISC-V",
+      "Git"
+    ],
+    "dvd-logo-fpga": [
+      "Verilog",
+      "Vivado/Vitis",
+      "Git"
+    ],
+    "live-fpga-lab": [
+      "C",
+      "Python",
+      "TypeScript",
+      "React",
+      "Tcl",
+      "Vivado/Vitis",
+      "ARM/Zynq",
+      "Docker",
+      "Git"
+    ],
+    "homelab": [
+      "JavaScript",
+      "Bash",
+      "Docker",
+      "Nginx",
+      "WireGuard",
+      "Pi-hole",
+      "Ansible",
+      "Proxmox",
+      "PostgreSQL",
+      "MySQL",
+      "Git",
+      "Traefik",
+      "SQLite"
+    ]
+  },
+  "coursework": {
+    "ECE115 Programming I": [
+      "C",
+      "Bash",
+      "Git"
+    ],
+    "ECE116 Programming II": [
+      "C",
+      "Python",
+      "Bash",
+      "Git"
+    ],
+    "ECE119 Digital Design": [
+      "Verilog",
+      "Git"
+    ],
+    "ECE120 Engineering Drawing": [
+      "Git"
+    ],
+    "ECE216 Algorithms": [
+      "C",
+      "Python",
+      "Java",
+      "Maven",
+      "Git"
+    ],
+    "ECE219 Computer Organization": [
+      "C",
+      "Bash",
+      "Verilog",
+      "MIPS assembly",
+      "Git"
+    ],
+    "ECE311 Databases": [
+      "Python",
+      "Bash",
+      "Docker",
+      "MySQL",
+      "SQLite",
+      "Git"
+    ],
+    "ECE318 Operating Systems (Project 1)": [
+      "C",
+      "Bash",
+      "Linux kernel modules",
+      "Git"
+    ],
+    "ECE333 Digital Systems Lab (Lab 1)": [
+      "Bash",
+      "Verilog",
+      "Vivado/Vitis",
+      "Git"
+    ],
+    "ECE433 Computer Graphics (Homeworks 1–2)": [
+      "C++",
+      "OpenGL",
+      "Git"
+    ],
+    "Numerical Analysis": [
+      "MATLAB"
+    ]
+  }
+}

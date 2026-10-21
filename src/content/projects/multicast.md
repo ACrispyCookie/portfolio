@@ -6,7 +6,7 @@ main: false
 order: 105
 headline: "Group chat, same order"
 summary: "Group chat, same order"
-tools: ["Java", "Gradle"]
+tools: ["Python", "Java", "Gradle", "Git"]
 team: []
 group: "Group chat, same order"
 ---

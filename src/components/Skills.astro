@@ -4,6 +4,7 @@
 import { getCollection } from 'astro:content';
 import { buildSkillIndex, toSkillProjects, type SkillEntry } from '../lib/skills';
 import skills from '../data/skills.json';
+import evidence from '../data/skills-evidence.json';
 import '../styles/skills.css';
 
 interface Props {
@@ -17,7 +18,7 @@ if (!entries) {
   const courses = await getCollection('courses');
   const codes = Object.fromEntries(courses.map((c) => [c.id, c.data.code]));
   const input = projects.map((p) => ({ ...p.data, id: p.id, course: p.data.course?.id }));
-  entries = buildSkillIndex(toSkillProjects(input, codes, skills.origin), skills);
+  entries = buildSkillIndex(toSkillProjects(input, codes, skills.origin), { vocabulary: skills.vocabulary, coursework: evidence.coursework });
 }
 const json = JSON.stringify(entries).replace(/</g, '\\u003c');
 ---

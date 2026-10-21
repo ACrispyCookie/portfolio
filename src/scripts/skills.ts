@@ -5,18 +5,20 @@ const FIRST = 14;
 const HINT = 'Tap a tool to see where I used it.';
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => `&#${c.charCodeAt(0)};`);
 
+/** "A, B and C". */
+const and = (xs: string[]) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`);
+
 /** "A (ECE415), B and C" with each project as a link. */
 function list(uses: SkillUse[]): string {
-  const items = uses.map((u) => `<a href="${esc(u.href)}">${esc(u.title)}</a>${u.courseCode ? ` <span class="crs">(${esc(u.courseCode)})</span>` : ''}`);
-  return items.length < 2 ? items.join('') : `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}`;
+  return and(uses.map((u) => `<a href="${esc(u.href)}">${esc(u.title)}</a>${u.courseCode ? ` <span class="crs">(${esc(u.courseCode)})</span>` : ''}`));
 }
 
 function sentence(e: SkillEntry, self: string): string {
-  if (e.coursework) return "From coursework that isn't on this site.";
+  const courses = e.alsoIn.map(esc);
+  if (!e.usedIn.length) return courses.length ? `From coursework that isn't on this site: ${and(courses)}.` : 'Not in a project on this site yet.';
   const others = e.usedIn.filter((u) => u.href !== self);
-  if (!e.usedIn.length) return 'Not in a project on this site yet.';
-  if (self && !others.length) return 'Only this project uses it so far.';
-  return `${self ? 'Also used in' : 'Used in'} ${list(others)}.`;
+  const used = self && !others.length ? 'Only this project uses it so far.' : `${self ? 'Also used in' : 'Used in'} ${list(others)}.`;
+  return courses.length ? `${used} Also in coursework: ${and(courses)}.` : used;
 }
 
 export function initSkills(root: HTMLElement): void {

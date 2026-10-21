@@ -6,7 +6,7 @@ main: true
 order: 6
 headline: "Programs move between machines while they run"
 summary: "A distributed runtime with a shared tuple space, live thread migration between nodes, load balancing and graceful draining."
-tools: ["Python"]
+tools: ["Python", "Git"]
 team: []
 diagram: "runtime"
 ---

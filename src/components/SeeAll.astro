@@ -5,4 +5,5 @@ import { getCollection } from 'astro:content';
 const projects = await getCollection('projects');
 const courses = await getCollection('courses');
 ---
-<a class="seeall btn btn-secondary" href="/projects">See all {projects.length} projects and {courses.length} courses</a>
+{/* the full wording where it fits on one line; a shorter one on the narrowest phones (only one is ever displayed) */}
+<a class="seeall btn btn-secondary" href="/projects"><span class="long">See all {projects.length} projects and {courses.length} courses</span><span class="short">See all projects and courses</span></a>

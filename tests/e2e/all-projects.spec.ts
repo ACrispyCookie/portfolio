@@ -28,13 +28,13 @@ test('the way to it: top bar, footer, and two "See all" links on home', async ({
   await expect(page.locator('.topbar nav a', { hasText: 'Projects' })).toHaveAttribute('href', '#projects');
   await expect(page.locator('.foot .links a').first()).toHaveText('Projects');
   await expect(page.locator('.foot .links a').first()).toHaveAttribute('href', '/projects');
-  const seeAll = page.locator('main a', { hasText: 'See all 28 projects and 11 courses' });
+  const seeAll = page.locator('main a.seeall');
   await expect(seeAll).toHaveCount(2);
   for (const id of ['projects', 'other']) {
-    await expect(page.locator(`#${id} a`, { hasText: 'See all 28 projects and 11 courses' })).toHaveAttribute('href', '/projects');
-    // it's the section's last link
-    const last = await page.locator(`#${id} a`).last().textContent();
-    expect(last?.trim()).toBe('See all 28 projects and 11 courses');
+    await expect(page.locator(`#${id} a.seeall`)).toHaveAttribute('href', '/projects');
+    // it's the section's last link, and it reads the full wording where it fits (the short one below 420px)
+    const last = page.locator(`#${id} a`).last();
+    await expect(last).toHaveText(page.viewportSize()!.width > 420 ? 'See all 28 projects and 11 courses' : 'See all projects and courses', { useInnerText: true });
   }
   await page.goto('/projects');
   await expect(page.locator('.topbar nav a', { hasText: 'Projects' })).toHaveAttribute('href', '/projects');

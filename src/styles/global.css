@@ -98,6 +98,8 @@ a { color: inherit; text-underline-offset: 3px; }
 .panel { background: var(--color-panel); color: var(--color-silk); border-radius: var(--radius-panel); }
 /* "See all 28 projects and 11 courses": the section's closing link, at its content edge */
 .seeall { display: inline-flex; margin-top: 22px; }
+.seeall .short { display: none; }
+@media (max-width: 420px) { .seeall { font-size: var(--text-small); } .seeall .long { display: none; } .seeall .short { display: inline; } }
 .led { width: 9px; height: 9px; border-radius: 50%; background: var(--color-led); display: inline-block; flex: none; }
 
 /* top bar: solid, sticky */

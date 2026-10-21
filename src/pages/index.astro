@@ -5,6 +5,8 @@ import Glance from '../components/Glance.astro';
 import Projects from '../components/Projects.astro';
 import OtherProjects from '../components/OtherProjects.astro';
 import Timeline from '../components/Timeline.astro';
+import Skills from '../components/Skills.astro';
+import Contact from '../components/Contact.astro';
 ---
 <Base title="Jason Nikas" description="Jason Nikas, Electrical and Computer Engineering student at the University of Thessaly. Projects from code down to hardware: GPUs on FPGAs, CUDA, filesystems and distributed runtimes." home>
   <Hero />
@@ -12,11 +14,14 @@ import Timeline from '../components/Timeline.astro';
   <Projects />
   <OtherProjects />
   <Timeline />
+  <Skills />
+  <Contact />
   <Fragment slot="scripts">
     <script>
       import '../scripts/board-client';
       import '../scripts/pill';
       import '../scripts/videos';
+      import '../scripts/skills';
     </script>
   </Fragment>
 </Base>

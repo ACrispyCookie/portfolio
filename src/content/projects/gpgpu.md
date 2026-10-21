@@ -6,7 +6,7 @@ main: true
 order: 1
 headline: "32 RISC-V cores we designed, running on a real FPGA"
 summary: "Runs an n-body step 2.38× faster than the ARM core on the same chip. My colleagues now use it on the Smart Zynq SL, and it runs live in the FPGA lab."
-tools: ["RISC-V", "Vivado/Vitis", "ARM/Zynq", "Python"]
+tools: ["RISC-V", "SystemVerilog", "Vivado/Vitis", "ARM/Zynq", "Python"]
 team: ["tsiantos", "tsogkas"]
 links:
   repo: "https://github.com/ACrispyCookie/GPGPU"

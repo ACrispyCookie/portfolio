@@ -11,11 +11,10 @@ test('Other projects: 8 course cards, 19 rows linking to course sections, no bor
   await expect(page.locator('#other .group h3').first()).toHaveText('ECE415 High Performance Computing');
 });
 
-test('section order: Projects, Other projects, Timeline (then Skills once it exists)', async ({ page }) => {
+test('section order: glance, projects, other, timeline, skills, contact', async ({ page }) => {
   await page.goto('/');
   const ids = await page.locator('main > section[id]').evaluateAll((s) => s.map((e) => e.id));
-  expect(ids.slice(0, 4)).toEqual(['glance', 'projects', 'other', 'timeline']);
-  if (ids.includes('skills')) expect(ids.indexOf('timeline')).toBeLessThan(ids.indexOf('skills'));
+  expect(ids).toEqual(['glance', 'projects', 'other', 'timeline', 'skills', 'contact']);
 });
 
 test('desktop: lanes under 1000px, the gap is a plain break, no gradients', async ({ page }, info) => {

@@ -6,7 +6,7 @@ main: false
 order: 111
 headline: "The same problems, with monitors"
 summary: "The same problems, with monitors"
-tools: ["pthreads"]
+tools: ["C", "pthreads"]
 team: ["tsogkas", "tvangos"]
 group: "The same problems, with monitors"
 ---

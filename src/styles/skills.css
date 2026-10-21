@@ -1,0 +1,16 @@
+/* Skills explorer (spec §7.4). Flat fills; the line is set apart by space, not a border. */
+.skx { padding: 20px 22px; display: grid; gap: 14px; }
+.skx .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { appearance: none; border: 0; font: 500 .93rem var(--font-text); background: var(--color-raised); color: var(--color-silk); border-radius: 999px; padding: 7px 14px; min-height: 36px; cursor: pointer; white-space: nowrap; display: inline-flex; align-items: center; gap: 8px; transition: background .2s, color .2s; }
+.chip:hover { background: var(--color-hover); }
+.chip[aria-pressed="true"] { background: var(--color-cyan); color: var(--color-ink); }
+.chip[hidden] { display: none; }
+.chip .ct { font-size: .78rem; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: var(--color-hover); color: var(--color-silk); display: inline-grid; place-items: center; }
+.chip[aria-pressed="true"] .ct { background: var(--color-ink); color: var(--color-cyan); }
+.skx .more { justify-self: start; }
+.usedline { margin-top: 6px; min-height: 3.2em; line-height: 1.6; color: var(--color-silk); }
+.usedline:empty { display: none; }
+.usedline b { color: var(--color-cyan); margin-right: 4px; }
+.usedline a { color: var(--color-silk); }
+.usedline .crs, .usedline .hint { color: var(--color-dim); }
+@media (max-width: 760px) { .skx { padding: 16px; } }

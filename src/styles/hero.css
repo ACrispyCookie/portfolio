@@ -42,5 +42,5 @@
   .cover { aspect-ratio: 5 / 4; }
   .now { grid-template-columns: 1fr; }
   .cta .btn-primary { flex: 1 1 100%; }
-  .cta .btn-secondary { flex: 1 1 0; }
+  .cta .btn-secondary { flex: 1 1 150px; } /* side by side when both fit, stacked on the narrowest phones */
 }

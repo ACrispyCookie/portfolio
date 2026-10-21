@@ -85,3 +85,18 @@ test('ECE333 lists all four labs, Lab 1 first', async ({ page }) => {
   const g = page.locator('#other .group', { has: page.locator('h3', { hasText: 'ECE333' }) });
   await expect(g.locator('.mini a b')).toHaveText(['Seven-segment display', 'UART', 'VGA controller', 'Accelerometer over SPI']);
 });
+
+test('lanes that would overlap give way to the rails, at any text size', async ({ page }, info) => {
+  test.skip(info.project.name !== 'desktop');
+  await page.goto('/');
+  await expect(page.locator('#timeline .tlw')).toBeVisible();
+  // a reader with larger text: the lanes no longer fit, so the rails take over
+  await page.evaluate(() => (document.documentElement.style.fontSize = '150%'));
+  await page.setViewportSize({ width: 1300, height: 900 }); // zoom changes the column width, which runs the check
+  await expect(page.locator('#timeline')).toHaveClass(/\brails\b/);
+  await expect(page.locator('#timeline .tll')).toBeVisible();
+  // back to normal text: the lanes return
+  await page.evaluate(() => (document.documentElement.style.fontSize = ''));
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await expect(page.locator('#timeline')).not.toHaveClass(/\brails\b/);
+});

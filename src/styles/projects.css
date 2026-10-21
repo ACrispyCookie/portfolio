@@ -3,6 +3,7 @@
 .cards { display: grid; gap: 18px; }
 .grid { display: grid; gap: 18px; }
 .grid.feat, .grid.compact { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid.compact { container: compact / inline-size; }
 .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
 .card { position: relative; display: grid; gap: 12px; align-content: start; min-width: 0; padding: 14px 14px 18px; border-radius: var(--radius-panel); background: var(--color-panel); color: var(--color-silk); --ring: var(--color-panel); transition: background-color .25s; }
@@ -52,8 +53,8 @@
   .card .media img, .card .media video { transition: transform .6s cubic-bezier(.16, 1, .3, 1); }
   .card:hover .media img, .card:hover .media video { transform: scale(1.03); }
 }
-/* below 1100 a half-width column is too narrow for a picture beside the text: compact cards stack */
-@media (max-width: 1100px) {
+/* the picture sits beside the text only in a full-width grid (cards of about 550px); narrower, the cards stack */
+@container compact (max-width: 1110px) {
   .grid.compact .card { grid-template-columns: 1fr; align-items: start; }
   .grid.compact .card .media { aspect-ratio: 16 / 9; }
 }
@@ -83,4 +84,9 @@
   .card.wide .meta .tag { justify-self: start; }
   .origin { grid-template-columns: 1fr; }
   .origin .btn { grid-column: auto; font-size: var(--text-small); white-space: nowrap; }
+}
+/* small phones: the headline scales down so it still fits two lines at 320px */
+@media (max-width: 400px) {
+  .card .head, .card.wide .head { font-size: clamp(1rem, 5vw, var(--text-lead)); }
+  .origin .btn { white-space: normal; } /* its nowrap label is wider than a 320px column */
 }

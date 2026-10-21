@@ -32,8 +32,11 @@
 .r.n::after { content: ""; position: absolute; left: 1px; top: 15px; width: 12px; height: 12px; border-radius: 50%; background: var(--c); }
 .r.off::before { opacity: .45; }
 
-/* three lanes need about 360px each; below 1100 the rails take over */
-@media (max-width: 1100px) {
+/* Lanes need room. Without JS the rails take over at 1280 and below; with JS, scripts/timeline.ts also switches
+   to the rails whenever two entries in a lane would touch (any width, font size or zoom). */
+@media (max-width: 1280px) {
   .tlw { display: none; }
   .tll { display: block; }
 }
+#timeline.rails .tlw { display: none; }
+#timeline.rails .tll { display: block; }

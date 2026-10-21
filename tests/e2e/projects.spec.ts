@@ -118,3 +118,19 @@ test('phone layout: Run the demo is a full-width button under the summary, tag a
   expect(r).toMatchObject({ btnBelowSum: true, tagBelowBtn: true, sameRow: true });
   expect(r.avRight).toBeLessThanOrEqual(1);
 });
+
+test('a demo button wherever a project runs in the lab, except the card that already goes there', async ({ page }) => {
+  await page.goto('/');
+  const demo = (id: string) => page.locator(`#projects .card[data-id="${id}"] a.btn-live`);
+  await expect(demo('gpgpu')).toHaveText('Run the demo');
+  // Jason (2026-10-21): the DVD logo runs in the lab too
+  await expect(demo('dvd-logo-fpga')).toHaveText('Run the demo');
+  await expect(demo('dvd-logo-fpga')).toHaveAttribute('href', 'https://fpga.njason.dev');
+  await expect(demo('live-fpga-lab')).toHaveCount(0);
+  // the button is above the card's stretched link: a real click on it goes to the lab, not the project
+  await demo('dvd-logo-fpga').scrollIntoViewIfNeeded();
+  await page.waitForTimeout(500); // the section's reveal settles
+  const box = (await demo('dvd-logo-fpga').boundingBox())!;
+  const hit = await page.evaluate(([x, y]) => document.elementFromPoint(x, y)?.closest('a')?.getAttribute('href'), [box.x + box.width / 2, box.y + box.height / 2]);
+  expect(hit).toBe('https://fpga.njason.dev');
+});

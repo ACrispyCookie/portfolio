@@ -153,11 +153,15 @@ test('with one status line the text sits centred, with no blank line reserved be
 
 test('a stream that opens but never sends gives up after the staleness limit', async ({ page }) => {
   await page.clock.install();
-  await page.route(STREAM, () => new Promise(() => {})); // hangs: no event, no error
+  let opened!: () => void;
+  const streamOpened = new Promise<void>((r) => (opened = r));
+  await page.route(STREAM, () => { opened(); return new Promise(() => {}); }); // hangs: no event, no error
   await page.route(JSON_URL, (r) => r.abort());
   await open(page);
   const board = page.locator('.hero .board');
   await expect(board).toHaveAttribute('data-state', 'connecting');
+  // the stream opens once the widget is seen on screen; only then is its staleness timer running
+  await streamOpened;
   await page.clock.fastForward(21_000);
   await expect(board).toHaveAttribute('data-state', 'offline');
   await expect(board.locator('[data-f="running"]')).toHaveText('Status unavailable');

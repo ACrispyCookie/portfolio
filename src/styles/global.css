@@ -112,6 +112,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .labpill { display: inline-flex; align-items: center; gap: 9px; background: var(--color-raised); color: var(--color-silk); border-radius: 999px; padding: 8px 15px; text-decoration: none; }
 .labpill:hover { background: var(--color-hover); }
 .labpill[hidden] { display: none; opacity: 0; }
+.labpill.home-wait { display: none; }
 @media (prefers-reduced-motion: no-preference) {
   /* fades both ways; allow-discrete holds display until the fade-out ends */
   .labpill { transition: opacity .25s ease-out, background-color .2s, display .25s allow-discrete; }

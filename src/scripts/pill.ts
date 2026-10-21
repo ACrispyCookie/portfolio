@@ -4,6 +4,7 @@ export function initPill(board: HTMLElement, pill: HTMLElement): void {
     // a batch can hold several entries for the board; the last one is current
     (entries) => {
       pill.hidden = entries[entries.length - 1].isIntersecting;
+      pill.classList.remove('home-wait'); // the first answer replaces the starting state
     },
     { rootMargin: '-64px 0px 0px 0px' },
   ).observe(board);

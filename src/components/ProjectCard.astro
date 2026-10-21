@@ -45,7 +45,8 @@ const sizes = { wide: '(max-width: 760px) 100vw, 640px', large: '(max-width: 760
       )}
       {href === LAB_URL && <span class="tag"><i class="led"></i>Live</span>}
       <div class="row">
-        {size === 'wide' && p.links.demo && <a class="btn btn-live" href={p.links.demo}>Run the demo</a>}
+        {/* any project that runs in the lab, unless the card itself already goes there */}
+        {p.links.demo && href !== p.links.demo && <a class="btn btn-live" href={p.links.demo}>Run the demo</a>}
         {p.kind === 'course' && <Avatars handles={['jason', ...team]} />}
       </div>
     </div>

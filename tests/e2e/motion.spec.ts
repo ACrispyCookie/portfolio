@@ -69,3 +69,21 @@ test('home: the pill fades out when the widget comes back, then leaves the layou
   await expect.poll(() => page.locator('.topbar .labpill').evaluate((el) => { const cs = getComputedStyle(el); return cs.display !== 'none' && parseFloat(cs.opacity) < 1; }), { intervals: [20], timeout: 1000 }).toBe(true);
   await expect.poll(() => page.locator('.topbar .labpill').evaluate((el) => getComputedStyle(el).display), { timeout: 2000 }).toBe('none');
 });
+
+test('home: with the widget on screen, the pill never shows, not even for a frame at load', async ({ page }, info) => {
+  test.skip(info.project.name !== 'desktop', 'the widget is on the first screen on desktop');
+  await page.addInitScript(() => {
+    (window as any).__pillSeen = false;
+    const sample = () => {
+      const p = document.querySelector('.topbar .labpill');
+      if (p) { const cs = getComputedStyle(p); if (cs.display !== 'none' && parseFloat(cs.opacity) > 0.01) (window as any).__pillSeen = true; }
+      if (performance.now() < 3000) requestAnimationFrame(sample);
+    };
+    requestAnimationFrame(sample);
+  });
+  // a slow phone: the page's scripts arrive a second after the first paint
+  await page.route(/\/_astro\/.*\.js$/, async (r) => { await new Promise((ok) => setTimeout(ok, 1000)); await r.continue(); });
+  await page.goto('/');
+  await page.waitForTimeout(3200);
+  expect(await page.evaluate(() => (window as any).__pillSeen)).toBe(false);
+});

@@ -68,6 +68,7 @@
   .grid.compact .card { grid-template-columns: 1fr; align-items: start; }
   .grid.compact .card .media { aspect-ratio: 16 / 9; }
   .card.wide .head { font-size: var(--text-lead); line-height: 1.25; }
+  .card.wide h3 { font-size: var(--text-body); }
   .origin { grid-template-columns: 1fr; }
   .origin .btn { justify-self: start; font-size: var(--text-small); white-space: nowrap; }
 }

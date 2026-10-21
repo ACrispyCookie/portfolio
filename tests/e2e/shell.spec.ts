@@ -53,3 +53,15 @@ test('footer links', async ({ page }) => {
     expect(href).not.toContain('fpga.njason.dev');
   }
 });
+
+test('phone layout: the lab pill and the Menu pill are the same size and line up', async ({ page }) => {
+  test.skip(!phoneLayout(page), 'both pills sit side by side only in the phone layout');
+  await page.goto('/');
+  await page.evaluate(() => scrollTo(0, 2000)); // the pill shows once the widget is off screen
+  await expect(page.locator('.topbar .labpill')).toBeVisible();
+  const [lab, menu] = await Promise.all(['.topbar .labpill', '.menu summary'].map((s) => page.locator(s).evaluate((e) => {
+    const r = e.getBoundingClientRect(); const c = getComputedStyle(e);
+    return { h: Math.round(r.height), top: Math.round(r.top), font: c.fontSize, padY: c.paddingTop };
+  })));
+  expect(lab).toEqual(menu);
+});

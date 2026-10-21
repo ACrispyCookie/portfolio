@@ -137,7 +137,8 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 @media (max-width: 760px) {
   .topbar nav { display: none; }
   .menu { display: block; }
-  .labpill { padding: 7px 13px; font-size: var(--text-small); }
+  /* the lab pill and the Menu pill are twins on phone: same height, text and padding */
+  .labpill, .menu summary { min-height: 40px; box-sizing: border-box; padding: 8px 14px; font-size: var(--text-small); line-height: 1.2; }
 }
 
 /* footer: a full-width band one tone up from the ground, no line, no card */

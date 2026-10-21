@@ -109,3 +109,4 @@ Every decision taken during Plan 1 (docs/superpowers/plans/2026-10-20-njason-hom
 - PR #1 follow-up (Jason, 2026-10-21): "Run the demo" on every card whose project runs in the lab (links.demo), except the Live FPGA Lab card, which already opens the lab; DVD Logo FPGA gains links.demo — cost if wrong: one condition
 - PR #1 follow-up: the home pill starts hidden in the HTML (class home-wait, undone by a noscript rule without JS), because since the fade-out was added a late script showed it fading away at load — test samples every frame with scripts delayed 1 s — cost if wrong: CSS/one class
 - PR #1 follow-up: two test races fixed (the stalled-stream test now waits for the stream to open before fast-forwarding; the pill test waits for state) — cost if wrong: none
+- PR #1 follow-up (Jason, 2026-10-21): on phone the lab pill and the Menu pill are twins (40px, small text, same padding); they were 36px/14px and 43px/17px — cost if wrong: CSS

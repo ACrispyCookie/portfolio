@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 const ORDER = [
   ['gpgpu', 'wide'], ['nbody', 'large'], ['rambo', 'large'], ['wifi', 'large'], ['house', 'large'],
   ['runtime', 'compact'], ['threads', 'compact'],
-  ['live-fpga-lab', 'personal'], ['dvd-logo-fpga', 'personal'], ['homelab', 'personal'],
+  ['homelab', 'personal'], ['live-fpga-lab', 'personal'], ['dvd-logo-fpga', 'personal'],
 ];
 
 test('cards follow spec §5.1 items 3–4 in order and size, then the Minecraft origin card', async ({ page }) => {
@@ -21,7 +21,7 @@ test('each card is one stretched link to its section, page or the lab', async ({
   expect(hrefs).toEqual([
     '/courses/ece338#gpgpu', '/courses/ece415#nbody', '/courses/ece455#rambo', '/courses/ece436#wifi', '/courses/ece433#house',
     '/courses/ece348#runtime', '/courses/ece321#threads',
-    'https://fpga.njason.dev', '/projects/dvd-logo-fpga', '/projects/homelab',
+    '/projects/homelab', 'https://fpga.njason.dev', '/projects/dvd-logo-fpga',
   ]);
   // clicking the card body (not a nested link) follows the title link
   const card = page.locator('#projects .card[data-id="house"]');
@@ -102,4 +102,17 @@ test('cards sit on the grid gap only (no stray margins from size classes)', asyn
   await page.goto('/');
   const margins = await page.locator('#projects .card').evaluateAll((cs) => cs.map((c) => getComputedStyle(c).marginTop));
   expect([...new Set(margins)]).toEqual(['0px']);
+});
+
+test('phone: Run the demo is a full-width button under the summary, tag and avatars share the row below', async ({ page }, info) => {
+  test.skip(info.project.name !== 'phone');
+  await page.goto('/');
+  const r = await page.locator('#projects .card[data-id="gpgpu"]').evaluate((card) => {
+    const b = (s: string) => card.querySelector(s)!.getBoundingClientRect();
+    const btn = b('a.btn-live'), sum = b('.sum'), tag = b('.meta .tag'), av = b('.av'), body = b('.body');
+    return { btnW: Math.round(btn.width), bodyW: Math.round(body.width), btnBelowSum: btn.top >= sum.bottom, tagBelowBtn: tag.top >= btn.bottom, sameRow: Math.abs((tag.top + tag.bottom) / 2 - (av.top + av.bottom) / 2) < 4, avRight: Math.round(body.right - av.right) };
+  });
+  expect(r.btnW).toBe(r.bodyW);
+  expect(r).toMatchObject({ btnBelowSum: true, tagBelowBtn: true, sameRow: true });
+  expect(r.avRight).toBeLessThanOrEqual(1);
 });

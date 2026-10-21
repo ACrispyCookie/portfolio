@@ -2,7 +2,7 @@
 title: "DVD Logo FPGA"
 kind: "personal"
 main: true
-order: 9
+order: 10
 headline: "A hardware DVD logo you steer by tilting the board"
 summary: "Started as an optional extra in a lab, then ported to HDMI on the Smart Zynq SL. It is the second demo in the Live FPGA Lab."
 tools: ["Vivado/Vitis", "Verilog"]

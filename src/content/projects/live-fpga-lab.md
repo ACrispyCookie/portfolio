@@ -2,7 +2,7 @@
 title: "Live FPGA Lab"
 kind: "personal"
 main: true
-order: 8
+order: 9
 headline: "A real FPGA board anyone can use from the browser"
 summary: "A real FPGA board in my homelab. Visitors pick a demo, wait in a fair queue if someone else is using it, and run it live."
 tools: ["ARM/Zynq", "Python", "Docker", "Traefik"]

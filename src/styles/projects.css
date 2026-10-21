@@ -69,6 +69,11 @@
   .grid.compact .card .media { aspect-ratio: 16 / 9; }
   .card.wide .head { font-size: var(--text-lead); line-height: 1.25; }
   .card.wide h3 { font-size: var(--text-body); }
+  /* the demo button leads, full width; the course tag and team share the row under it */
+  .card.wide .meta { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px 10px; }
+  .card.wide .meta .row { display: contents; }
+  .card.wide .meta .btn-live { grid-column: 1 / -1; order: -1; width: 100%; }
+  .card.wide .meta .tag { justify-self: start; }
   .origin { grid-template-columns: 1fr; }
   .origin .btn { justify-self: start; font-size: var(--text-small); white-space: nowrap; }
 }

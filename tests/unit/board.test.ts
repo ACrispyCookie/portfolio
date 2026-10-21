@@ -25,7 +25,7 @@ describe('toWidgetView: one message per state (Jason, 2026-10-21)', () => {
   });
 
   test('project mode is its own message', () => {
-    expect(toWidgetView({ ...online, mode: 'project' }, true)).toMatchObject({ status: 'testing', label: '', headline: 'In use for GPGPU testing', sub: 'on the Smart Zynq SL' });
+    expect(toWidgetView({ ...online, mode: 'project' }, true)).toMatchObject({ status: 'testing', label: '', headline: 'Reserved for owner projects', sub: 'on the Smart Zynq SL' }); // the lab's own words
   });
 
   test('an unhealthy board or listed faults is a fault', () => {

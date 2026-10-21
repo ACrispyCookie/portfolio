@@ -136,7 +136,7 @@ Everything else is a section on its course page only. That includes homeworks an
 **Footer, on every page**
 
 - Name and ECE line.
-- Links: GitHub, LinkedIn, Email, Older portfolio (acrispycookie.dev). No Live FPGA Lab link (Jason: too repetitive).
+- Links: GitHub, LinkedIn, Older portfolio (acrispycookie.dev). No Live FPGA Lab link (Jason: too repetitive); no Email (Jason, 2026-10-21: Contact holds it).
 - A plain closing block separated by space and a tone step (no hairline, no card), so Contact stays the last card.
 - "© <year> Jason Nikas" and "Built with Astro, self-hosted".
 
@@ -323,7 +323,7 @@ The whole site is one dark circuit board. The live lab widget is the powered par
   - a **flat cyan title band** across the top of the widget with dark text: LED, "Live FPGA Lab" and the gold pin header. This band, not a ring or shadow, is what makes the widget the one powered part on the board (Jason, 2026-10-20);
   - **status dot (Jason, 2026-10-21):** one status dot everywhere (top-bar pill, widget band, Live FPGA Lab card), never blinking, coloured by the live status: running cyan, free mint, in use for testing amber, fault red, unavailable or unknown grey. On the cyan band it sits in a dark socket;
   - one plain sentence: "A real FPGA board in my homelab. Anyone can run demos on it from the browser.";
-  - **one message per state (Jason, 2026-10-21):** only a running demo has the "Running now" label (demo name and "on the Smart Zynq SL"); otherwise the block says "Free to use" (no demo running), "In use for GPGPU testing" (`mode` is `project`), "Board fault" or "Status unavailable", each in its status colour;
+  - **one message per state (Jason, 2026-10-21):** only a running demo has the "Running now" label (demo name and "on the Smart Zynq SL"); otherwise the block says "Free to use" (no demo running), "Reserved for owner projects" (`mode` is `project`; the lab's own words), "Board fault" or "Status unavailable", each in its status colour;
   - "Open the lab", the cyan primary button, with small Queue and temperature tags.
   - No meters, temperature chart or demo list; those live on the lab itself.
 - **States:**

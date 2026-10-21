@@ -85,34 +85,53 @@ test('board:status reports online for the trace pulse', async ({ page }) => {
   await expect.poll(() => page.evaluate(() => (window as unknown as { __status: boolean[] }).__status.at(-1))).toBe(true);
 });
 
-test('the stream stays closed while the widget is off screen', async ({ browser }) => {
-  const ctx = await browser.newContext({ viewport: { width: 390, height: 500 }, isMobile: true, hasTouch: true });
-  const page = await ctx.newPage();
-  let hits = 0;
-  await page.route(STREAM, (r) => { hits++; return r.abort(); });
+// Jason (2026-10-21): the status updates live, without a reload, wherever you are on the site.
+// The stream answers with one event and ends; the browser reconnects after `retry` ms and gets the next one.
+async function serveSequence(page: Page, events: Record<string, unknown>[]) {
+  let n = 0;
+  await page.route(STREAM, (route) => {
+    const e = events[Math.min(n++, events.length - 1)];
+    return route.fulfill({ status: 200, headers: { 'content-type': 'text/event-stream', 'access-control-allow-origin': '*', 'cache-control': 'no-cache' }, body: `retry: 300\nevent: board\ndata: ${JSON.stringify(e)}\n\n` });
+  });
+  await page.route(JSON_URL, (r) => r.fulfill({ status: 200, headers: { 'access-control-allow-origin': '*' }, contentType: 'application/json', body: JSON.stringify(events[0]) }));
+}
+const cssColor = (page: Page, v: string) => page.evaluate((v) => { const p = document.createElement('i'); p.style.color = `var(${v})`; document.body.append(p); const c = getComputedStyle(p).color; p.remove(); return c; }, v);
+
+test('home: the status updates live, even with the widget scrolled away', async ({ page }) => {
+  await serveSequence(page, [event({ active_demo: null }), event({ active_demo: null }), event()]); // free, free, then a demo starts
   await page.goto('/');
-  await page.waitForTimeout(1000);
-  expect(hits).toBe(0);
-  await ctx.close();
+  await page.evaluate(() => scrollTo(0, 4000)); // the widget is off screen; the pill shows
+  const cyan = await cssColor(page, '--color-cyan');
+  await expect.poll(() => page.locator('.topbar .labpill .sdot').evaluate((d) => getComputedStyle(d).backgroundColor), { timeout: 5000 }).toBe(cyan);
+  await expect(page.locator('.hero .board [data-f="headline"]')).toHaveText('GPGPU n-body');
 });
 
-test('an observer batch of "out" then "in" still opens the stream', async ({ page }) => {
-  await serveStream(page, event());
-  await page.addInitScript(() => {
-    window.IntersectionObserver = class {
-      constructor(private cb: IntersectionObserverCallback) {}
-      observe(target: Element) {
-        const e = (isIntersecting: boolean) => ({ isIntersecting, target }) as IntersectionObserverEntry;
-        setTimeout(() => this.cb([e(false), e(true)], this as unknown as IntersectionObserver), 50);
-      }
-      unobserve() {}
-      disconnect() {}
-      takeRecords() { return []; }
-    } as unknown as typeof IntersectionObserver;
-  });
-  await page.goto('/');
-  await expect(page.locator('.hero .board')).toHaveAttribute('data-state', 'running');
+test('other pages: the pill updates live too', async ({ page }) => {
+  await serveSequence(page, [event({ mode: 'project' }), event({ mode: 'project' }), event({ mode: 'project' }), event({ mode: 'project' }), event()]);
+  await page.goto('/pill-test/');
+  const [amber, cyan] = [await cssColor(page, '--color-amber'), await cssColor(page, '--color-cyan')];
+  const dot = () => page.locator('.topbar .labpill .sdot').evaluate((d) => getComputedStyle(d).backgroundColor);
+  await expect.poll(dot, { timeout: 5000 }).toBe(amber);
+  await expect.poll(dot, { timeout: 5000 }).toBe(cyan);
 });
+
+test('the stream closes while the tab is hidden and reopens when it is shown', async ({ page }) => {
+  let opened = 0;
+  await page.route(STREAM, (r) => { opened++; return r.fulfill({ status: 200, headers: { 'content-type': 'text/event-stream', 'access-control-allow-origin': '*' }, body: `retry: 200\nevent: board\ndata: ${JSON.stringify(event())}\n\n` }); });
+  await page.goto('/');
+  await expect.poll(() => opened).toBeGreaterThan(0);
+  const setHidden = (hidden: boolean) => page.evaluate((h) => {
+    Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => (h ? 'hidden' : 'visible') });
+    document.dispatchEvent(new Event('visibilitychange'));
+  }, hidden);
+  await setHidden(true);
+  const atHide = opened;
+  await page.waitForTimeout(1000); // with retry 200 an open stream would reconnect several times
+  expect(opened - atHide).toBeLessThanOrEqual(1);
+  await setHidden(false);
+  await expect.poll(() => opened, { timeout: 3000 }).toBeGreaterThan(atHide + 1);
+});
+
 
 for (const outcome of ['running', 'offline'] as const) {
   test(`the widget keeps its height from load until the lab answers (${outcome})`, async ({ page }) => {
@@ -127,9 +146,6 @@ for (const outcome of ['running', 'offline'] as const) {
     });
     await page.goto('/');
     const board = page.locator('.hero .board');
-    // a widget that starts below the fold waits, saying so
-    const below = await board.evaluate((b) => b.getBoundingClientRect().top > innerHeight);
-    if (below) await expect(board.locator('[data-f="headline"]')).toHaveText('Checking the board…');
     await board.scrollIntoViewIfNeeded();
     await expect(board).toHaveAttribute('data-state', outcome);
     await page.waitForTimeout(300);
@@ -194,7 +210,7 @@ test('without the stream, the JSON fallback keeps refreshing, and goes offline w
 const STATES = [
   { name: 'running', patch: {}, label: 'Running now', headline: 'GPGPU n-body' },
   { name: 'available', patch: { active_demo: null }, label: '', headline: 'Free to use' },
-  { name: 'testing', patch: { mode: 'project' }, label: '', headline: 'In use for GPGPU testing' },
+  { name: 'testing', patch: { mode: 'project' }, label: '', headline: 'Reserved for owner projects' }, // the lab's own words
   { name: 'fault', patch: { healthy: false }, label: '', headline: 'Board fault' },
 ] as const;
 const DOT = { running: '--color-cyan', available: '--color-mint', testing: '--color-amber', fault: '--color-fault', offline: '--color-dim' };

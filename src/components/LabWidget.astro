@@ -4,7 +4,7 @@ import '../styles/widget.css';
 ---
 <div class="board" data-state="static" aria-live="polite">
   <div class="band">
-    <span class="title"><i class="led" aria-hidden="true"></i>Live FPGA Lab</span>
+    <span class="title"><span class="socket" aria-hidden="true"><i class="sdot"></i></span>Live FPGA Lab</span>
     <svg class="pins" width="66" height="13" viewBox="0 0 66 13" aria-hidden="true">
       {[0, 1, 2, 3].map((i) => <circle cx={6.5 + i * 17.7} cy="6.5" r="5.5" fill="#d8b46a" stroke="#a8873f" stroke-width="2" />)}
     </svg>
@@ -13,8 +13,8 @@ import '../styles/widget.css';
     <p class="what">A real FPGA board in my homelab. Anyone can run demos on it from the browser.</p>
     <div class="runrow">
       <div class="running" data-live>
-        <small>Running now</small>
-        <b data-f="running"></b>
+        <small data-f="label"></small>
+        <b data-f="headline"></b>
         <span data-f="sub"></span>
       </div>
       <div class="actions">

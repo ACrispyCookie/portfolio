@@ -2,8 +2,8 @@
 .board { border-radius: var(--radius-panel); background: var(--color-panel); color: var(--color-silk); overflow: hidden; }
 .board .band { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 20px; background: var(--color-cyan); color: var(--color-ink); }
 .board .title { display: flex; align-items: center; gap: 10px; font-weight: 700; }
-.board .band .led { background: var(--color-ink); }
-.board[data-state="online"] .band .led, .board[data-state="project"] .band .led { background: #0a7a45; }
+/* on the cyan band the status dot sits in a dark socket, so every status colour shows */
+.board .socket { width: 17px; height: 17px; border-radius: 50%; background: var(--color-ink); display: inline-grid; place-items: center; flex: none; }
 .board .body { display: grid; gap: 14px; padding: 18px 20px 20px; }
 .board .what { color: var(--color-dim); }
 .runrow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: stretch; }
@@ -11,10 +11,14 @@
   /* tall enough for label, status and sub line, so the widget keeps one height; shorter content sits centred */
   min-height: calc(24px + 4px + 2 * 1.6 * var(--text-small) + 1.2 * var(--text-lead)); box-sizing: border-box; }
 .running small { color: var(--color-dim); font-size: var(--text-small); }
+.running small:empty { display: none; }
 .running b { font: 700 var(--text-lead) / 1.2 var(--font-display); color: var(--color-cyan); overflow-wrap: anywhere; }
 .running span { color: var(--color-dim); font-size: var(--text-small); overflow-wrap: anywhere; }
 .running span:empty { display: none; }
-.board[data-state="fault"] .running b { color: var(--color-amber); }
+/* the headline takes the status colour, like every dot */
+.board[data-state="available"] .running b { color: var(--color-mint); }
+.board[data-state="testing"] .running b { color: var(--color-amber); }
+.board[data-state="fault"] .running b { color: var(--color-fault); }
 .board[data-state="offline"] .running b, .board[data-state="connecting"] .running b { color: var(--color-dim); }
 .board[data-state="connecting"] .tags { visibility: hidden; }
 .actions { display: grid; gap: 10px; align-content: center; justify-items: start; }
@@ -27,7 +31,3 @@
   .runrow { grid-template-columns: 1fr; }
   .actions { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
 }
-@media (prefers-reduced-motion: no-preference) {
-  .board[data-state="online"] .band .led { animation: breathe 2.4s ease-in-out infinite; }
-}
-@keyframes breathe { 0%, 100% { opacity: 1; } 50% { opacity: .45; } }

@@ -16,7 +16,7 @@
   --color-ink: #05252a;
   --color-gold: #d8b46a;
   --color-gold-ring: #a8873f;
-  --color-led: #5dffa8;
+  --color-fault: #ff6b5e; /* a board fault: the only red on the site */
   --color-mint: #86e3bd;
   --color-amber: #f0a64a;
   --color-paper: #f4f6f6; /* behind white charts only */
@@ -94,7 +94,13 @@ a { color: inherit; text-underline-offset: 3px; }
   background: var(--color-raised); color: var(--color-dim); font-size: var(--text-small); white-space: nowrap; text-decoration: none;
 }
 .panel { background: var(--color-panel); color: var(--color-silk); border-radius: var(--radius-panel); }
-.led { width: 9px; height: 9px; border-radius: 50%; background: var(--color-led); display: inline-block; flex: none; }
+/* The lab's status dot: one look everywhere (top-bar pill, widget, lab card), coloured by the live status set on <html>
+   (data-lab). Grey until a status is known. Never blinks (Jason, 2026-10-21). */
+.sdot { width: 9px; height: 9px; border-radius: 50%; background: var(--color-dim); display: inline-block; flex: none; transition: background-color .3s; }
+html[data-lab="running"] .sdot { background: var(--color-cyan); }
+html[data-lab="available"] .sdot { background: var(--color-mint); }
+html[data-lab="testing"] .sdot { background: var(--color-amber); }
+html[data-lab="fault"] .sdot { background: var(--color-fault); }
 
 /* top bar: solid, sticky */
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--color-mask); }
@@ -169,7 +175,8 @@ svg.trace { position: absolute; left: 0; top: 0; pointer-events: none; overflow:
 .t-ghost, .t-drawn, .t-pulse, .t-stub { fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
 .t-ghost { stroke: var(--color-groove); }
 .t-drawn { stroke: var(--color-copper); }
-.t-pulse { stroke: var(--color-cyan); opacity: 0; transition: opacity .4s; }
+.t-pulse { stroke: var(--color-cyan); }
+.t-pulses { opacity: 0; transition: opacity .4s; }
 .t-stub { stroke: var(--color-groove); stroke-width: 2.5; transition: stroke .4s; }
 .t-stub.on { stroke: var(--color-copper); }
 .t-via { fill: var(--color-mask); stroke: var(--color-groove); stroke-width: 2; transition: stroke .4s; }

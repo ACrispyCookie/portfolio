@@ -45,15 +45,20 @@ test('check.js: no errors or overflow, one edge for traced sections, trace clear
   await page.evaluate(() => {
     const w = window as unknown as { __l: number[] };
     w.__l = [];
-    const pu = document.querySelector<SVGPathElement>('.t-pulse')!;
-    (function f() { w.__l.push(parseFloat(pu.style.strokeDashoffset)); requestAnimationFrame(f); })();
+    // every pulse's offset per frame; a pulse may restart at the trace's start, but never jump ahead along it
+    (function f() { for (const pu of document.querySelectorAll<SVGPathElement>('.t-pulse')) w.__l.push(parseFloat(pu.style.strokeDashoffset)); w.__l.push(NaN); requestAnimationFrame(f); })();
   });
   for (let i = 0; i < 30; i++) { await wheel(page, 70); await page.waitForTimeout(16); }
   await page.waitForTimeout(400);
-  const l = await page.evaluate(() => (window as unknown as { __l: number[] }).__l.filter((x) => !isNaN(x)));
-  expect(l.length).toBeGreaterThan(10);
+  const raw = await page.evaluate(() => (window as unknown as { __l: number[] }).__l);
+  // split into frames, then follow each pulse (same index) from frame to frame
+  const frames: number[][] = [];
+  let cur: number[] = [];
+  for (const x of raw) { if (isNaN(x)) { frames.push(cur); cur = []; } else cur.push(x); }
+  expect(frames.filter((f) => f.length).length).toBeGreaterThan(10);
   let jumps = 0;
-  for (let i = 1; i < l.length; i++) if (l[i] - l[i - 1] > 30 || (l[i - 1] - l[i] > 30 && !(l[i] > l[i - 1]))) jumps++;
+  for (let i = 1; i < frames.length; i++)
+    frames[i].forEach((o, k) => { const p = frames[i - 1][k]; if (p !== undefined && p - o > 40) jumps++; }); // ahead by >40px in a frame
   expect(jumps).toBeLessThanOrEqual(2);
 });
 
@@ -77,7 +82,7 @@ test('home: the pulse stays dark while the lab is offline', async ({ page }) => 
   for (let i = 0; i < 20; i++) {
     await wheel(page, 60);
     await page.waitForTimeout(100);
-    ops.push(await page.locator('.t-pulse').evaluate((e) => getComputedStyle(e).opacity));
+    ops.push(await page.locator('.t-pulses').evaluate((e) => getComputedStyle(e).opacity));
   }
   expect([...new Set(ops)]).toEqual(['0']);
 });
@@ -86,10 +91,10 @@ test('home: the pulse runs while the board is online', async ({ page }) => {
   await serveStream(page, event());
   await page.goto('/');
   await page.locator('.hero .board').scrollIntoViewIfNeeded();
-  await expect(page.locator('.hero .board')).toHaveAttribute('data-state', 'online');
+  await expect(page.locator('.hero .board')).toHaveAttribute('data-state', 'running');
   // scroll until copper is drawn (on phone the trace starts under the Now rows, below the widget)
   await page.locator('#glance').scrollIntoViewIfNeeded();
-  await expect.poll(() => page.locator('.t-pulse').evaluate((e) => (e as SVGPathElement).style.opacity), { timeout: 3000 }).toBe('1');
+  await expect.poll(() => page.locator('.t-pulses').evaluate((e) => (e as SVGGElement).style.opacity), { timeout: 3000 }).toBe('1');
 });
 
 test('a deep link lights every section up to and including its target', async ({ page }) => {
@@ -120,7 +125,7 @@ test.describe('reduced motion', () => {
       return {
         offset: parseFloat(d.style.strokeDashoffset),
         unlit: document.querySelectorAll('.t-pad[data-i]:not(.on)').length,
-        pulse: getComputedStyle(document.querySelector('.t-pulse')!).opacity,
+        pulse: getComputedStyle(document.querySelector('.t-pulses')!).opacity,
         hidden: [...document.querySelectorAll('main *')].filter((e) => parseFloat(getComputedStyle(e).opacity) < 1).length,
       };
     });
@@ -158,4 +163,38 @@ test('printing shows every section, lit or not', async ({ page }) => {
   await page.emulateMedia({ media: 'print' });
   const faint = await page.evaluate(() => [...document.querySelectorAll('main > section > *')].filter((e) => parseFloat(getComputedStyle(e).opacity) < 1).length);
   expect(faint).toBe(0);
+});
+
+test('home: pulses leave at a fixed interval, however long the drawn trace (Jason, 2026-10-21)', async ({ page }, info) => {
+  test.skip(info.project.name !== 'desktop');
+  await serveStream(page, event());
+  await page.goto('/');
+  // record the time each pulse sets off (its dash offset resets to the start)
+  const launches = async () => {
+    await page.evaluate(() => {
+      const w = window as unknown as { __t: number[]; __seen: Map<Element, number> };
+      w.__t = []; w.__seen = new Map();
+      const f = () => {
+        for (const p of document.querySelectorAll<SVGPathElement>('.t-pulse')) {
+          const o = parseFloat(p.style.strokeDashoffset || 'NaN'); const prev = w.__seen.get(p);
+          if (!isNaN(o) && prev !== undefined && o > prev + 20) w.__t.push(performance.now()); // reset to the start
+          w.__seen.set(p, o);
+        }
+        if (w.__t.length < 6) requestAnimationFrame(f);
+      };
+      requestAnimationFrame(f);
+    });
+    await expect.poll(() => page.evaluate(() => (window as unknown as { __t: number[] }).__t.length), { timeout: 15000 }).toBeGreaterThanOrEqual(5);
+    const t = await page.evaluate(() => (window as unknown as { __t: number[] }).__t);
+    const gaps = t.slice(1).map((x, i) => x - t[i]);
+    return gaps.reduce((a, b) => a + b, 0) / gaps.length;
+  };
+  await page.locator('#glance').scrollIntoViewIfNeeded(); // a short drawn trace
+  await page.waitForTimeout(800);
+  const short = await launches();
+  await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight)); // the whole trace drawn
+  await page.waitForTimeout(1500);
+  const long = await launches();
+  expect(Math.abs(long - short) / short, `short ${Math.round(short)}ms, long ${Math.round(long)}ms`).toBeLessThan(0.15);
+  expect(short).toBeLessThan(1400); // a bit more often than before on a short trace
 });

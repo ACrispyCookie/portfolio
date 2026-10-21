@@ -8,20 +8,23 @@ const POLL_MS = 5_000; // without the stream, the JSON snapshot is refreshed thi
 
 function render(root: HTMLElement, v: WidgetView) {
   const f = (name: string) => root.querySelector<HTMLElement>(`[data-f="${name}"]`);
-  root.dataset.state = v.state;
-  f('running')!.textContent = v.running;
+  root.dataset.state = v.status;
+  document.documentElement.dataset.lab = v.status; // every status dot on the page follows this
+  f('label')!.textContent = v.label;
+  f('headline')!.textContent = v.headline;
   f('sub')!.textContent = v.sub; // an empty sub collapses; .running's min-height keeps the widget one height
   f('queue')!.textContent = v.queue === null ? '' : String(v.queue);
   f('queue-tag')!.hidden = v.queue === null;
   f('temp')!.textContent = v.tempC === null ? '' : `${Math.round(v.tempC)} °C`;
   f('temp-tag')!.hidden = v.tempC === null;
-  document.dispatchEvent(new CustomEvent('board:status', { detail: { online: v.state === 'online' || v.state === 'project' } }));
+  // the trace's current flows while the board is on, whatever it's doing
+  document.dispatchEvent(new CustomEvent('board:status', { detail: { online: v.status !== 'offline' && v.status !== 'fault' } }));
 }
 
 export function connectBoard(root: HTMLElement): void {
   // Hold the live block's space from the start; it says plainly that nothing has been heard yet.
   root.dataset.state = 'connecting';
-  root.querySelector<HTMLElement>('[data-f="running"]')!.textContent = 'Checking the board…';
+  root.querySelector<HTMLElement>('[data-f="headline"]')!.textContent = 'Checking the board…';
   let source: EventSource | null = null;
   let last: BoardEvent | null = null;
   let gotEvent = false;

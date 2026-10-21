@@ -3,6 +3,10 @@ import { buildTracePath } from '../lib/trace-path';
 
 const NS = 'http://www.w3.org/2000/svg';
 const PULSE = 44;
+// Pulses set off at a fixed interval and travel at a constant speed, so how often they arrive doesn't depend on how far
+// you've scrolled; a long trace carries several at once (Jason, 2026-10-21).
+const PULSE_EVERY = 1100; // ms between launches
+const PULSE_SPEED = 0.75; // px per ms
 
 export function initTrace(host: HTMLElement): void {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -19,7 +23,11 @@ export function initTrace(host: HTMLElement): void {
     svg.appendChild(p);
     return p;
   };
-  const ghost = path('t-ghost'), drawn = path('t-drawn'), pulse = path('t-pulse');
+  const ghost = path('t-ghost'), drawn = path('t-drawn');
+  const pulseGroup = document.createElementNS(NS, 'g');
+  pulseGroup.setAttribute('class', 't-pulses');
+  svg.appendChild(pulseGroup);
+  const pulses: { el: SVGPathElement; pos: number; live: boolean }[] = [];
   const parts = document.createElementNS(NS, 'g');
   svg.appendChild(parts);
   host.prepend(svg);
@@ -80,7 +88,8 @@ export function initTrace(host: HTMLElement): void {
       turnY = start.y + 26;
     }
     const t = buildTracePath({ railX, start, turnY, pads });
-    for (const p of [ghost, drawn, pulse]) p.setAttribute('d', t.d);
+    for (const p of [ghost, drawn, ...pulses.map((x) => x.el)]) p.setAttribute('d', t.d);
+    pathD = t.d;
     const h = host.offsetHeight;
     svg.setAttribute('width', String(hb.width));
     svg.setAttribute('height', String(h));
@@ -99,12 +108,26 @@ export function initTrace(host: HTMLElement): void {
     padEls = [...parts.querySelectorAll<SVGElement>('[data-i], [data-p]')].map((el) => ({ el, i: Number(el.dataset.i ?? el.dataset.p) }));
     drawnAt = -1;
     drawn.style.strokeDasharray = `${total} ${total}`;
-    pulse.style.strokeDasharray = `${PULSE} ${total + PULSE}`;
+    for (const x of pulses) x.el.style.strokeDasharray = `${PULSE} ${total + PULSE}`;
     measure();
     if (reduce) shown = total;
   }
 
-  let pos = 0, last = performance.now(), drawnAt = -1, pulseOn = false;
+  let clock = 0, last = performance.now(), drawnAt = -1, pulseOn = false, pathD = '';
+  const launch = () => {
+    let x = pulses.find((p) => !p.live);
+    if (!x) {
+      const el = document.createElementNS(NS, 'path');
+      el.setAttribute('class', 't-pulse');
+      el.setAttribute('d', pathD);
+      el.style.strokeDasharray = `${PULSE} ${total + PULSE}`;
+      pulseGroup.appendChild(el);
+      x = { el, pos: 0, live: false };
+      pulses.push(x);
+    }
+    x.pos = 0;
+    x.live = true;
+  };
   function frame(now: number) {
     const dt = Math.min(now - last, 50);
     last = now;
@@ -121,11 +144,17 @@ export function initTrace(host: HTMLElement): void {
     }
     const run = !reduce && powered && shown > 60;
     if (run) {
-      pos += dt * 0.52;
-      if (pos > shown + PULSE) pos = 0;
-      pulse.style.strokeDashoffset = String(PULSE - pos);
+      if (!pulseOn) clock = PULSE_EVERY; // the first pulse leaves at once
+      clock += dt;
+      if (clock >= PULSE_EVERY) { clock %= PULSE_EVERY; launch(); }
+      for (const x of pulses) {
+        if (!x.live) continue;
+        x.pos += dt * PULSE_SPEED;
+        if (x.pos > shown + PULSE) x.live = false; // it reached the end of the drawn copper
+        x.el.style.strokeDashoffset = String(x.live ? PULSE - x.pos : PULSE);
+      }
     }
-    if (run !== pulseOn) { pulseOn = run; pulse.style.opacity = run ? '1' : '0'; }
+    if (run !== pulseOn) { pulseOn = run; pulseGroup.style.opacity = run ? '1' : '0'; }
     requestAnimationFrame(frame);
   }
 

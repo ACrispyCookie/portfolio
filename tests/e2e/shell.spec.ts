@@ -32,7 +32,7 @@ test('home has doctype, title and its content edges', async ({ page, request }, 
 
 test('top bar matches spec', async ({ page }, info) => {
   await page.goto('/');
-  const nav = await page.locator('.topbar nav a, .topbar .menu-sheet a:not(.lab)').allTextContents();
+  const nav = await page.locator('.topbar nav a, .topbar .menu-sheet a').allTextContents();
   expect([...new Set(nav.map((t) => t.trim()))]).toEqual(['Projects', 'Timeline', 'Skills', 'Contact']);
   if (info.project.name === 'desktop') {
     const bar = await page.locator('.topbar').evaluate((el) => {

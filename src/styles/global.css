@@ -53,7 +53,9 @@
   }
 }
 
-html { background: var(--color-mask); scrollbar-color: var(--color-hover) var(--color-mask); }
+html { background: var(--color-mask); scrollbar-color: var(--color-hover) var(--color-mask); scroll-padding-top: 84px; } /* headings land below the 68px sticky bar */
+/* clicks on section links glide; a deep link still lands at once, because .glide is set after load */
+@media (prefers-reduced-motion: no-preference) { html.glide { scroll-behavior: smooth; } }
 body {
   margin: 0;
   background: var(--color-mask);

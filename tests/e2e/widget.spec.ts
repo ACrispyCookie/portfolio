@@ -112,3 +112,26 @@ test('an observer batch of "out" then "in" still opens the stream', async ({ pag
   await page.goto('/');
   await expect(page.locator('.hero .board')).toHaveAttribute('data-state', 'online');
 });
+
+for (const outcome of ['online', 'offline'] as const) {
+  test(`the widget keeps its height from load until the lab answers (${outcome})`, async ({ page, isMobile }) => {
+    if (outcome === 'online') await serveStream(page, event()); else await failLab(page);
+    // record every height the widget takes, from first paint on
+    await page.addInitScript(() => {
+      (window as any).__h = [];
+      document.addEventListener('DOMContentLoaded', () => {
+        const b = document.querySelector('.hero .board')!;
+        new ResizeObserver(() => (window as any).__h.push(Math.round(b.getBoundingClientRect().height))).observe(b);
+      });
+    });
+    await page.goto('/');
+    const board = page.locator('.hero .board');
+    // on phone the widget starts below the fold, so it waits, saying so
+    if (isMobile) await expect(board.locator('[data-f="running"]')).toHaveText('Checking the board…');
+    await board.scrollIntoViewIfNeeded();
+    await expect(board).toHaveAttribute('data-state', outcome);
+    await page.waitForTimeout(300);
+    const hs: number[] = await page.evaluate(() => (window as any).__h);
+    expect(Math.max(...hs) - Math.min(...hs), `heights ${hs.join(', ')}`).toBeLessThanOrEqual(1);
+  });
+}

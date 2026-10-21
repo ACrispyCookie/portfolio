@@ -23,8 +23,11 @@ const items = [
       <summary>Menu</summary>
       <div class="menu-sheet">
         {items.map(([label, href]) => <a href={href}>{label}</a>)}
-        <a class="lab" href="https://fpga.njason.dev">Live FPGA Lab</a>
       </div>
     </details>
   </div>
 </header>
+<script>
+  // Picking a section closes the sheet so the glide to it is visible.
+  for (const a of document.querySelectorAll<HTMLAnchorElement>('.menu-sheet a')) a.addEventListener('click', () => a.closest('details')!.removeAttribute('open'));
+</script>

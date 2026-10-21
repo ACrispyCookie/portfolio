@@ -32,6 +32,7 @@ const { title, description, home = false } = Astro.props;
     <slot name="scripts" />
     <script>
       import '../scripts/trace';
+      addEventListener('load', () => document.documentElement.classList.add('glide'));
     </script>
   </body>
 </html>

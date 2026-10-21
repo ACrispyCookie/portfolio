@@ -10,9 +10,10 @@
 .running { display: grid; gap: 2px; align-content: center; background: var(--color-raised); border-radius: var(--radius-inner); padding: 12px 14px; min-width: 0; }
 .running small { color: var(--color-dim); font-size: var(--text-small); }
 .running b { font: 700 var(--text-lead) / 1.2 var(--font-display); color: var(--color-cyan); overflow-wrap: anywhere; }
-.running span { color: var(--color-dim); font-size: var(--text-small); overflow-wrap: anywhere; }
+.running span { color: var(--color-dim); font-size: var(--text-small); overflow-wrap: anywhere; min-height: 1lh; }
 .board[data-state="fault"] .running b { color: var(--color-amber); }
-.board[data-state="offline"] .running b { color: var(--color-dim); }
+.board[data-state="offline"] .running b, .board[data-state="connecting"] .running b { color: var(--color-dim); }
+.board[data-state="connecting"] .tags { visibility: hidden; }
 .actions { display: grid; gap: 10px; align-content: center; justify-items: start; }
 .actions .tags { display: flex; gap: 8px; flex-wrap: wrap; }
 .actions .tag b { color: var(--color-silk); }

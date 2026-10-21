@@ -9,8 +9,7 @@ function render(root: HTMLElement, v: WidgetView) {
   const f = (name: string) => root.querySelector<HTMLElement>(`[data-f="${name}"]`);
   root.dataset.state = v.state;
   f('running')!.textContent = v.running;
-  f('sub')!.textContent = v.sub;
-  f('sub')!.hidden = !v.sub;
+  f('sub')!.textContent = v.sub; // an empty sub keeps its line, so the widget never changes height
   f('queue')!.textContent = v.queue === null ? '' : String(v.queue);
   f('queue-tag')!.hidden = v.queue === null;
   f('temp')!.textContent = v.tempC === null ? '' : `${Math.round(v.tempC)} °C`;
@@ -19,6 +18,9 @@ function render(root: HTMLElement, v: WidgetView) {
 }
 
 export function connectBoard(root: HTMLElement): void {
+  // Hold the live block's space from the start; it says plainly that nothing has been heard yet.
+  root.dataset.state = 'connecting';
+  root.querySelector<HTMLElement>('[data-f="running"]')!.textContent = 'Checking the board…';
   let source: EventSource | null = null;
   let last: BoardEvent | null = null;
   let gotEvent = false;

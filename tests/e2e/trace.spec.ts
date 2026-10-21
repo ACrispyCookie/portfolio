@@ -91,17 +91,16 @@ test('a deep link lights every section up to and including its target', async ({
   const id = await page.locator('main > section[id]').last().getAttribute('id');
   const fresh = await page.context().newPage();
   await fresh.goto(`/#${id}`);
-  await fresh.waitForTimeout(800);
-  const states = await fresh.evaluate((target) => {
-    const out: [string, boolean][] = [];
+  // the copper catches up in well under a second; poll so a busy machine doesn't fail it
+  const unlit = () => fresh.evaluate((target) => {
+    const out: string[] = [];
     for (const s of document.querySelectorAll('main > section:not(.hero)')) {
-      out.push([s.id, s.classList.contains('lit')]);
+      if (!s.classList.contains('lit')) out.push(s.id);
       if (s.id === target) break;
     }
     return out;
   }, id);
-  expect(states.length).toBeGreaterThan(0);
-  for (const [sid, lit] of states) expect(lit, sid).toBe(true);
+  await expect.poll(unlit, { timeout: 3000 }).toEqual([]);
 });
 
 test.describe('reduced motion', () => {

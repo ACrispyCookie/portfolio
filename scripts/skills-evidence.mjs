@@ -1,77 +1,84 @@
-// Skills evidence scan (dev tool, not part of the build). Reads the git-ignored research/ clones of Jason's repos,
-// finds evidence for every tool in each project's folders, and writes docs/SKILLS_EVIDENCE.md for Jason to review.
-// Rule (Jason, 2026-10-21): anything used in a project counts, scripts included. Third-party trees are skipped.
+// Skills evidence scan (dev tool, not part of the build). Reads the git-ignored research/ clones of Jason's repos and
+// writes src/data/skills-evidence.json (read by the site) and docs/SKILLS_EVIDENCE.md (the review table).
+// Rule (Jason, 2026-10-21): anything used in a project counts, scripts included.
+// Strict: it exits 1, writing nothing, if any repo entry is unmapped, a mapped path is missing, an ignored folder holds
+// code, a file type is unknown, or a README names a tool the files don't show and no ruling explains it.
 // Usage: node scripts/skills-evidence.mjs
-import { readdirSync, readFileSync, statSync, writeFileSync, existsSync } from 'node:fs';
-import { join, relative, extname, basename } from 'node:path';
+import { readdirSync, readFileSync, statSync, writeFileSync, existsSync, lstatSync } from 'node:fs';
+import { join, extname, basename } from 'node:path';
 
 const R = 'research';
+const ALWAYS_SKIP = new Set(['.git', 'node_modules', '.venv', '__pycache__', '.pytest_cache', '.Xil', 'package-lock.json', 'yarn.lock', 'uv.lock']); // lock files name other people's packages
+const META = /^(README.*|\.gitignore|\.gitmodules|\.dockerignore|LICENSE.*)$/i; // repo metadata, not work
 
-// Site projects → their folders. Courses not on the site are listed under COURSEWORK.
-const PROJECTS = {
-  sobel: ['ECE415-High-Performance-Computing/Lab1'],
-  kmeans: ['ECE415-High-Performance-Computing/Lab2'],
-  conv: ['ECE415-High-Performance-Computing/Lab3'],
-  clahe: ['ECE415-High-Performance-Computing/Lab4'],
-  nbody: ['ECE415-High-Performance-Computing/Lab5'],
-  rpc: ['ECE348-Distributed-Systems/project1'],
-  multicast: ['ECE348-Distributed-Systems/project2'],
-  nfs: ['ECE348-Distributed-Systems/project3'],
-  runtime: ['ECE348-Distributed-Systems/project4'],
-  scheduler: ['ECE318-Operating-Systems/Project2'],
-  fuse: ['ECE318-Operating-Systems/Project3'],
-  'busy-wait': ['ECE321-Concurrent-Programming/Project1'],
-  semaphores: ['ECE321-Concurrent-Programming/Project2'],
-  monitors: ['ECE321-Concurrent-Programming/Project3'],
-  threads: ['ECE321-Concurrent-Programming/Project4'],
-  uart: ['ECE333-Digital-Systems-Lab/Lab2'],
-  vga: ['ECE333-Digital-Systems-Lab/Lab3'],
-  spi: ['ECE333-Digital-Systems-Lab/Lab4'],
-  gpgpu: ['GPGPU', 'ECE338-Parallel-Computer-Architecture'],
-  'smith-waterman': ['ECE340-Embedded-Systems/Lab1', 'ECE340-Embedded-Systems/Lab2', 'ECE340-Embedded-Systems/Lab3'],
-  house: ['ECE433-Computer-Graphics/homework-3-3d-house'],
-  wifi: ['ECE436-Wireless-Communications/patches', 'ECE436-Wireless-Communications/scripts', 'ECE436-Wireless-Communications/run.sh'],
-  rambo: ['ECE455-Hardware-Security'],
-  cv32: ['ECE494-Microprocessor-Design'],
-  'dvd-logo-fpga': ['DVD-Logo-FPGA'],
-  'live-fpga-lab': ['Live-FPGA-Lab'],
-  homelab: ['homelab'], // private repo: tools only, never paths (CLAUDE.md homelab privacy)
+// ---- Where every top-level entry of every repo goes. Values:
+//   'project-id'            a project on the site
+//   SHARED                  repo-wide tooling (root Makefile, scripts): counts for every project in the repo
+//   { course: 'Lab 1' }     work in a course that is on the site, but not a project card (named, never counted)
+//   OUTSIDE                 the whole repo is a course that is not on the site (named, never counted)
+//   { ignore: 'reason' }    docs and data; must hold no code
+//   { thirdParty: 'reason' } someone else's code or generated output; skipped
+const SHARED = 'shared', OUTSIDE = 'outside';
+const DOCS = { ignore: 'reports, handouts and images' };
+const MAP = {
+  'ECE115-Programming-I': { '*': OUTSIDE },
+  'ECE116-Programming-II': { '*': OUTSIDE },
+  'ECE119-Digital-Design': { '*': OUTSIDE },
+  'ECE120-Engineering-Drawing': { '*': OUTSIDE },
+  'ECE216-Algorithms': { '*': OUTSIDE },
+  'ECE219-Computer-Organization': { '*': OUTSIDE },
+  'ECE311-Databases': { '*': OUTSIDE },
+  'ECE318-Operating-Systems': { Project1: { course: 'Project 1' }, Project2: 'scheduler', Project3: 'fuse', docs: DOCS, 'Project3/fuse-compressed-fs/html': { thirdParty: 'docs of the Big Brother FS tutorial the filesystem started from' }, 'Project3/fuse-tutorial-2018-02-04': { thirdParty: 'the untouched Big Brother FS tutorial' } },
+  'ECE321-Concurrent-Programming': { Project1: 'busy-wait', Project2: 'semaphores', Project3: 'monitors', Project4: 'threads', Makefile: SHARED, scripts: SHARED, docs: DOCS },
+  'ECE333-Digital-Systems-Lab': { Lab1: { course: 'Lab 1' }, Lab2: 'uart', Lab3: 'vga', Lab4: 'spi', Makefile: SHARED, scripts: SHARED, docs: DOCS },
+  'ECE338-Parallel-Computer-Architecture': { '*': 'gpgpu', 'demo/vendor': { thirdParty: 'three.js' }, 'hardware/rtl/rgb2dvi': { thirdParty: "Digilent's rgb2dvi HDMI IP" } },
+  GPGPU: { '*': 'gpgpu', 'demo/vendor': { thirdParty: 'three.js' }, 'hardware/rtl/rgb2dvi': { thirdParty: "Digilent's rgb2dvi HDMI IP" } },
+  'ECE340-Embedded-Systems': { Lab1: 'smith-waterman', Lab2: 'smith-waterman', Lab3: 'smith-waterman', Makefile: SHARED, scripts: SHARED, docs: DOCS, 'Lab2/step3/ip_repo/fpadd_ip_1.0/example_designs': { thirdParty: 'generated by Vivado' }, 'Lab3/common': { thirdParty: "Xilinx's Vitis example helpers (xcl2, oclHelper)" } },
+  'ECE348-Distributed-Systems': { project1: 'rpc', project2: 'multicast', project3: 'nfs', project4: 'runtime', 'zip.sh': SHARED, docs: DOCS },
+  'ECE415-High-Performance-Computing': { Lab1: 'sobel', Lab2: 'kmeans', Lab3: 'conv', Lab4: 'clahe', Lab5: 'nbody', docs: DOCS },
+  'ECE433-Computer-Graphics': { 'homework-1-rasterization-antialiasing': { course: 'Homeworks 1–2' }, 'homework-2-polygon-fill-clipping': { course: 'Homeworks 1–2' }, 'homework-3-3d-house': 'house', docs: DOCS, 'homework-3-3d-house/final-3d-house/lib': { thirdParty: 'freeglut binaries' } },
+  // only Jason's patch and scripts count; the backports tree is the Linux kernel's
+  'ECE436-Wireless-Communications': { patches: 'wifi', scripts: 'wifi', 'run.sh': 'wifi', 'backports-5.4.56-1': { thirdParty: 'Linux backports tree' }, docs: DOCS },
+  'ECE455-Hardware-Security': { '*': 'rambo' },
+  'ECE494-Microprocessor-Design': { '*': 'cv32' },
+  'DVD-Logo-FPGA': { '*': 'dvd-logo-fpga' },
+  'Live-FPGA-Lab': { '*': 'live-fpga-lab', 'demos/01-gpgpu-nbody/demo/vendor': { thirdParty: 'three.js' } },
+  homelab: { '*': 'homelab' }, // private repo: tools only, never paths (CLAUDE.md homelab privacy)
 };
 const PRIVATE = new Set(['homelab']);
+// Folders below a repo root that carry a licence or authors file but are Jason's own work (checked by hand).
+const OWN_DESPITE_LICENCE = {
+  'ECE318-Operating-Systems/Project3/fuse-compressed-fs': 'the deduplicating filesystem, built on the tutorial skeleton',
+};
 
-// Jason's rulings on the scan (2026-10-21): drop weak or wrong hits, add what has no repo.
+// Jason's rulings on the scan (2026-10-21).
 const DROP = { clahe: ['pthreads'], gpgpu: ['SQLite'], cv32: ['ARM/Zynq'], 'live-fpga-lab': ['Traefik'] };
-// Jason's own list for the homelab (brief) plus SQLite; the scan finds the rest.
 const ADD = { homelab: ['Docker', 'Traefik', 'Proxmox', 'Nginx', 'WireGuard', 'Pi-hole', 'Ansible', 'SQLite'] };
 const ADD_COURSEWORK = { 'Numerical Analysis': ['MATLAB'] }; // 10 MATLAB labs; the course has no repo
-const COURSEWORK = {
-  'ECE115 Programming I': ['ECE115-Programming-I'],
-  'ECE116 Programming II': ['ECE116-Programming-II'],
-  'ECE119 Digital Design': ['ECE119-Digital-Design'],
-  'ECE120 Engineering Drawing': ['ECE120-Engineering-Drawing'],
-  'ECE216 Algorithms': ['ECE216-Algorithms'],
-  'ECE219 Computer Organization': ['ECE219-Computer-Organization'],
-  'ECE311 Databases': ['ECE311-Databases'],
-  'ECE318 Operating Systems (Project 1)': ['ECE318-Operating-Systems/Project1'],
-  'ECE333 Digital Systems Lab (Lab 1)': ['ECE333-Digital-Systems-Lab/Lab1'],
-  'ECE433 Computer Graphics (Homeworks 1–2)': ['ECE433-Computer-Graphics/homework-1-rasterization-antialiasing', 'ECE433-Computer-Graphics/homework-2-polygon-fill-clipping'],
+// A README names the tool but no file shows it: the reason it still doesn't count (or does, via ADD).
+const README_RULINGS = {
+  'gpgpu:C++': 'Verilator generates the C++ for simulation; none is written by hand',
+  'dvd-logo-fpga:ARM/Zynq': 'the Smart Zynq SL is the board; the design is FPGA fabric only, no ARM (same as the CV32E40P ruling)',
 };
-// Not Jason's code: bundled third-party trees and generated output.
-const SKIP = /(^|\/)(\.git|node_modules|\.venv|venv|__pycache__|backports-[^/]+|\.Xil|build|dist|\.cache|vendor|example_designs)(\/|$)|(package-lock\.json|uv\.lock|\.rpt)$/;
 
+// ---- Detection rules
 const ext = (...e) => (f) => e.includes(extname(f.path).toLowerCase());
 const name = (re) => (f) => re.test(basename(f.path));
 const text = (re, filter = () => true) => (f) => filter(f) && re.test(f.text());
-const CODE = ext('.c', '.h', '.cpp', '.cc', '.hpp', '.cu', '.cuh', '.cl', '.py', '.java', '.js', '.ts', '.sh', '.tcl', '.yml', '.yaml', '.toml', '.cfg', '.conf', '.json', '.xml', '.gradle', '.kts', '.sql', '.m', '.v', '.sv', '.svh', '.xdc', '.grc', '.s', '.asm', '.patch', '.ini', '.env', '.dockerfile');
-const isCode = (f) => CODE(f) || /^(Makefile|Dockerfile|docker-compose.*|Kbuild|requirements.*\.txt|pyproject\.toml)$/i.test(basename(f.path));
+const CODE = ext('.c', '.h', '.cpp', '.cc', '.hpp', '.cu', '.cuh', '.cl', '.py', '.java', '.js', '.ts', '.tsx', '.sh', '.tcl', '.yml', '.yaml', '.toml', '.cfg', '.conf', '.json', '.xml', '.gradle', '.kts', '.sql', '.m', '.v', '.sv', '.svh', '.vhd', '.xdc', '.grc', '.s', '.asm', '.patch', '.ini', '.env', '.example', '.mk', '.ld', '.html', '.css', '.pl', '.bat', '.j2', '.service');
+const isCode = (f) => CODE(f) || /^(Makefile|Dockerfile.*|docker-compose.*|Kbuild|requirements.*\.txt|pyproject\.toml)$/i.test(basename(f.path));
+
+const GENERATED_ASM = (f) => /^\s*\.file\s+"[^"]+\.c"/m.test(f.head());
+const ASM_CODE = (f) => f.text().replace(/(#|;|\/\/).*$/gm, ''); // registers in comments don't count
 
 const RULES = {
   C: (f) => ext('.c')(f) || (ext('.patch')(f) && /^\+\+\+ .*\.[ch]\b/m.test(f.text())),
   'C++': ext('.cpp', '.cc', '.hpp', '.cxx'),
   Python: (f) => ext('.py', '.ipynb')(f) || name(/^(requirements.*\.txt|pyproject\.toml)$/)(f),
   Java: ext('.java'),
-  JavaScript: ext('.js', '.mjs', '.jsx'),
-  // not in the brief's list yet: proposed to Jason (2026-10-21)
+  JavaScript: (f) => ext('.js', '.mjs', '.jsx')(f) || text(/<script(?![^>]*\bsrc=)[^>]*>\s*\S/i, ext('.html'))(f),
+  'HTML/CSS': ext('.html', '.css'),
+  SQL: ext('.sql'),
   TypeScript: (f) => ext('.ts', '.tsx')(f) && !f.path.endsWith('.d.ts'),
   React: text(/from ['"]react['"]|require\(['"]react['"]\)/, ext('.js', '.jsx', '.ts', '.tsx')),
   Tcl: ext('.tcl'),
@@ -79,20 +86,23 @@ const RULES = {
   MATLAB: ext('.m', '.mlx'),
   Verilog: ext('.v'),
   SystemVerilog: ext('.sv', '.svh'),
+  VHDL: ext('.vhd', '.vhdl'),
   CUDA: ext('.cu', '.cuh'),
   OpenCL: (f) => ext('.cl')(f) || text(/CL\/cl(2|_ext)?\.h|<CL\/|xrt|cl::Kernel|clCreateKernel/, ext('.c', '.cpp', '.h', '.hpp'))(f),
   OpenMP: text(/#pragma\s+omp|-fopenmp|<omp\.h>/, isCode),
   pthreads: text(/<pthread\.h>|-lpthread|-pthread\b/, isCode),
-  // .xdc constraints and .xpr/.bd projects are Vivado's own formats; scripts that drive vivado/xsct/v++ count too
+  // .xdc constraints and .xpr/.bd/.xci projects are Vivado's own formats; scripts that drive vivado/xsct/v++ count too
   'Vivado/Vitis': (f) => ext('.xpr', '.xsa', '.bd', '.xci', '.xdc')(f) || text(/\b(create_project|write_bitstream|launch_runs|vivado|vitis|xsct|create_bd_design)\b|v\+\+/i, isCode)(f),
   'Vitis HLS': text(/#pragma\s+HLS|vitis_hls/i, isCode),
-  'ARM/Zynq': (f) => text(/zynq|ps7_|xparameters\.h|processing_system7|xc7z0/i, isCode)(f),
-  'RISC-V': text(/riscv(32|64)?-|rv32[ie]|rv64|RISC-V ISA|\.option\s+norvc/i, isCode),
-  // MIPS-only syntax: $-prefixed registers with syscall (RISC-V assembly uses bare register names)
-  'MIPS assembly': (f) => ext('.s', '.asm')(f) && /\$(t|s|a|v)\d/.test(f.text()) && /\bsyscall\b/.test(f.text()),
+  'ARM/Zynq': text(/zynq|ps7_|xparameters\.h|processing_system7|xc7z0/i, isCode),
+  'RISC-V': (f) => text(/riscv(32|64)?-|rv32[ie]|rv64|RISC-V ISA|\.option\s+norvc/i, isCode)(f) || (ext('.s', '.asm')(f) && !GENERATED_ASM(f) && !/\$[a-z]/.test(ASM_CODE(f)) && /\b(x\d{1,2}|[ast]\d{1,2}|sp|ra)\b/.test(ASM_CODE(f))),
+  // hand-written assembly only (compiler output starts with .file "x.c"): MIPS uses $-registers, RISC-V x-/a-registers
+  'MIPS assembly': (f) => ext('.s', '.asm')(f) && !GENERATED_ASM(f) && /\$(t|s|a|v)\d|\$zero|\$ra\b/.test(ASM_CODE(f)),
   'Linux kernel modules': text(/\bobj-m\b|MODULE_LICENSE|module_init\(/, isCode),
   FUSE: text(/fuse\.h|FUSE_USE_VERSION|fuse_main/, isCode),
-  Docker: name(/^(Dockerfile.*|docker-compose.*\.ya?ml|compose\.ya?ml)$/i),
+  Docker: name(/^(Dockerfile.*|.*\.dockerfile|docker-compose.*\.ya?ml|compose\.ya?ml)$/i),
+  Multisim: ext('.ms14'),
+  AutoCAD: ext('.dwg', '.dwt'),
   Traefik: text(/traefik/i, isCode),
   Nginx: text(/\bnginx\b/i, isCode),
   WireGuard: text(/wireguard|\bwg-quick\b/i, isCode),
@@ -100,11 +110,10 @@ const RULES = {
   Ansible: text(/ansible/i, isCode),
   Proxmox: text(/proxmox|\bpvesh\b|\bqm\s/i, isCode),
   ath9k: text(/ath9k/i, isCode),
-  'SDR (ADALM-PLUTO)': text(/pluto|adalm|ad936x|ip:192\.168\.2\.1|pyadi|adi\.Pluto/i, isCode),
+  'SDR (ADALM-PLUTO)': text(/pluto|adalm|ad936x|pyadi|adi\.Pluto/i, isCode),
   'GNU Radio': (f) => ext('.grc')(f) || text(/gnuradio/i, isCode)(f),
-  PostgreSQL: text(/postgres|psycopg|\bpg_/i, isCode),
+  PostgreSQL: text(/postgres|psycopg/i, isCode),
   MySQL: text(/mysql/i, isCode),
-  MongoDB: text(/mongo(db|ose)?\b|pymongo/i, isCode),
   // real use, not a profiler's export format
   SQLite: text(/import sqlite3|sqlite3_open|"backend":\s*"sqlite3"|\.sqlite3?\b.*(connect|open)|CREATE TABLE/i, (f) => isCode(f) && !/nsys/.test(f.text())),
   Maven: name(/^pom\.xml$/),
@@ -112,48 +121,196 @@ const RULES = {
   OpenGL: text(/<GL\/|glut|glfw|glew|OpenGL/i, ext('.c', '.cpp', '.h', '.hpp')),
 };
 
-function walk(p) {
-  if (!existsSync(p) || SKIP.test(p)) return [];
-  const st = statSync(p);
+// File types that are not code: anything else must match a rule, or the scan stops.
+const NOT_CODE = new Set(('md txt pdf png jpg jpeg gif bmp svg tiff tif raw grey pgm ppm mp4 log csv data dat bin hex mem out rpt drawio ' +
+  'pptx docx xlsx ods odp tex bib zip gz tar jar a lib dll exe elf bit obj mtl lock pyc iml mf properties spec key pem db sqlite sqlite3 ' +
+  'json yml yaml toml ini cfg conf xml example env h hpp cuh svh ld mk in am ac m4 args bda prj ui map tag dump erdt mdd old bak ' +
+  'ovpn bat ss ' + // VPN profile, Gradle's wrapper script, SimpleScript programs (the runtime's own language)
+  // runtime data and keys committed with the homelab's services
+  'sqlite3-shm sqlite3-wal db-shm db-wal db-journal pid cnf 00000001 info mad mai frm opt csm ibd mmdb list leases domains sha1 mblink collection service pub').split(' '));
+const KNOWN_FILE = (f) => /\.so(\.\d+)*$|\.d\.ts$/.test(f.path) || GENERATED_ASM(f) && ext('.s', '.asm')(f);
+
+const errors = [];
+const courseCodes = new Map(readdirSync('src/content/courses').map((f) => {
+  const c = JSON.parse(readFileSync(join('src/content/courses', f), 'utf8'));
+  return [c.code, c.name];
+}));
+const repoCourse = (repo) => repo.match(/^ECE\d{3}/)?.[0];
+const repoLabel = (repo) => repo.replace(/-/g, ' ').replace(/^(ECE\d{3}) /, '$1 ');
+
+function walk(p, skipPaths) {
+  if (!existsSync(p) || ALWAYS_SKIP.has(basename(p)) || skipPaths.has(p)) return [];
+  const st = lstatSync(p);
+  if (st.isSymbolicLink()) return [];
   if (st.isFile()) {
     let cached;
     const read = () => (cached ??= st.size < 2_000_000 ? readFileSync(p, 'utf8') : '');
     return [{ path: p, text: read, head: () => read().slice(0, 200) }];
   }
-  return readdirSync(p).flatMap((e) => walk(join(p, e)));
+  return readdirSync(p).flatMap((e) => walk(join(p, e), skipPaths));
 }
 
-function scan(dirs) {
-  const files = dirs.flatMap((d) => walk(join(R, d)));
+// ---- 1. Resolve every top-level entry of every repo to a target
+const buckets = new Map(); // key → { files, label, kind, repos, readme }
+const add = (key, kind, label, files, repo) => {
+  const b = buckets.get(key) ?? { files: [], kind, label, repos: new Set() };
+  b.files.push(...files);
+  b.repos.add(repo);
+  buckets.set(key, b);
+};
+const sharedByRepo = new Map();
+for (const repo of readdirSync(R)) {
+  const map = MAP[repo];
+  if (!map) { errors.push(`unmapped repo: ${repo}`); continue; }
+  const skipPaths = new Set(Object.entries(map).filter(([, t]) => t?.thirdParty).map(([k]) => join(R, repo, k)));
+  for (const k of Object.keys(map)) if (k !== '*' && !existsSync(join(R, repo, k))) errors.push(`mapped path missing: ${repo}/${k}`);
+  const code = repoCourse(repo);
+  for (const entry of readdirSync(join(R, repo))) {
+    if (ALWAYS_SKIP.has(entry) || META.test(entry)) continue;
+    const target = map[entry] ?? map['*'];
+    const p = join(R, repo, entry);
+    if (target === undefined) { errors.push(`unmapped entry: ${repo}/${entry}`); continue; }
+    if (target?.thirdParty) continue;
+    const files = walk(p, skipPaths);
+    if (target?.ignore) {
+      const code = files.filter((f) => isCode(f) && !ext('.json', '.xml', '.yml', '.yaml')(f));
+      if (code.length) errors.push(`ignored folder holds code: ${repo}/${entry} (${code.length} files, e.g. ${code[0].path})`);
+      continue;
+    }
+    if (target === SHARED) { sharedByRepo.set(repo, [...(sharedByRepo.get(repo) ?? []), ...files]); continue; }
+    if (target === OUTSIDE) {
+      if (code && courseCodes.has(code)) errors.push(`${repo} is marked outside, but ${code} has a course page`);
+      add(`outside:${repo}`, 'outside', repoLabel(repo), files, repo);
+    } else if (target?.course) {
+      if (!courseCodes.has(code)) errors.push(`${repo}/${entry} is course work, but ${code} has no course page`);
+      add(`course:${repo}:${target.course}`, 'course', `${code} ${courseCodes.get(code)} (${target.course})`, files, repo);
+    } else {
+      if (!existsSync(join('src/content/projects', `${target}.md`))) errors.push(`${repo}/${entry} maps to unknown project ${target}`);
+      add(`project:${target}`, 'project', target, files, repo);
+    }
+  }
+}
+// a licence/authors file below a repo root usually means bundled third-party code: it must be declared
+for (const repo of readdirSync(R)) {
+  const declared = new Set(Object.entries(MAP[repo] ?? {}).filter(([, t]) => t?.thirdParty).map(([k]) => join(R, repo, k)));
+  const stack = readdirSync(join(R, repo)).map((e) => join(R, repo, e));
+  while (stack.length) {
+    const d = stack.pop();
+    if (ALWAYS_SKIP.has(basename(d)) || declared.has(d) || !lstatSync(d).isDirectory()) continue;
+    const kids = readdirSync(d);
+    if (kids.some((k) => /^(LICEN[CS]E|COPYING|AUTHORS)(\.\w+)?$/i.test(k)) && !OWN_DESPITE_LICENCE[d.slice(R.length + 1)]) {
+      errors.push(`possible third-party code: ${PRIVATE.has(repo) ? repo : d} has a licence/authors file; declare it thirdParty or OWN_DESPITE_LICENCE`);
+      continue;
+    }
+    stack.push(...kids.map((k) => join(d, k)));
+  }
+}
+
+// shared repo tooling counts for every project bucket of that repo
+for (const [repo, files] of sharedByRepo) for (const b of buckets.values()) if (b.kind === 'project' && b.repos.has(repo)) b.files.push(...files);
+for (const f of readdirSync('src/content/projects')) if (!buckets.has(`project:${f.replace(/\.md$/, '')}`)) errors.push(`project without a repo: ${f}`);
+
+// ---- 2. Detect tools; every file type must be known
+const scanned = {};
+for (const [key, b] of buckets) {
   const found = {};
   for (const [tool, rule] of Object.entries(RULES)) {
-    const hits = files.filter((f) => { try { return rule(f); } catch { return false; } });
-    if (hits.length) found[tool] = { n: hits.length, eg: relative(R, hits[0].path) };
+    const hits = b.files.filter((f) => { try { return rule(f); } catch { return false; } });
+    if (hits.length) found[tool] = { n: hits.length, eg: hits[0].path.slice(R.length + 1) };
   }
-  // every project lives in a Git repo (Jason: keep Git as a chip for now)
-  if (dirs.some((d) => existsSync(join(R, d.split('/')[0], '.git')))) found.Git = { n: 1, eg: `${dirs[0].split('/')[0]} (repo)` };
-  return found;
+  const covered = new Set(b.files.filter((f) => Object.values(RULES).some((r) => { try { return r(f); } catch { return false; } })).map((f) => f.path));
+  const unknown = {};
+  for (const f of b.files) {
+    const e = extname(f.path).slice(1).toLowerCase();
+    if (covered.has(f.path) || !e || NOT_CODE.has(e) || KNOWN_FILE(f)) continue;
+    (unknown[e] ??= []).push(f.path);
+  }
+  for (const [e, fs] of Object.entries(unknown)) {
+    const where = [...b.repos].some((r) => PRIVATE.has(r)) ? b.label : fs[0];
+    errors.push(`unknown file type .${e} in ${b.label}: ${fs.length} file(s), e.g. ${where}`);
+  }
+  found.Git = { n: 1, eg: 'repo' };
+  const id = b.kind === 'project' ? b.label : null;
+  for (const t of DROP[id] ?? []) delete found[t];
+  for (const t of ADD[id] ?? []) found[t] ??= { n: 0, eg: 'Jason' };
+  scanned[key] = found;
 }
 
-const out = ['# Skills evidence', '', `Generated by \`node scripts/skills-evidence.mjs\` on ${new Date().toISOString().slice(0, 10)} from the public repos cloned in \`research/\`. Each cell: number of matching files, and one example. "1" means a single file: check it is real use. Third-party trees (e.g. ECE436 Linux backports) are skipped.`, ''];
-const section = (title, map) => {
-  out.push(`## ${title}`, '', '| Project | Tools (files, example) |', '|---|---|');
-  const result = {};
-  for (const [k, dirs] of Object.entries(map)) {
-    const f = scan(dirs);
-    for (const t of DROP[k] ?? []) delete f[t];
-    for (const t of ADD[k] ?? []) f[t] ??= { n: 0, eg: 'Jason' };
-    result[k] = Object.keys(f);
-    const cell = ([t, v]) => (PRIVATE.has(k) ? `**${t}**` : `**${t}** ${v.n}${v.n === 1 && t !== 'Git' ? ' ⚠' : ''} (\`${v.eg}\`)`);
-    out.push(`| ${k} | ${Object.entries(f).map(cell).join('<br>')} |`);
-  }
-  out.push('');
-  return result;
+// ---- 3. README cross-check: a tool the README names must show up in the files, or carry a ruling
+const ALIASES = {
+  'C++': /c\+\+/i, Python: /\bpython\b/i, Java: /\bjava\b(?!script)/i, JavaScript: /javascript/i, TypeScript: /typescript/i,
+  React: /\breact\b/i, Tcl: /\btcl\b/i, Bash: /\bbash\b/i, MATLAB: /matlab/i, Verilog: /\b(?<!system|icarus )verilog\b/i, SystemVerilog: /systemverilog/i,
+  VHDL: /\bvhdl\b/i, CUDA: /\bcuda\b/i, OpenCL: /opencl/i, OpenMP: /openmp/i, pthreads: /pthread/i, 'Vivado/Vitis': /\b(vivado|vitis)\b(?!\s*hls)/i,
+  'Vitis HLS': /\bhls\b/i, 'ARM/Zynq': /\bzynq\b/i, 'RISC-V': /risc-?v/i, 'MIPS assembly': /\bmips\b/i, 'Linux kernel modules': /kernel module/i,
+  FUSE: /\bfuse\b/i, Docker: /\bdocker\b/i, ath9k: /ath9k/i, 'GNU Radio': /gnu ?radio/i, 'SDR (ADALM-PLUTO)': /pluto/i,
+  PostgreSQL: /postgres/i, MySQL: /mysql/i, SQLite: /sqlite/i, Maven: /\bmaven\b/i, Gradle: /gradle/i, OpenGL: /opengl/i,
 };
-const projects = section('Projects on the site', PROJECTS);
-const coursework = { ...section('Coursework not on the site (option B: named in the line, never counted)', COURSEWORK), ...ADD_COURSEWORK };
-out.push('## Added by hand', '', ...Object.entries(ADD_COURSEWORK).map(([k, v]) => `- ${k}: ${v.join(', ')} (Jason, no repo)`), '', ...Object.entries(ADD).map(([k, v]) => `- ${k}: ${v.join(', ')} (Jason)`), '', '## Dropped by Jason', '', ...Object.entries(DROP).map(([k, v]) => `- ${k}: ${v.join(', ')}`), '');
-writeFileSync('docs/SKILLS_EVIDENCE.md', out.join('\n'));
-// the site reads this: tools per project and per course not on the site, no paths
-writeFileSync('src/data/skills-evidence.json', JSON.stringify({ projects, coursework }, null, 2) + '\n');
-console.log(JSON.stringify({ projects, coursework }));
+function readmeText(repo, entries) {
+  const files = walk(join(R, repo), new Set()).filter((f) => /^README.*\.md$/i.test(basename(f.path)));
+  const root = files.find((f) => f.path === join(R, repo, basename(f.path)));
+  const inside = files.filter((f) => entries.some((e) => e === '*' || f.path.startsWith(join(R, repo, e) + '/')));
+  // code-fence labels (```bash) name a shell to type commands into, not a tool the project uses
+  const prose = (t) => t.replace(/^\s*```.*$/gm, '');
+  let out = inside.map((f) => prose(f.text())).join('\n');
+  if (root) {
+    if (entries.includes('*')) out += prose(root.text());
+    else {
+      // lines naming the folder, plus the section under a heading that names it
+      const lines = prose(root.text()).split('\n');
+      let inSection = false;
+      for (const l of lines) {
+        const names = entries.some((e) => l.toLowerCase().includes(e.toLowerCase()));
+        if (/^#{1,4} /.test(l)) inSection = names;
+        if (names || inSection) out += l + '\n';
+      }
+    }
+  }
+  return out;
+}
+const readmeGaps = [];
+for (const [key, b] of buckets) {
+  if (b.kind !== 'project' || [...b.repos].some((r) => PRIVATE.has(r))) continue;
+  const id = b.label;
+  let txt = '';
+  for (const repo of b.repos) {
+    const entries = Object.entries(MAP[repo]).filter(([, t]) => t === id).map(([k]) => k);
+    txt += readmeText(repo, entries);
+  }
+  for (const [tool, re] of Object.entries(ALIASES)) {
+    if (re.test(txt) && !scanned[key][tool] && !(DROP[id] ?? []).includes(tool) && !README_RULINGS[`${id}:${tool}`]) readmeGaps.push(`${id}: README names ${tool}, no file shows it`);
+  }
+}
+errors.push(...readmeGaps);
+
+if (errors.length) {
+  console.error(`skills-evidence: ${errors.length} problem(s), nothing written:\n- ${errors.join('\n- ')}`);
+  process.exit(1);
+}
+
+// ---- 4. Write the evidence
+const projects = {}, coursework = {}, outside = [];
+for (const [key, found] of Object.entries(scanned)) {
+  const b = buckets.get(key);
+  if (b.kind === 'project') projects[b.label] = Object.keys(found);
+  else {
+    coursework[b.label] = Object.keys(found).filter((t) => t !== 'Git');
+    if (b.kind === 'outside') outside.push(b.label);
+  }
+}
+for (const [k, v] of Object.entries(ADD_COURSEWORK)) { coursework[k] = v; outside.push(k); }
+writeFileSync('src/data/skills-evidence.json', JSON.stringify({ projects, coursework, outside }, null, 2) + '\n');
+
+const md = ['# Skills evidence', '', `Generated by \`node scripts/skills-evidence.mjs\` on ${new Date().toISOString().slice(0, 10)}. Every top-level entry of every repo is mapped; the scan stops on an unmapped entry, an unknown file type, or a README tool no file shows. Each cell: files matching, and one example. ⚠ = a single file. Homelab is private and listed by tool only.`, ''];
+for (const kind of ['project', 'course', 'outside']) {
+  md.push(`## ${{ project: 'Projects on the site (counted)', course: 'Course work on the site, not a project card (named, not counted)', outside: 'Courses not on the site (named, not counted)' }[kind]}`, '', '| | Tools |', '|---|---|');
+  for (const [key, found] of Object.entries(scanned)) {
+    const b = buckets.get(key);
+    if (b.kind !== kind) continue;
+    const priv = [...b.repos].some((r) => PRIVATE.has(r));
+    md.push(`| ${b.label} | ${Object.entries(found).map(([t, v]) => (priv || t === 'Git' || v.eg === 'Jason' ? `**${t}**${v.eg === 'Jason' ? ' (Jason)' : ''}` : `**${t}** ${v.n}${v.n === 1 ? ' ⚠' : ''} (\`${v.eg}\`)`)).join('<br>')} |`);
+  }
+  md.push('');
+}
+md.push('## Rulings', '', ...Object.entries(DROP).map(([k, v]) => `- ${k}: dropped ${v.join(', ')} (Jason)`), ...Object.entries(ADD).map(([k, v]) => `- ${k}: ${v.join(', ')} (Jason)`), ...Object.entries(ADD_COURSEWORK).map(([k, v]) => `- ${k}: ${v.join(', ')} (Jason, no repo)`), ...Object.entries(README_RULINGS).map(([k, v]) => `- ${k}: ${v}`), '');
+writeFileSync('docs/SKILLS_EVIDENCE.md', md.join('\n'));
+console.log(`skills-evidence: ${Object.keys(projects).length} projects, ${Object.keys(coursework).length} coursework entries, 0 problems`);

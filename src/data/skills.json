@@ -32,7 +32,6 @@
     "MATLAB",
     "PostgreSQL",
     "MySQL",
-    "MongoDB",
     "SQLite",
     "Git",
     "Maven",
@@ -40,7 +39,8 @@
     "OpenGL",
     "Tcl",
     "TypeScript",
-    "React"
+    "React",
+    "HTML/CSS"
   ],
   "origin": {
     "slug": "minecraft",

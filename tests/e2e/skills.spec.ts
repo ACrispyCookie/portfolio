@@ -34,9 +34,21 @@ test('coursework-only tools name the course; used tools add coursework after the
   await page.goto('/');
   await page.locator('#skills .more').click();
   await page.locator('#skills .chip[data-tool="MATLAB"]').click();
-  await expect(page.locator('#skills .usedline')).toHaveText("MATLAB From coursework that isn't on this site: Numerical Analysis.");
+  await expect(page.locator('#skills .usedline')).toHaveText('MATLAB In coursework: Numerical Analysis.');
   await page.locator('#skills .chip[data-tool="MySQL"]').click();
-  await expect(page.locator('#skills .usedline')).toHaveText('MySQL Used in Homelab and Minecraft plugins. Also in coursework: ECE311 Databases.');
+  await expect(page.locator('#skills .usedline')).toHaveText('MySQL Used in Homelab and Minecraft plugins. In coursework: ECE311 Databases.');
+});
+
+test('a long list shows the first three, and "N more" opens the rest', async ({ page }) => {
+  await page.goto('/?tool=C');
+  const line = page.locator('#skills .usedline');
+  await expect(line.locator('a')).toHaveCount(3);
+  const more = line.locator('button.morelinks');
+  const total = Number((await page.locator('#skills .chip[data-tool="C"] .ct').innerText()).match(/\d+/)![0]);
+  await expect(more).toHaveText(`${total - 3} more`);
+  await more.click();
+  await expect(line.locator('a')).toHaveCount(total);
+  await expect(line.locator('button.morelinks')).toHaveCount(0);
 });
 
 test('Show all reveals every chip, Show fewer folds them back', async ({ page }) => {

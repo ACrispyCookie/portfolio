@@ -6,7 +6,7 @@ main: false
 order: 115
 headline: "Tilt-controlled sprite"
 summary: "Tilt-controlled sprite"
-tools: ["Verilog", "Vivado/Vitis", "Git"]
+tools: ["Bash", "Verilog", "Vivado/Vitis", "Git"]
 team: []
 group: "Tilt-controlled sprite"
 ---

@@ -36,7 +36,7 @@ const courses = defineCollection({
     intro: z.string().optional(),
     sequence: z.boolean(),
     order: z.number(),
-    featuredProject: z.string(),
+    featuredProject: reference('projects'),
   }),
 });
 

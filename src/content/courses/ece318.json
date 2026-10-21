@@ -4,5 +4,5 @@
   "grade": 10,
   "sequence": false,
   "order": 4,
-  "featuredProject": "Deduplicating filesystem"
+  "featuredProject": "fuse"
 }

@@ -17,6 +17,7 @@ export interface ProjectData {
   tools: string[];
   team: string[];
   group?: string;
+  fromCourse?: string;
   links?: { repo?: string; teamRepo?: string; demo?: string };
 }
 export interface CourseData { id: string; code: string; name: string; grade: number; intro?: string; featuredProject: string }

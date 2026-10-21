@@ -1,9 +1,11 @@
 ---
 import Base from '../layouts/Base.astro';
 import Hero from '../components/Hero.astro';
+import Glance from '../components/Glance.astro';
 ---
-<Base title="Jason Nikas" description="Jason Nikas, Electrical and Computer Engineering student at the University of Thessaly. Projects from code down to hardware: GPUs on FPGAs, CUDA, operating systems and distributed systems." home>
+<Base title="Jason Nikas" description="Jason Nikas, Electrical and Computer Engineering student at the University of Thessaly. Projects from code down to hardware: GPUs on FPGAs, CUDA, filesystems and distributed runtimes." home>
   <Hero />
+  <Glance />
   <Fragment slot="scripts">
     <script>
       import '../scripts/board-client';

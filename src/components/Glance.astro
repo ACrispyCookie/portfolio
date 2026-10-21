@@ -1,0 +1,26 @@
+---
+// At a glance (spec §5.1): three readouts computed from the collections, then the folded report card.
+import { getCollection } from 'astro:content';
+import { getGlanceStats } from '../lib/stats';
+import ReportCard from './ReportCard.astro';
+import timeline from '../data/timeline.json';
+import '../styles/glance.css';
+
+const projects = await getCollection('projects');
+const courses = await getCollection('courses');
+const s = getGlanceStats(projects.map((p) => p.data), courses.map((c) => c.data), projects.flatMap((p) => (p.data.course ? [p.data.course.id] : [])));
+// One TA role per distinct course in the teaching lane (brief: 4 since 2025).
+const TA_ROLES = new Set(timeline.filter((t) => t.lane === 'teaching').flatMap((t) => t.title.split(', '))).size;
+const reads = [
+  [s.total, `projects on this site, ${s.main} main and ${s.smaller} smaller`],
+  [TA_ROLES, 'volunteer teaching-assistant roles since 2025'],
+  [s.highGrades, 'courses graded 9.5 or higher, each with a project on this site'],
+];
+---
+<section id="glance" class="sec" aria-labelledby="glance-h">
+  <h2 id="glance-h" data-pad>At a glance</h2>
+  <div class="glance">
+    {reads.map(([n, t]) => <div class="read panel"><b>{n}</b><span>{t}</span></div>)}
+  </div>
+  <ReportCard />
+</section>

@@ -33,6 +33,15 @@ describe('content', () => {
     for (const p of projects.filter((x) => x.course === 'ece348')) expect(p.team, p.id).toEqual([]);
   });
 
+  test("every course's featured project exists and belongs to it", async () => {
+    const { projects, courses } = await loadContent();
+    for (const c of courses) {
+      const p = projects.find((x) => x.id === c.featuredProject);
+      expect(p, c.id).toBeDefined();
+      expect(p!.course === c.id || p!.fromCourse === `From ${c.code}`, c.id).toBe(true);
+    }
+  });
+
   test('no rendered field leaks private or unfinished text', async () => {
     const { projects, courses } = await loadContent();
     const fields = [

@@ -62,20 +62,23 @@ test('without JavaScript nothing in main is see-through and the pill is visible'
 test('home: the pill fades out when the widget comes back, then ends invisible', async ({ page }) => {
   await page.route('https://fpga.njason.dev/**', (r) => r.abort());
   await page.goto('/');
-  await page.evaluate(() => scrollTo({ top: 1400, behavior: 'instant' }));
-  await expect(page.locator('.topbar .labpill')).toBeVisible();
-  // listen only once the fade-in is over, or its own transitionend lands among the fade-out's events
-  await expect.poll(() => page.locator('.topbar .labpill').evaluate((el) => getComputedStyle(el).opacity)).toBe('1');
   await page.evaluate(() => {
     const pill = document.querySelector('.topbar .labpill')!;
     (window as any).__fade = [];
     pill.addEventListener('transitionrun', (e) => { if ((e as TransitionEvent).propertyName === 'opacity') (window as any).__fade.push('run'); });
     pill.addEventListener('transitionend', (e) => { if ((e as TransitionEvent).propertyName === 'opacity') (window as any).__fade.push('end'); });
   });
+  await page.evaluate(() => scrollTo({ top: 1400, behavior: 'instant' }));
+  await expect(page.locator('.topbar .labpill')).toBeVisible();
+  // reset only once the fade-in has started (opacity above 0), so its transitionrun can't be taken for the fade-out's
+  await expect.poll(() => page.locator('.topbar .labpill').evaluate((el) => +getComputedStyle(el).opacity > 0)).toBe(true);
+  await page.evaluate(() => { (window as any).__fade = []; });
   await page.evaluate(() => document.querySelector('.hero .board')!.scrollIntoView({ block: 'center', behavior: 'instant' }));
   // a real fade: the browser reports an opacity transition starting and ending (events, not frame sampling, so a
   // browser that draws few frames can't skip past it)
-  await expect.poll(() => page.evaluate(() => (window as any).__fade), { timeout: 2000 }).toEqual(['run', 'end']);
+  // (the fade-in may still be ending, or cancelled, when the scroll back starts: a stray event from it can come first,
+  // so the fade-out is the last run → end pair)
+  await expect.poll(() => page.evaluate(() => ((window as any).__fade as string[]).slice(-2)), { timeout: 2000 }).toEqual(['run', 'end']);
   // then transparent and inert, keeping its place in the bar (nothing beside it moves), never visibility:hidden
   await expect.poll(() => page.locator('.topbar .labpill').evaluate((el) => { const c = getComputedStyle(el); return `${c.opacity} ${(el as HTMLElement).inert} ${c.visibility}`; }), { timeout: 2000 }).toBe('0 true visible');
 });

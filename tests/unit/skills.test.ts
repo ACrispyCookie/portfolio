@@ -50,16 +50,16 @@ describe('buildSkillIndex', () => {
     expect((await entry('ARM/Zynq')).usedIn.map((u) => u.title)).not.toContain('CV32E40P timing');
   });
 
-  test('course work in an on-site course is never called outside (ECE333 Lab 1)', () => {
-    expect(Object.keys(evidence.coursework)).toContain('ECE333 Digital Systems Lab (Lab 1)');
-    expect(evidence.outside).not.toContain('ECE333 Digital Systems Lab (Lab 1)');
+  test('course work in an on-site course is never called outside (ECE318 Project 1)', () => {
+    expect(Object.keys(evidence.coursework)).toContain('ECE318 Operating Systems (Project 1)');
+    expect(evidence.outside).not.toContain('ECE318 Operating Systems (Project 1)');
     for (const name of evidence.outside) expect(name.match(/^ECE\d{3}/)?.[0] ?? '', name).not.toMatch(/ECE(318|321|333|338|340|348|415|433|436|455|494)/);
   });
 
-  test('Vivado/Vitis is on all three ECE333 lab cards, with Lab 1 named as course work', async () => {
+  test('Vivado/Vitis is on all four ECE333 lab cards (Jason: Lab 1 is a project)', async () => {
     const v = await entry('Vivado/Vitis');
-    expect(v.usedIn.map((u) => u.title)).toEqual(expect.arrayContaining(['UART', 'VGA controller', 'Accelerometer over SPI']));
-    expect(v.alsoIn).toContain('ECE333 Digital Systems Lab (Lab 1)');
+    expect(v.usedIn.map((u) => u.title)).toEqual(expect.arrayContaining(['Seven-segment display', 'UART', 'VGA controller', 'Accelerometer over SPI']));
+    expect(v.alsoIn.join()).not.toContain('ECE333');
   });
 
   test('MongoDB is gone: nothing uses it (Jason, 2026-10-21)', async () => {

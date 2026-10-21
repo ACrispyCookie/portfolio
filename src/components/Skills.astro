@@ -35,7 +35,10 @@ const json = JSON.stringify(entries).replace(/</g, '\\u003c');
       ))}
     </div>
     <button class="more btn btn-secondary" type="button" hidden>Show all {entries.length}</button>
-    <p class="usedline" aria-live="polite"></p>
+    <div class="lines" aria-live="polite">
+      <p class="usedline"></p>
+      <p class="cwline" hidden></p>
+    </div>
     <script type="application/json" set:html={json} />
   </div>
 </section>

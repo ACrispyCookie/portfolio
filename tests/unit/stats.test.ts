@@ -6,7 +6,7 @@ describe('getGlanceStats', () => {
   test('real collections give the numbers Jason approved', async () => {
     const { projects, courses } = await loadContent();
     const projectCourses = [...new Set(projects.map((p) => p.course).filter((c): c is string => !!c))];
-    expect(getGlanceStats(projects, courses, projectCourses)).toEqual({ total: 27, main: 10, smaller: 17, highGrades: 8 });
+    expect(getGlanceStats(projects, courses, projectCourses)).toEqual({ total: 28, main: 10, smaller: 18, highGrades: 8 });
   });
 
   test('empty input gives zeros', () => {

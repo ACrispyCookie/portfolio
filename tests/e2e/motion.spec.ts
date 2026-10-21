@@ -58,3 +58,16 @@ test('without JavaScript nothing in main is see-through and the pill is visible'
   await expect(page.locator('.topbar .labpill')).toBeVisible();
   await ctx.close();
 });
+
+test('home: the pill fades out when the widget comes back, then leaves the layout', async ({ page }, info) => {
+  test.skip(info.project.name !== 'desktop');
+  await page.route('https://fpga.njason.dev/**', (r) => r.abort());
+  await page.goto('/');
+  await page.evaluate(() => scrollTo({ top: 1400, behavior: 'instant' }));
+  await expect(page.locator('.topbar .labpill')).toBeVisible();
+  await page.waitForTimeout(400);
+  await page.evaluate(() => scrollTo({ top: 0, behavior: 'instant' }));
+  // mid-fade: still laid out, already partly transparent
+  await expect.poll(() => page.locator('.topbar .labpill').evaluate((el) => { const cs = getComputedStyle(el); return cs.display !== 'none' && parseFloat(cs.opacity) < 1; }), { intervals: [20], timeout: 1000 }).toBe(true);
+  await expect.poll(() => page.locator('.topbar .labpill').evaluate((el) => getComputedStyle(el).display), { timeout: 2000 }).toBe('none');
+});

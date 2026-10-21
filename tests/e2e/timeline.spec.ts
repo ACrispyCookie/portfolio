@@ -1,10 +1,10 @@
 import { expect, test } from '@playwright/test';
 
-test('Other projects: 7 course cards, 17 rows linking to course sections, no borders', async ({ page }) => {
+test('Other projects: 7 course cards, 18 rows linking to course sections, no borders', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('#other .group')).toHaveCount(7);
   const rows = page.locator('#other .mini a');
-  await expect(rows).toHaveCount(17);
+  await expect(rows).toHaveCount(18);
   for (const href of await rows.evaluateAll((as) => as.map((a) => a.getAttribute('href')!))) expect(href).toMatch(/^\/courses\/ece\d{3}#[a-z0-9-]+$/);
   const borders = await rows.evaluateAll((as) => as.filter((a) => parseFloat(getComputedStyle(a).borderTopWidth) > 0 || getComputedStyle(a).boxShadow !== 'none').length);
   expect(borders).toBe(0);
@@ -68,4 +68,10 @@ test('desktop: entries in a lane never overlap', async ({ page }, info) => {
 test('ECE433 has no Other projects card: its homeworks are not projects (Jason, 2026-10-21)', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('#other .group h3', { hasText: 'ECE433' })).toHaveCount(0);
+});
+
+test('ECE333 lists all four labs, Lab 1 first', async ({ page }) => {
+  await page.goto('/');
+  const g = page.locator('#other .group', { has: page.locator('h3', { hasText: 'ECE333' }) });
+  await expect(g.locator('.mini a b')).toHaveText(['Seven-segment display', 'UART', 'VGA controller', 'Accelerometer over SPI']);
 });

@@ -43,6 +43,12 @@
       "pthreads",
       "Git"
     ],
+    "seven-seg": [
+      "Bash",
+      "Verilog",
+      "Vivado/Vitis",
+      "Git"
+    ],
     "uart": [
       "Bash",
       "Verilog",
@@ -251,11 +257,6 @@
       "C",
       "Bash",
       "Linux kernel modules"
-    ],
-    "ECE333 Digital Systems Lab (Lab 1)": [
-      "Bash",
-      "Verilog",
-      "Vivado/Vitis"
     ],
     "ECE433 Computer Graphics (Homeworks 1–2)": [
       "C++",

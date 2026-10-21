@@ -86,13 +86,14 @@ test(`${mode.name}, every width 320–2560: no sideways scroll, no overlapping t
       return {
         sideways: document.documentElement.scrollWidth > innerWidth,
         bar: Math.round(document.querySelector('.topbar')!.getBoundingClientRect().height),
-        heads: [...document.querySelectorAll('#projects p.head')].filter((p) => p.getBoundingClientRect().height / parseFloat(getComputedStyle(p).lineHeight) > 2.2).map((p) => p.textContent!.slice(0, 30)),
+        // two lines from 390px up (spec §11); below that, where only the body size is left on the scale, three
+        heads: [...document.querySelectorAll('#projects p.head')].filter((p) => p.getBoundingClientRect().height / parseFloat(getComputedStyle(p).lineHeight) > (innerWidth < 390 ? 3.2 : 2.2)).map((p) => p.textContent!.slice(0, 30)),
         uneven,
       };
     }, PEERS);
     if (f.sideways) failures.push(`${w}: page scrolls sideways`);
     if (f.bar > 75) failures.push(`${w}: top bar is ${f.bar}px (wrapped)`);
-    for (const h of f.heads) failures.push(`${w}: headline over two lines: "${h}"`);
+    for (const h of f.heads) failures.push(`${w}: headline too many lines: "${h}"`);
     for (const u of f.uneven) failures.push(`${w}: uneven row: ${u}`);
     for (const o of await overlaps(page)) failures.push(`${w}: text overlaps: ${o}`);
   }

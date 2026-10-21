@@ -2,11 +2,14 @@
 .ccard { padding: clamp(22px, 3vw, 36px); display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 28px; align-items: center; }
 .ccard .cl { display: grid; gap: 16px; min-width: 0; }
 .ccard .lead { margin: 0; }
-.mail { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; font: 700 clamp(1.3rem, 3vw, 2rem) / 1.2 var(--font-display); letter-spacing: -.015em; color: var(--color-silk); }
+.mail { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; font: 700 var(--text-title) / 1.2 var(--font-display); letter-spacing: -.015em; color: var(--color-silk); }
 .mail span { overflow-wrap: anywhere; }
 .mail .copy { font: 600 var(--text-small) var(--font-text); letter-spacing: 0; }
 .ccard .cr { display: grid; gap: 10px; }
 .clink { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; background: var(--color-raised); border-radius: var(--radius-inner); padding: 14px 18px; text-decoration: none; color: var(--color-silk); transition: background .2s; }
 .clink:hover { background: var(--color-hover); }
-.clink small { color: var(--color-dim); }
-@media (max-width: 760px) { .ccard { grid-template-columns: 1fr; padding: 20px 16px; gap: 20px; } }
+.clink small { color: var(--color-dim); font-size: var(--text-small); }
+@media (max-width: 760px) {
+  .ccard { grid-template-columns: 1fr; padding: 20px 16px; gap: 20px; }
+  .mail { font-size: var(--text-lead); } /* the address on one line at phone width */
+}

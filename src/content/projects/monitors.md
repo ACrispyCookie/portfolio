@@ -7,6 +7,6 @@ order: 111
 headline: "The same problems, with monitors"
 summary: "The same problems, with monitors"
 tools: ["pthreads"]
-team: []
+team: ["tsogkas", "tvangos"]
 group: "The same problems, with monitors"
 ---

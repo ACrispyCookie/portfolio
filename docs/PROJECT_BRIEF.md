@@ -248,7 +248,7 @@ Suggested `projects` collection fields: `title`, `slug`, `tier`, `order`, `summa
 | # | Question | Look in | Then |
 |---|---|---|---|
 | 1 | GPGPU team size and members' names | ✅📑 Team of 3 (Jason, Tsiantos, Tsogkas) | Avatar consent still needs Jason |
-| 2 | Which course projects were team projects, and with whom | 📑 Mostly answered (see Collaborators table). ECE348 and ECE321 not stated. tsiantosd.tech pending. | Confirm with Jason before showing collaborator stacks |
+| 2 | Which course projects were team projects, and with whom | ✅ Answered (see Collaborators table). Jason (2026-10-21): ECE321 Projects 1–4 all with Tsogkas + Tvangos; ECE348 Assignments 1–4 all solo. | — |
 | 3 | Grades to display | ✅ 10 tiles, ≥ 9.0, project-linked only | — |
 | 4 | Live FPGA Lab: board, how visitors see the board, web stack, hardest part | ✅🌐📄 Smart Zynq SL; queue + 5-minute contended slot; 3D view / MJPEG stream; FastAPI + React + hardware agent | Ask Jason what was hardest |
 | 5 | ECE415 speedups and GPU model | ✅📑 2910×, 4× Tesla K80 | — |

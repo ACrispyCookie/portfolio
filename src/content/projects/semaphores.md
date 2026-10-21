@@ -7,6 +7,6 @@ order: 110
 headline: "Bridge and roller-coaster problems"
 summary: "Bridge and roller-coaster problems"
 tools: ["pthreads"]
-team: []
+team: ["tsogkas", "tvangos"]
 group: "Bridge and roller-coaster problems"
 ---

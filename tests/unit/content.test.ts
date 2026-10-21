@@ -27,6 +27,12 @@ describe('content', () => {
     for (const c of courses) expect(projects.some((p) => p.course === c.id), c.id).toBe(true);
   });
 
+  test('course teams match Jason (2026-10-21): ECE321 with Tsogkas and Tvangos, ECE348 solo', async () => {
+    const { projects } = await loadContent();
+    for (const p of projects.filter((x) => x.course === 'ece321')) expect([...p.team].sort(), p.id).toEqual(['tsogkas', 'tvangos']);
+    for (const p of projects.filter((x) => x.course === 'ece348')) expect(p.team, p.id).toEqual([]);
+  });
+
   test('no rendered field leaks private or unfinished text', async () => {
     const { projects, courses } = await loadContent();
     const fields = [

@@ -19,6 +19,7 @@
   --color-led: #5dffa8;
   --color-mint: #86e3bd;
   --color-amber: #f0a64a;
+  --color-paper: #f4f6f6; /* behind white charts only */
 
   --font-display: "Bricolage Grotesque Variable", "Bricolage Grotesque", system-ui, sans-serif;
   --font-text: "Hanken Grotesk Variable", "Hanken Grotesk", system-ui, sans-serif;

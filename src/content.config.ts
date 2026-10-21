@@ -16,7 +16,7 @@ const projects = defineCollection({
       tools: z.array(z.string().min(1)),
       team: z.array(reference('collaborators')),
       media: z
-        .object({ src: image(), alt: z.string(), video: z.string().optional(), position: z.string().optional() })
+        .object({ src: image(), alt: z.string(), video: z.string().optional(), position: z.string().optional(), paper: z.boolean().optional() })
         .optional(),
       diagram: z.enum(['runtime', 'threads', 'homelab']).optional(),
       links: z.object({ repo: z.string().url().optional(), teamRepo: z.string().url().optional(), demo: z.string().url().optional() }).default({}),

@@ -1,0 +1,53 @@
+---
+// Project card (spec §7.5): picture or video, name, headline, course tag with grade, team avatars or "Solo".
+// The whole card is one link: name and headline sit inside it and it stretches over the card; tags, avatars and
+// the demo button sit above it. Text inside the link keeps it from being covered by the stretched layer.
+import { Picture } from 'astro:assets';
+import { getEntry, type CollectionEntry } from 'astro:content';
+import Avatars from './Avatars.astro';
+import Runtime from './diagrams/Runtime.astro';
+import Threads from './diagrams/Threads.astro';
+import Homelab from './diagrams/Homelab.astro';
+import { LAB_URL, projectHref } from '../lib/links';
+
+interface Props { project: CollectionEntry<'projects'>; size: 'wide' | 'large' | 'compact' | 'personal' }
+const { project, size } = Astro.props;
+const p = project.data;
+const course = p.course ? await getEntry(p.course) : undefined;
+const href = projectHref({ id: project.id, kind: p.kind, course: p.course?.id });
+const team = p.team.map((t) => t.id);
+const Diagram = { runtime: Runtime, threads: Threads, homelab: Homelab }[p.diagram ?? 'runtime'];
+const sizes = { wide: '(max-width: 760px) 100vw, 640px', large: '(max-width: 760px) 100vw, 560px', compact: '(max-width: 760px) 120px, 220px', personal: '(max-width: 760px) 100vw, 380px' }[size];
+---
+<article class={`card ${size}`} data-id={project.id} data-size={size}>
+  <div class:list={['media', { paper: p.media?.paper }]}>
+    {p.media?.video ? (
+      <video src={p.media.video} poster={p.media.video.replace(/\.mp4$/, '.jpg')} muted loop playsinline preload="none" aria-label={p.media.alt}></video>
+    ) : p.media ? (
+      <Picture src={p.media.src} formats={['avif', 'webp']} widths={[240, 480, 720, 1080]} sizes={sizes} alt={p.media.alt} loading="lazy" style={p.media.position ? `object-position:${p.media.position}` : undefined} />
+    ) : (
+      <Diagram />
+    )}
+  </div>
+  <div class="body">
+    <a class="hit" href={href}>
+      <h3>{p.title}</h3>
+      <p class="head">{p.headline}</p>
+      {size === 'wide' && <p class="sum">{p.summary}</p>}
+    </a>
+    <div class="meta">
+      {course ? (
+        <a class="tag" href={`/courses/${course.id}`}><b>{course.data.code}</b>Grade {course.data.grade}</a>
+      ) : p.fromCourse ? (
+        <span class="tag"><b>{p.fromCourse}</b></span>
+      ) : (
+        <span class="tag"><b>Personal</b></span>
+      )}
+      {href === LAB_URL && <span class="tag"><i class="led"></i>Live</span>}
+      <div class="row">
+        {size === 'wide' && p.links.demo && <a class="btn btn-live" href={p.links.demo}>Run the demo</a>}
+        {p.kind === 'course' && (team.length ? <Avatars handles={['jason', ...team]} /> : <span class="tag">Solo</span>)}
+      </div>
+    </div>
+  </div>
+</article>

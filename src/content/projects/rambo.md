@@ -4,7 +4,7 @@ kind: "course"
 course: "ece455"
 main: true
 order: 3
-headline: "Read data from a computer with no network, using only its memory's radio noise"
+headline: "Read an offline PC's data from its RAM's radio noise"
 summary: "We reproduced published research showing that a computer with no network connection can still leak data through the radio emissions of its RAM."
 tools: ["SDR (ADALM-PLUTO)", "GNU Radio"]
 team: ["tsiantos", "tsogkas"]

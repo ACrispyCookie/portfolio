@@ -47,3 +47,21 @@ test('desktop: first rows of the groups in one row line up', async ({ page }, in
   const tops = await page.locator('#other .group').evaluateAll((gs) => gs.slice(0, 4).map((g) => Math.round(g.querySelector('.mini a')!.getBoundingClientRect().top)));
   expect(new Set(tops).size).toBe(1);
 });
+
+test('every teaching entry says it was a teaching-assistant role', async ({ page }, info) => {
+  await page.goto('/');
+  const sel = info.project.name === 'phone' ? '#timeline .tll .it:has(.r.teaching.n)' : '#timeline .lane.teaching .ev';
+  const texts = await page.locator(sel).allInnerTexts();
+  expect(texts).toHaveLength(3);
+  for (const t of texts) expect(t).toMatch(/Teaching assistant/);
+});
+
+test('desktop: entries in a lane never overlap', async ({ page }, info) => {
+  test.skip(info.project.name !== 'desktop');
+  await page.goto('/');
+  const overlaps = await page.locator('#timeline .lane').evaluateAll((lanes) => lanes.flatMap((l) => {
+    const r = [...l.querySelectorAll('.ev > div')].map((d) => d.getBoundingClientRect()).sort((a, b) => a.top - b.top);
+    return r.slice(1).filter((b, i) => b.top < r[i].bottom - 0.5).map((b) => `${l.className} @${Math.round(b.top)}`);
+  }));
+  expect(overlaps).toEqual([]);
+});

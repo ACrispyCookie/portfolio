@@ -12,12 +12,12 @@ const LANES = [['education', 'Education'], ['work', 'Work'], ['teaching', 'Teach
 const dates = (e: { from: string; to: string }) => `${e.from} – ${e.to}`;
 const sub = (e: { sub: string; from: string; to: string }) => [e.sub, dates(e)].filter(Boolean).join(', ');
 const laneName = Object.fromEntries(LANES) as Record<string, string>;
-const phoneTitle = (e: { lane: string; title: string; href?: string }) => (e.lane === 'teaching' ? `Volunteer TA: ${e.title}` : e.title);
-const phoneSub = (e: { lane: string; sub: string; from: string; to: string }) => `${laneName[e.lane]}: ${sub(e)}`;
+// teaching subs already name the role, so they skip the lane prefix
+const phoneSub = (e: { lane: string; sub: string; from: string; to: string }) => (e.lane === 'teaching' ? sub(e) : `${laneName[e.lane]}: ${sub(e)}`);
 ---
 <section id="timeline" class="sec" aria-labelledby="timeline-h">
   <h2 id="timeline-h" data-pad>Timeline</h2>
-  <p class="lead">Education, work and teaching on one time axis. I was picked as a volunteer TA in each course for my grade.</p>
+  <p class="lead">Education, work and teaching on one time axis. I was picked as a volunteer teaching assistant in each course for my grade.</p>
   <div class="tlw" style={`--months:${t.months}`}>
     <span></span>
     {LANES.map(([k, name]) => <span class={`lanehead ${k}`}>{name}</span>)}
@@ -41,7 +41,7 @@ const phoneSub = (e: { lane: string; sub: string; from: string; to: string }) =>
     {rows.map((e) => (
       <div class="it">
         {LANES.map(([k]) => <span class={`r ${k} ${e.rails[k]}`}></span>)}
-        <div><b>{e.href ? <a href={e.href}>{phoneTitle(e)}</a> : phoneTitle(e)}</b><small>{phoneSub(e)}</small></div>
+        <div><b>{e.href ? <a href={e.href}>{e.title}</a> : e.title}</b><small>{phoneSub(e)}</small></div>
       </div>
     ))}
   </div>

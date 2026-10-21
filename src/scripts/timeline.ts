@@ -16,9 +16,15 @@ export function initTimeline(tl: HTMLElement): void {
     if (getComputedStyle(lanes).display !== 'none') tl.classList.toggle('rails', crowded(tl));
   };
   // width only: switching layouts changes the height, which must not trigger another check
+  // switch on the next frame, not inside the observer: changing the layout it watches from its own callback makes
+  // browsers report a "ResizeObserver loop" (Safari as a page error)
+  let queued = false;
   new ResizeObserver(([e]) => {
     const w = Math.round(e.contentRect.width);
-    if (w !== lastWidth) { lastWidth = w; check(); }
+    if (w === lastWidth || queued) return;
+    lastWidth = w;
+    queued = true;
+    requestAnimationFrame(() => { queued = false; check(); });
   }).observe(tl);
   document.fonts?.ready.then(check);
 }

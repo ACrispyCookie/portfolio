@@ -48,7 +48,7 @@ test('top bar matches spec', async ({ page }) => {
 test('footer links', async ({ page }) => {
   await page.goto('/');
   const links = page.locator('.foot .links a');
-  expect((await links.allTextContents()).map((t) => t.trim())).toEqual(['GitHub', 'LinkedIn', 'Email', 'Older portfolio']);
+  expect((await links.allTextContents()).map((t) => t.trim())).toEqual(['GitHub', 'LinkedIn', 'Older portfolio']); // no Email (Jason, 2026-10-21): Contact holds it
   for (const href of await links.evaluateAll((as) => as.map((a) => a.getAttribute('href') ?? ''))) {
     expect(href).not.toContain('fpga.njason.dev');
   }

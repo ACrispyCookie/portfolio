@@ -50,7 +50,7 @@ export function toWidgetView(e: BoardEvent | null, connected: boolean): WidgetVi
   if (e.healthy === false || (Array.isArray(e.faults) && e.faults.length > 0) || e.status === 'fault') {
     return { status: 'fault', label: '', headline: 'Board fault', sub: on, ...base };
   }
-  if (e.mode === 'project') return { status: 'testing', label: '', headline: 'In use for GPGPU testing', sub: on, ...base };
+  if (e.mode === 'project') return { status: 'testing', label: '', headline: 'Reserved for owner projects', sub: on, ...base };
   const demo = str(e.active_demo);
   if (!demo) return { status: 'available', label: '', headline: 'Free to use', sub: name ? `No demo running on the ${name}` : 'No demo running', ...base };
   return { status: 'running', label: 'Running now', headline: demoName(demo, e.demos), sub: on, ...base };

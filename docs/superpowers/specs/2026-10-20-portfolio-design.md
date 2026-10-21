@@ -154,7 +154,7 @@ Everything else is a section on its course page only. That includes homeworks an
    - **Phone order:** photo, name block, widget, Now rows.
 2. **At a glance.**
    - Three readouts:
-     - "29 projects on this site, 10 main and 19 smaller" (counted from the collection; 27 → 29 when ECE433 HW1–2 were added, Jason 2026-10-21);
+     - "27 projects on this site, 10 main and 17 smaller";
      - "4 volunteer lab-assistant roles since 2025" (Jason, 2026-10-21: lab assistant, the clearer title);
      - "8 courses graded 9.5 or higher, each with a project on this site".
    - Under them, a folded "Course grades" report card. It opens to the 11 courses, each with a grade bar and a link to its project (the list is in the brief).
@@ -171,7 +171,7 @@ Everything else is a section on its course page only. That includes homeworks an
    - Live FPGA Lab, DVD Logo FPGA (tag "From ECE333") and Homelab.
    - Then a compact "Where I started: Minecraft plugins" card linking to acrispycookie.dev.
 5. **Other projects.**
-   - The 19 smaller projects, one card per course, with the projects as rows inside (name plus 3–5 words).
+   - The 17 smaller projects, one card per course, with the projects as rows inside (name plus 3–5 words).
    - Each row links to its course-page section.
 6. **Timeline** (before Skills; Jason swapped them).
    - Three lanes: Education, Work, Teaching.

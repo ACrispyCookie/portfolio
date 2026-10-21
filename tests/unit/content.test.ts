@@ -33,10 +33,10 @@ describe('content', () => {
     for (const p of projects.filter((x) => x.course === 'ece348')) expect(p.team, p.id).toEqual([]);
   });
 
-  test('ECE433 team matches the GitHub repo (Jason, 2026-10-21): Tsogkas and Kalousis on all three homeworks', async () => {
+  test('ECE433 team matches the GitHub repo (Jason, 2026-10-21): Tsogkas and Kalousis on the house, its only project', async () => {
     const { projects, collaborators } = await loadContent();
     const ece433 = projects.filter((x) => x.course === 'ece433');
-    expect(ece433).toHaveLength(3);
+    expect(ece433.map((p) => p.id)).toEqual(['house']);
     for (const p of ece433) expect([...p.team].sort(), p.id).toEqual(['kalousis', 'tsogkas']);
     expect(collaborators.find((c) => c.id === 'kalousis')).toMatchObject({ name: 'Anastasios Kalousis', github: 'AnastasisK126' });
   });

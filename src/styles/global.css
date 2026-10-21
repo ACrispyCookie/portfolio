@@ -107,6 +107,14 @@ html[data-lab="running"] .sdot { background: var(--color-cyan); }
 html[data-lab="available"] .sdot { background: var(--color-mint); }
 html[data-lab="testing"] .sdot { background: var(--color-amber); }
 html[data-lab="fault"] .sdot { background: var(--color-fault); }
+/* While the board is in use or free, a ripple of the dot's own colour grows out of it and fades (Jason, 2026-10-21).
+   The dot itself stays solid; a fault, an unknown status or reduced motion means no ripple. Transform and opacity only. */
+.sdot { position: relative; }
+.sdot::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: inherit; opacity: 0; pointer-events: none; }
+@media (prefers-reduced-motion: no-preference) {
+  html:is([data-lab="running"], [data-lab="available"], [data-lab="testing"]) .sdot::after { animation: sdot-ripple 2s ease-out infinite; }
+}
+@keyframes sdot-ripple { from { transform: scale(1); opacity: .55; } to { transform: scale(2.8); opacity: 0; } }
 
 /* top bar: solid, sticky */
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--color-mask); }

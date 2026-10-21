@@ -16,13 +16,16 @@ export interface BoardEvent {
   updated_at?: string;
 }
 
+/** The lab's status, shared by the widget and every status dot (Jason, 2026-10-21: one message per state). */
+export type LabStatus = 'running' | 'available' | 'testing' | 'fault' | 'offline';
+
 export interface WidgetView {
-  state: 'online' | 'project' | 'fault' | 'offline';
-  running: string;
+  status: LabStatus;
+  label: string; // the small line above the headline: only a running demo has one
+  headline: string;
   sub: string;
   queue: number | null;
   tempC: number | null;
-  ledBreathing: boolean;
 }
 
 const num = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? v : null);
@@ -39,16 +42,16 @@ function demoName(id: string, demos: unknown): string {
 }
 
 export function toWidgetView(e: BoardEvent | null, connected: boolean): WidgetView {
-  if (!e || !connected || !e.online || e.status === 'offline') {
-    return { state: 'offline', running: 'Status unavailable', sub: '', queue: null, tempC: null, ledBreathing: false };
-  }
+  const none = { queue: null, tempC: null };
+  if (!e || !connected || !e.online || e.status === 'offline') return { status: 'offline', label: '', headline: 'Status unavailable', sub: '', ...none };
   const name = str(e.name);
-  const base = { sub: name ? `on the ${name}` : '', queue: num(e.queue_length), tempC: num(e.temperature_c) };
+  const on = name ? `on the ${name}` : '';
+  const base = { queue: num(e.queue_length), tempC: num(e.temperature_c) };
   if (e.healthy === false || (Array.isArray(e.faults) && e.faults.length > 0) || e.status === 'fault') {
-    return { state: 'fault', running: 'Board fault', ...base, ledBreathing: false };
+    return { status: 'fault', label: '', headline: 'Board fault', sub: on, ...base };
   }
-  if (e.mode === 'project') return { state: 'project', running: 'In use for GPGPU testing', ...base, ledBreathing: true };
+  if (e.mode === 'project') return { status: 'testing', label: '', headline: 'In use for GPGPU testing', sub: on, ...base };
   const demo = str(e.active_demo);
-  const running = demo ? demoName(demo, e.demos) : 'Idle';
-  return { state: 'online', running, ...base, ledBreathing: true };
+  if (!demo) return { status: 'available', label: '', headline: 'Free to use', sub: name ? `No demo running on the ${name}` : 'No demo running', ...base };
+  return { status: 'running', label: 'Running now', headline: demoName(demo, e.demos), sub: on, ...base };
 }

@@ -321,9 +321,9 @@ The whole site is one dark circuit board. The live lab widget is the powered par
   - The stream opens only while the widget is on screen.
 - **Compact** (Jason, 2026-10-20: the large widget took too much of the hero). It shows only:
   - a **flat cyan title band** across the top of the widget with dark text: LED, "Live FPGA Lab" and the gold pin header. This band, not a ring or shadow, is what makes the widget the one powered part on the board (Jason, 2026-10-20);
-  - the status LED **breathes** (opacity only, slow) while the board is online and the stream is connected. It is grey and still when offline, and still under reduced motion;
+  - **status dot (Jason, 2026-10-21):** one status dot everywhere (top-bar pill, widget band, Live FPGA Lab card), never blinking, coloured by the live status: running cyan, free mint, in use for testing amber, fault red, unavailable or unknown grey. On the cyan band it sits in a dark socket;
   - one plain sentence: "A real FPGA board in my homelab. Anyone can run demos on it from the browser.";
-  - a "Running now" block: the demo name in cyan and "on the Smart Zynq SL" (or "Idle", or "In use for GPGPU testing" when `mode` is `project`);
+  - **one message per state (Jason, 2026-10-21):** only a running demo has the "Running now" label (demo name and "on the Smart Zynq SL"); otherwise the block says "Free to use" (no demo running), "In use for GPGPU testing" (`mode` is `project`), "Board fault" or "Status unavailable", each in its status colour;
   - "Open the lab", the cyan primary button, with small Queue and temperature tags.
   - No meters, temperature chart or demo list; those live on the lab itself.
 - **States:**

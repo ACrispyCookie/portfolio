@@ -65,9 +65,16 @@ test('home: the pill fades out when the widget comes back, then ends invisible',
   await page.evaluate(() => scrollTo({ top: 1400, behavior: 'instant' }));
   await expect(page.locator('.topbar .labpill')).toBeVisible();
   await page.waitForTimeout(400);
+  await page.evaluate(() => {
+    const pill = document.querySelector('.topbar .labpill')!;
+    (window as any).__fade = [];
+    pill.addEventListener('transitionrun', (e) => { if ((e as TransitionEvent).propertyName === 'opacity') (window as any).__fade.push('run'); });
+    pill.addEventListener('transitionend', (e) => { if ((e as TransitionEvent).propertyName === 'opacity') (window as any).__fade.push('end'); });
+  });
   await page.evaluate(() => document.querySelector('.hero .board')!.scrollIntoView({ block: 'center', behavior: 'instant' }));
-  // mid-fade: partly transparent
-  await expect.poll(() => page.locator('.topbar .labpill').evaluate((el) => { const o = parseFloat(getComputedStyle(el).opacity); return o > 0 && o < 1; }), { intervals: [20], timeout: 1000 }).toBe(true);
+  // a real fade: the browser reports an opacity transition starting and ending (events, not frame sampling, so a
+  // browser that draws few frames can't skip past it)
+  await expect.poll(() => page.evaluate(() => (window as any).__fade), { timeout: 2000 }).toEqual(['run', 'end']);
   // then transparent and inert, keeping its place in the bar (nothing beside it moves), never visibility:hidden
   await expect.poll(() => page.locator('.topbar .labpill').evaluate((el) => { const c = getComputedStyle(el); return `${c.opacity} ${(el as HTMLElement).inert} ${c.visibility}`; }), { timeout: 2000 }).toBe('0 true visible');
 });
@@ -99,23 +106,29 @@ test('home: the pill fades in and out, and nothing else in the top bar moves', a
   // record the pill's opacity every frame while it changes
   const frames = async (move: () => Promise<void>) => {
     await page.evaluate(() => {
+      (window as any).__ev = [];
+      const pill = document.querySelector('.topbar .labpill')!;
+      if (!(window as any).__listening) {
+        (window as any).__listening = true;
+        for (const t of ['transitionrun', 'transitionend']) pill.addEventListener(t, (e) => { if ((e as TransitionEvent).propertyName === 'opacity') (window as any).__ev.push(t); });
+      }
       (window as any).__o = [];
       const s = () => { const e = document.querySelector('.topbar .labpill') as HTMLElement; const c = getComputedStyle(e); (window as any).__o.push(c.display === 'none' || (e.inert && +c.opacity === 0) ? -1 : +c.opacity); if ((window as any).__o.length < 40) requestAnimationFrame(s); };
       requestAnimationFrame(s);
     });
     await move();
     await page.waitForTimeout(900);
-    return page.evaluate(() => (window as any).__o as number[]);
+    return page.evaluate(() => ({ o: (window as any).__o as number[], ev: (window as any).__ev as string[] }));
   };
   await board.evaluate((b) => b.scrollIntoView({ block: 'center', behavior: 'instant' }));
   await page.waitForTimeout(600);
   const before = await bar();
   const appear = await frames(() => page.evaluate(() => scrollTo({ top: 4000, behavior: 'instant' })));
-  expect(appear.some((o) => o > 0.05 && o < 0.95), `appear frames ${appear.join(' ')}`).toBe(true);
+  expect(appear.ev, `appear: an opacity transition runs and ends (frames ${appear.o.join(' ')})`).toEqual(['transitionrun', 'transitionend']);
   expect(await bar(), 'the name, links and Menu stay put when the pill appears').toEqual(before);
   const disappear = await frames(() => board.evaluate((b) => b.scrollIntoView({ block: 'center', behavior: 'instant' })));
-  expect(disappear.some((o) => o > 0.05 && o < 0.95), `disappear frames ${disappear.join(' ')}`).toBe(true);
-  expect(disappear.at(-1)).toBe(-1); // ends invisible
+  expect(disappear.ev, `disappear: an opacity transition runs and ends (frames ${disappear.o.join(' ')})`).toEqual(['transitionrun', 'transitionend']);
+  expect(disappear.o.at(-1)).toBe(-1); // ends invisible
   expect(await bar(), 'and stay put when it disappears').toEqual(before);
 });
 

@@ -47,7 +47,7 @@
     --rail: 42px;
     --rail-r: 0px;
     --trace-x: 11px;
-    --side-l: max(12px, env(safe-area-inset-left, 0px));
+    --side-l: max(16px, env(safe-area-inset-left, 0px));
     --side-r: max(16px, env(safe-area-inset-right, 0px));
   }
 }
@@ -121,6 +121,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   background: var(--color-panel); border-radius: var(--radius-panel);
   box-shadow: 0 24px 48px -16px rgba(0, 0, 0, .6); /* taste-skill-ignore: floats over the page */
 }
+.menu:not([open]) .menu-sheet { display: none; } /* closed: no layout, so nothing hidden is measured off-screen */
 .menu-sheet a { padding: 13px 16px; border-radius: 14px; text-decoration: none; color: var(--color-silk); }
 .menu-sheet a:hover { background: var(--color-raised); }
 @media (max-width: 760px) {
@@ -173,4 +174,11 @@ svg.trace { position: absolute; left: 0; top: 0; pointer-events: none; overflow:
   html.rv main > section.lit > :nth-child(n + 5) { transition-delay: 210ms; }
   html.rv main > section:not(.hero) > h2 { color: var(--color-dim); transition: color .4s; }
   html.rv main > section.lit > h2 { color: var(--color-silk); }
+}
+
+/* phone (Jason, 2026-10-21): only what runs beside the trace sits in its gutter; hero, top bar and footer are centred */
+@media (max-width: 760px) {
+  .wrap > main > .hero { margin-left: calc(-1 * var(--rail)); }
+  .topbar .in, .foot-in { padding-left: 0; }
+  .menu-sheet { left: 0; }
 }

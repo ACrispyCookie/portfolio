@@ -4,7 +4,7 @@ import { JSON_URL, STREAM, event, serveStream } from './helpers/lab';
 
 const BOXES = 'main .card, main .w, main .read, main .ccard, main .cproj, main .rc, main .skx2, main .origin, main .mini a, main .board, main .cover, main figure, main .people';
 
-test('check.js: no errors or overflow, one content edge, trace clear of content and ≥28px from it, smooth pulse', async ({ page }) => {
+test('check.js: no errors or overflow, one edge for traced sections, trace clear of content and ≥28px from it, smooth pulse', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await serveStream(page, event());
@@ -14,7 +14,7 @@ test('check.js: no errors or overflow, one content edge, trace clear of content 
     const W = innerWidth;
     const ov = Math.max(document.documentElement.scrollWidth, W) - W;
     const main = document.querySelector('main')!;
-    const firstKids = [...new Set([...main.children].filter((e) => (e as HTMLElement).offsetParent).map((e) => Math.round(e.getBoundingClientRect().left)))];
+    const firstKids = [...new Set([...main.querySelectorAll(':scope > section:not(.hero)')].map((e) => Math.round(e.getBoundingClientRect().left)))];
     const svg = document.querySelector('svg.trace')!, path = document.querySelector<SVGPathElement>('.t-drawn')!;
     const sb = svg.getBoundingClientRect(), L = path.getTotalLength();
     const boxes = [...document.querySelectorAll(sel)].map((e) => e.getBoundingClientRect());
@@ -24,7 +24,7 @@ test('check.js: no errors or overflow, one content edge, trace clear of content 
       if (boxes.some((b) => x > b.left - 6 && x < b.right + 6 && y > b.top - 6 && y < b.bottom + 6)) hits.push([Math.round(x), Math.round(y + scrollY)]);
     }
     const traceX = Math.round(path.getPointAtLength(L).x + sb.left);
-    const contentLeft = Math.min(...[...main.querySelectorAll('h1, h2')].map((e) => e.getBoundingClientRect().left));
+    const contentLeft = Math.min(...[...main.querySelectorAll(':scope > section:not(.hero) h2')].map((e) => e.getBoundingClientRect().left));
     return { ov, firstKids, hits: hits.slice(0, 5), traceX, contentLeft, L };
   }, BOXES);
   expect(errors).toEqual([]);

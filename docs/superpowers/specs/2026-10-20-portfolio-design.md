@@ -304,6 +304,7 @@ The whole site is one dark circuit board. The live lab widget is the powered par
   - Phone: 12 px on the left, 16 px on the right.
   - Safe-area insets are respected.
 - The top-bar name, hero, sections and footer all start on that one content edge.
+- **Changed by Jason (2026-10-21):** only what runs beside the trace sits in its gutter. The top bar, hero and footer are centred with equal margins; the sections beside the trace start one gutter in. On desktop and tablet the gutter is mirrored on the right, so everything shares one edge there; on phone the hero, top bar and footer sit 16 px from both edges and the sections 58 px from the left. Phone page gutters are 16 px on both sides.
 
 ### 7.2 Live lab widget (the signature)
 

@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('home has doctype, title and one content edge', async ({ page, request }) => {
+test('home has doctype, title and its content edges', async ({ page, request }, info) => {
   // the page never scrolls sideways, and nothing hides overflow
   await page.goto('/');
   expect(await page.evaluate(() => getComputedStyle(document.body).overflowX)).toBe('visible');
@@ -9,15 +9,25 @@ test('home has doctype, title and one content edge', async ({ page, request }) =
   expect((await res.text()).trimStart().toLowerCase().startsWith('<!doctype html>')).toBe(true);
   await page.goto('/');
   await expect(page).toHaveTitle('Jason Nikas');
-  const xs = await page.evaluate(() => {
-    const left = (el: Element) => Math.round(el.getBoundingClientRect().left);
-    return [
-      left(document.querySelector('.topbar .name')!),
-      ...[...document.querySelectorAll('main > *')].map(left),
-      left(document.querySelector('.foot-in > div')!),
-    ];
+  // Jason (2026-10-21): what isn't beside the trace is centred; sections beside it start one trace gutter in.
+  // On desktop the gutter is mirrored on the right, so both groups share one edge there.
+  const r = await page.evaluate(() => {
+    const box = (el: Element) => el.getBoundingClientRect();
+    const centred = [document.querySelector('.topbar .name')!, document.querySelector('main > .hero')!, document.querySelector('.foot-in > div')!];
+    const traced = [...document.querySelectorAll('main > section:not(.hero)')];
+    const hero = box(document.querySelector('main > .hero')!);
+    return {
+      centred: centred.map((e) => Math.round(box(e).left)),
+      traced: traced.map((e) => Math.round(box(e).left)),
+      heroRight: Math.round(innerWidth - hero.right),
+      rail: parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--rail')),
+    };
   });
-  for (const x of xs) expect(Math.abs(x - xs[0])).toBeLessThanOrEqual(1);
+  for (const x of r.centred) expect(Math.abs(x - r.centred[0]), 'centred blocks share an edge').toBeLessThanOrEqual(1);
+  for (const x of r.traced) expect(Math.abs(x - r.traced[0]), 'traced sections share an edge').toBeLessThanOrEqual(1);
+  expect(Math.abs(r.centred[0] - r.heroRight), 'the hero is centred').toBeLessThanOrEqual(1);
+  const inset = info.project.name === 'phone' ? r.rail : 0;
+  expect(Math.abs(r.traced[0] - r.centred[0] - inset), 'sections start one trace gutter in on phone').toBeLessThanOrEqual(1);
 });
 
 test('top bar matches spec', async ({ page }, info) => {

@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { phoneLayout } from './helpers/layout';
 
 import { STREAM, JSON_URL, event, serveStream } from './helpers/lab';
 
@@ -114,7 +115,7 @@ test('an observer batch of "out" then "in" still opens the stream', async ({ pag
 });
 
 for (const outcome of ['online', 'offline'] as const) {
-  test(`the widget keeps its height from load until the lab answers (${outcome})`, async ({ page, isMobile }) => {
+  test(`the widget keeps its height from load until the lab answers (${outcome})`, async ({ page }) => {
     if (outcome === 'online') await serveStream(page, event()); else await failLab(page);
     // record every height the widget takes, from first paint on
     await page.addInitScript(() => {
@@ -126,8 +127,9 @@ for (const outcome of ['online', 'offline'] as const) {
     });
     await page.goto('/');
     const board = page.locator('.hero .board');
-    // on phone the widget starts below the fold, so it waits, saying so
-    if (isMobile) await expect(board.locator('[data-f="running"]')).toHaveText('Checking the board…');
+    // a widget that starts below the fold waits, saying so
+    const below = await board.evaluate((b) => b.getBoundingClientRect().top > innerHeight);
+    if (below) await expect(board.locator('[data-f="running"]')).toHaveText('Checking the board…');
     await board.scrollIntoViewIfNeeded();
     await expect(board).toHaveAttribute('data-state', outcome);
     await page.waitForTimeout(300);

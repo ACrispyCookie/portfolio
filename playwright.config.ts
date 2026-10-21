@@ -18,5 +18,8 @@ export default defineConfig({
   projects: [
     { name: 'phone', use: { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true } },
     { name: 'desktop', use: { viewport: { width: 1440, height: 900 } } },
+    // tablets: just above the 760px phone breakpoint, and the 1024 landscape between the two grids
+    { name: 'tablet', use: { viewport: { width: 768, height: 1024 }, isMobile: true, hasTouch: true } },
+    { name: 'tablet-landscape', use: { viewport: { width: 1024, height: 768 }, isMobile: true, hasTouch: true } },
   ],
 });

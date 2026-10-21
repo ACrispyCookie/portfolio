@@ -83,7 +83,7 @@ try {
 
     // 6: taste inspector (real browser, 1440/768/390)
     {
-      const r = run(`inspect ${slug}`, 'node', [`${TASTE}/inspect.mjs`, url, '--out', `.gate/inspect-${slug}`]);
+      const r = run(`inspect ${slug}`, 'node', [`${TASTE}/inspect.mjs`, url, '--out', `.gate/inspect-${slug}`, '--widths', '1440,1024,768,390']); // phone, both tablet orientations, desktop
       const warns = r.out.split('\n').filter((l) => /^\s+\[/.test(l) && r.out.indexOf(l) > r.out.indexOf('WARN —')).join('\n');
       record(`taste inspect.mjs ${page}`, r.ok, r.ok ? (warns ? 'WARNs to fix or defend:\n' + warns : '') : r.out);
     }

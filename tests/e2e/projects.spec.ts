@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { phoneLayout } from './helpers/layout';
 
 const ORDER = [
   ['gpgpu', 'wide'], ['nbody', 'large'], ['rambo', 'large'], ['wifi', 'large'], ['house', 'large'],
@@ -51,8 +52,7 @@ test('course tags, team avatars (Jason first) and Solo', async ({ page }) => {
   await expect(page.locator('#projects .card[data-id="dvd-logo-fpga"] .tag', { hasText: 'From ECE333' })).toHaveCount(1);
 });
 
-test('at 390 no card headline wraps past two lines', async ({ page }, info) => {
-  test.skip(info.project.name !== 'phone');
+test('no card headline wraps past two lines, at any width', async ({ page }) => {
   await page.goto('/');
   const lines = await page.locator('#projects p.head').evaluateAll((ps) => ps.map((p) => {
     const cs = getComputedStyle(p);
@@ -104,8 +104,8 @@ test('cards sit on the grid gap only (no stray margins from size classes)', asyn
   expect([...new Set(margins)]).toEqual(['0px']);
 });
 
-test('phone: Run the demo is a full-width button under the summary, tag and avatars share the row below', async ({ page }, info) => {
-  test.skip(info.project.name !== 'phone');
+test('phone layout: Run the demo is a full-width button under the summary, tag and avatars share the row below', async ({ page }) => {
+  test.skip(!phoneLayout(page));
   await page.goto('/');
   const r = await page.locator('#projects .card[data-id="gpgpu"]').evaluate((card) => {
     const b = (s: string) => card.querySelector(s)!.getBoundingClientRect();

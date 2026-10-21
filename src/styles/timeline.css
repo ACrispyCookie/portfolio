@@ -32,7 +32,8 @@
 .r.n::after { content: ""; position: absolute; left: 1px; top: 15px; width: 12px; height: 12px; border-radius: 50%; background: var(--c); }
 .r.off::before { opacity: .45; }
 
-@media (max-width: 760px) {
+/* three lanes need about 360px each; below 1100 the rails take over */
+@media (max-width: 1100px) {
   .tlw { display: none; }
   .tll { display: block; }
 }

@@ -105,7 +105,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   background: var(--color-mask); color: var(--color-silk);
 }
 .topbar .in { max-width: calc(1200px + var(--rail-r)); margin: 0 auto; padding-inline: var(--rail) var(--rail-r); box-sizing: border-box; display: flex; align-items: center; gap: 16px; position: relative; }
-.topbar .name { font: 700 var(--text-body) var(--font-display); text-decoration: none; letter-spacing: -.01em; margin-right: auto; }
+.topbar .name { font: 700 var(--text-body) var(--font-display); text-decoration: none; letter-spacing: -.01em; margin-right: auto; white-space: nowrap; }
 .topbar nav { display: flex; gap: 2px; }
 .topbar nav a { text-decoration: none; padding: 8px 14px; border-radius: 999px; color: var(--color-dim); transition: background-color .2s, color .2s; }
 .topbar nav a:hover, .topbar nav a[aria-current] { background: var(--color-raised); color: var(--color-silk); }
@@ -128,11 +128,15 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .menu:not([open]) .menu-sheet { display: none; } /* closed: no layout, so nothing hidden is measured off-screen */
 .menu-sheet a { padding: 13px 16px; border-radius: 14px; text-decoration: none; color: var(--color-silk); }
 .menu-sheet a:hover { background: var(--color-raised); }
+/* tablets: the short pill keeps the bar on one line next to the four links */
+@media (max-width: 900px) {
+  .labpill { white-space: nowrap; }
+  .labpill .lg { display: none; }
+}
 @media (max-width: 760px) {
   .topbar nav { display: none; }
   .menu { display: block; }
   .labpill { padding: 7px 13px; font-size: var(--text-small); }
-  .labpill .lg { display: none; }
 }
 
 /* footer: a full-width band one tone up from the ground, no line, no card */

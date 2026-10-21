@@ -27,8 +27,8 @@ function sentence(e: SkillEntry, self: string, open: boolean): string {
 }
 function coursework(e: SkillEntry, open: boolean): string {
   if (!e.alsoIn.length) return '';
-  if (!open && e.alsoIn.length > CW_SHORT) return `In coursework: <button class="showcw" type="button">Show ${e.alsoIn.length} courses</button>`;
-  return `In coursework: ${and(e.alsoIn.map(esc))}.`;
+  if (!open && e.alsoIn.length > CW_SHORT) return `In other coursework: <button class="showcw" type="button">Show ${e.alsoIn.length} courses</button>`;
+  return `In other coursework: ${and(e.alsoIn.map(esc))}.`;
 }
 
 export function initSkills(root: HTMLElement): void {

@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { heroColumns, phoneLayout } from './helpers/layout';
 
 const SENTENCE = 'I build systems from code down to hardware: GPUs on FPGAs, CUDA programs, filesystems and distributed runtimes.';
 const WIDTHS: [number, number, boolean][] = [
@@ -44,20 +45,22 @@ test('hero copy and buttons match the spec', async ({ page }) => {
   expect((await now.locator('h3').allTextContents()).map((t) => t.trim())).toEqual(['GPGPU v2', 'Homelab']);
 });
 
-test('desktop: photo size and matching column bottoms', async ({ page }, info) => {
-  test.skip(info.project.name !== 'desktop');
+test('two-column hero: matching column bottoms; at 1440 the photo is 520–560px', async ({ page }) => {
+  test.skip(!heroColumns(page));
   await page.goto('/');
   const r = await page.evaluate(() => {
     const b = (s: string) => document.querySelector(s)!.getBoundingClientRect();
     return { w: b('.cover').width, l: b('.lcol').bottom, r: b('.rcol').bottom, nowB: b('.now').bottom, sideB: b('.side').bottom };
   });
-  expect(r.w).toBeGreaterThanOrEqual(520);
-  expect(r.w).toBeLessThanOrEqual(560);
+  if (page.viewportSize()!.width === 1440) {
+    expect(r.w).toBeGreaterThanOrEqual(520);
+    expect(r.w).toBeLessThanOrEqual(560);
+  }
   expect(Math.abs(r.nowB - r.sideB)).toBeLessThanOrEqual(2);
 });
 
-test('phone: 5:4 photo and order photo, name, widget, now', async ({ page }, info) => {
-  test.skip(info.project.name !== 'phone');
+test('phone layout: 5:4 photo and order photo, name, widget, now', async ({ page }) => {
+  test.skip(!phoneLayout(page));
   await page.goto('/');
   const r = await page.evaluate(() => {
     const b = (s: string) => document.querySelector(s)!.getBoundingClientRect();

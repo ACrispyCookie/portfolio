@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { phoneLayout } from './helpers/layout';
 
 test('the Menu sheet holds only the four sections; the lab lives in the pill', async ({ page }) => {
   await page.goto('/');
@@ -14,9 +15,10 @@ test('section links scroll smoothly, and jump under reduced motion', async ({ pa
   expect(await page.evaluate(() => getComputedStyle(document.documentElement).scrollBehavior)).toBe('auto');
 });
 
-test('a section link glides there and lands its heading below the sticky bar', async ({ page, isMobile }) => {
+test('a section link glides there and lands its heading below the sticky bar', async ({ page }) => {
   await page.goto('/');
-  if (isMobile) { await page.locator('.menu summary').tap(); await page.locator('.menu-sheet a', { hasText: 'Skills' }).tap(); }
+  const viaMenu = phoneLayout(page); // the links fold into Menu at phone width only
+  if (viaMenu) { await page.locator('.menu summary').tap(); await page.locator('.menu-sheet a', { hasText: 'Skills' }).tap(); }
   else await page.locator('.topbar nav a', { hasText: 'Skills' }).click();
   // mid-flight: smooth scrolling has not arrived yet
   const early = await page.evaluate(() => document.querySelector('#skills h2')!.getBoundingClientRect().top);
@@ -25,5 +27,5 @@ test('a section link glides there and lands its heading below the sticky bar', a
   const barBottom = await page.locator('.topbar').evaluate((e) => e.getBoundingClientRect().bottom);
   const top = await page.evaluate(() => document.querySelector('#skills h2')!.getBoundingClientRect().top);
   expect(top).toBeGreaterThanOrEqual(barBottom);
-  if (isMobile) await expect(page.locator('.menu')).not.toHaveAttribute('open', '');
+  if (viaMenu) await expect(page.locator('.menu')).not.toHaveAttribute('open', '');
 });

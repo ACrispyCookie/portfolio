@@ -52,21 +52,28 @@
   .card .media img, .card .media video { transition: transform .6s cubic-bezier(.16, 1, .3, 1); }
   .card:hover .media img, .card:hover .media video { transform: scale(1.03); }
 }
-@media (max-width: 1000px) {
-  .grid.three { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .grid.compact .card { grid-template-columns: minmax(0, .7fr) minmax(0, 1fr); }
+/* below 1100 a half-width column is too narrow for a picture beside the text: compact cards stack */
+@media (max-width: 1100px) {
+  .grid.compact .card { grid-template-columns: 1fr; align-items: start; }
+  .grid.compact .card .media { aspect-ratio: 16 / 9; }
 }
+/* tablet landscape: three personal cards would be too narrow, so each takes a row with its picture beside the text */
+@media (min-width: 901px) and (max-width: 1100px) {
+  .grid.three { grid-template-columns: 1fr; }
+  .grid.three .card { grid-template-columns: minmax(0, .8fr) minmax(0, 1fr); align-items: center; }
+}
+/* tablet portrait: two columns would be narrower than a phone, so cards take the full width */
 @media (max-width: 900px) {
+  .grid.feat, .grid.compact, .grid.three { grid-template-columns: 1fr; }
   .card.wide { grid-template-columns: 1fr; padding: 14px 14px 18px; gap: 14px; }
   .card.wide .body { padding: 0 6px; }
+  .origin { grid-template-columns: auto minmax(0, 1fr); }
+  .origin .btn { grid-column: 2; justify-self: start; }
 }
 @media (max-width: 760px) {
-  .grid.feat, .grid.compact, .grid.three { grid-template-columns: 1fr; }
   .card, .card.wide { padding: 12px 12px 16px; }
   .card .body { padding: 0 4px; }
   .card.wide .body { padding: 0; }
-  .grid.compact .card { grid-template-columns: 1fr; align-items: start; }
-  .grid.compact .card .media { aspect-ratio: 16 / 9; }
   .card.wide .head { font-size: var(--text-lead); line-height: 1.25; }
   .card.wide h3 { font-size: var(--text-body); }
   /* the demo button leads, full width; the course tag and team share the row under it */
@@ -75,5 +82,5 @@
   .card.wide .meta .btn-live { grid-column: 1 / -1; order: -1; width: 100%; }
   .card.wide .meta .tag { justify-self: start; }
   .origin { grid-template-columns: 1fr; }
-  .origin .btn { justify-self: start; font-size: var(--text-small); white-space: nowrap; }
+  .origin .btn { grid-column: auto; font-size: var(--text-small); white-space: nowrap; }
 }

@@ -35,10 +35,10 @@ test('coursework-only tools name the course; used tools add coursework after the
   await page.locator('#skills .more').click();
   await page.locator('#skills .chip[data-tool="MATLAB"]').click();
   await expect(page.locator('#skills .usedline')).toHaveText('MATLAB Not in a project on this site.');
-  await expect(page.locator('#skills .cwline')).toHaveText('In coursework: Numerical Analysis.');
+  await expect(page.locator('#skills .cwline')).toHaveText('In other coursework: Numerical Analysis.');
   await page.locator('#skills .chip[data-tool="MySQL"]').click();
   await expect(page.locator('#skills .usedline')).toHaveText('MySQL Used in Homelab and Minecraft plugins.');
-  await expect(page.locator('#skills .cwline')).toHaveText('In coursework: ECE311 Databases.');
+  await expect(page.locator('#skills .cwline')).toHaveText('In other coursework: ECE311 Databases.');
 });
 
 test('a long coursework list waits behind "Show N courses"', async ({ page }) => {
@@ -46,10 +46,10 @@ test('a long coursework list waits behind "Show N courses"', async ({ page }) =>
   const cw = page.locator('#skills .cwline');
   const btn = cw.locator('button.showcw');
   await expect(btn).toHaveText(/^Show \d+ courses$/);
-  await expect(cw).toHaveText(/^In coursework: Show \d+ courses$/);
+  await expect(cw).toHaveText(/^In other coursework: Show \d+ courses$/);
   await expect(cw).not.toContainText('ECE115');
   await btn.click();
-  await expect(cw).toContainText('In coursework: ECE115 Programming I');
+  await expect(cw).toContainText('In other coursework: ECE115 Programming I');
   await expect(cw.locator('button.showcw')).toHaveCount(0);
 });
 

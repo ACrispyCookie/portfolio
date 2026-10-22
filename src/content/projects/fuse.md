@@ -9,8 +9,5 @@ summary: "Stores each block once"
 tools: ["C", "Python", "Bash", "FUSE", "Git"]
 team: ["tsiantos", "tsogkas"]
 group: "Stores each block once"
-media:
-  src: "../../assets/projects/fuse.jpg"
-  alt: "How the filesystem links each directory to its entries through hash maps"
-  paper: true
+diagram: "dedup"
 ---

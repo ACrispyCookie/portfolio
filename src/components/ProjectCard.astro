@@ -5,9 +5,8 @@
 import { Picture } from 'astro:assets';
 import { getEntry, type CollectionEntry } from 'astro:content';
 import Avatars from './Avatars.astro';
-import Runtime from './diagrams/Runtime.astro';
-import Threads from './diagrams/Threads.astro';
-import Homelab from './diagrams/Homelab.astro';
+import { diagrams } from './diagrams';
+import OnFpga from './OnFpga.astro';
 import { LAB_URL, projectHref } from '../lib/links';
 
 interface Props { project: CollectionEntry<'projects'>; size: 'wide' | 'large' | 'compact' | 'personal' }
@@ -16,7 +15,7 @@ const p = project.data;
 const course = p.course ? await getEntry(p.course) : undefined;
 const href = projectHref({ id: project.id, kind: p.kind, course: p.course?.id });
 const team = p.team.map((t) => t.id);
-const Diagram = { runtime: Runtime, threads: Threads, homelab: Homelab }[p.diagram ?? 'runtime'];
+const Diagram = diagrams[p.diagram ?? 'runtime'];
 const sizes = { wide: '(max-width: 760px) 100vw, 640px', large: '(max-width: 760px) 100vw, 560px', compact: '(max-width: 760px) 120px, 220px', personal: '(max-width: 760px) 100vw, 380px' }[size];
 ---
 <article class={`card ${size}`} data-id={project.id} data-size={size}>
@@ -28,6 +27,7 @@ const sizes = { wide: '(max-width: 760px) 100vw, 640px', large: '(max-width: 760
     ) : (
       <Diagram />
     )}
+    {p.media?.overlay === 'fpga' && <OnFpga />}
   </div>
   <div class="body">
     <a class="hit" href={href}>

@@ -1,13 +1,32 @@
 ---
+// ECE321 user-level threads: a round-robin ready queue, a timer that preempts the running thread and sends it to the
+// back of the queue, and the CPU's time split into slices (all from the brief: round-robin, timer-based preemption).
 interface Props { label?: string }
-const { label = 'Diagram: three threads taking turns on one CPU' } = Astro.props;
+const { label = 'Diagram: a timer preempting threads, which take turns on one CPU in round-robin order' } = Astro.props;
+const F = 'Hanken Grotesk Variable, Hanken Grotesk, sans-serif';
+const slices = ['#41e2f2', '#d8b46a', '#86e3bd', '#9db6b8', '#41e2f2', '#d8b46a'];
 ---
-<svg class="diagram" viewBox="0 0 320 200" role="img" aria-label={label} preserveAspectRatio="xMidYMid slice">
+<svg class="diagram" data-kind="threads" viewBox="0 0 320 200" role="img" aria-label={label} preserveAspectRatio="xMidYMid slice">
   <rect width="320" height="200" fill="#183539" />
-  <g font-family="Hanken Grotesk Variable, Hanken Grotesk, sans-serif" font-size="13" fill="#9db6b8"><text x="24" y="62">T1</text><text x="24" y="106">T2</text><text x="24" y="150">T3</text></g>
-  <g stroke-linecap="round" stroke-width="14" fill="none">
-    <path d="M56 58 H110 M200 58 H236" stroke="#41e2f2" /><path d="M114 102 H160 M240 102 H290" stroke="#d8b46a" /><path d="M164 146 H196" stroke="#86e3bd" />
+  <g font-family={F}>
+    <text x="32" y="30" font-size="11" fill="#9db6b8">ready queue</text>
+    <rect x="30" y="38" width="140" height="34" rx="9" fill="#11282d" />
+    <rect x="40" y="47" width="36" height="16" rx="8" fill="#d8b46a" /><rect x="82" y="47" width="36" height="16" rx="8" fill="#86e3bd" /><rect x="124" y="47" width="36" height="16" rx="8" fill="#9db6b8" />
+    <path d="M170 55 H198" stroke="#3b7a82" stroke-width="2" /><path d="M193 50 L199 55 L193 60" fill="none" stroke="#3b7a82" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    <text x="204" y="30" font-size="11" fill="#9db6b8">CPU</text>
+    <rect x="202" y="38" width="88" height="34" rx="9" fill="#11282d" stroke="#41e2f2" stroke-width="1.5" />
+    <rect x="214" y="47" width="64" height="16" rx="8" fill="#41e2f2" />
+    <text x="246" y="59.5" font-size="12" font-weight="700" fill="#05252a" text-anchor="middle">running</text>
+    {/* the timer fires: the running thread goes to the back of the queue */}
+    <circle cx="276" cy="24" r="9" fill="#11282d" stroke="#d8b46a" stroke-width="1.5" /><path d="M276 19 V24 L280 26" fill="none" stroke="#d8b46a" stroke-width="1.5" stroke-linecap="round" />
+    <text x="262" y="28" font-size="11" fill="#d8b46a" text-anchor="end">timer</text>
+    <path d="M246 72 V86 Q246 94 238 94 H150 Q142 94 142 86 V76" fill="none" stroke="#d8b46a" stroke-width="2" stroke-dasharray="5 5" />
+    <path d="M137 80 L142 73 L147 80" fill="none" stroke="#d8b46a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    <text x="194" y="110" font-size="12" fill="#9db6b8" text-anchor="middle">preempted, back of the queue</text>
+    {/* the CPU over time: one slice per thread, cut at every tick */}
+    <text x="32" y="134" font-size="11" fill="#9db6b8">CPU over time</text>
+    {slices.map((c, i) => <rect x={30 + i * (260 / 6)} y="142" width={260 / 6 - 3} height="22" rx="4" fill={c} />)}
+    {[1, 2, 3, 4, 5].map((i) => <path d={`M${30 + i * (260 / 6) - 1.5} 138 V170`} stroke="#eaf2f1" stroke-width="1" stroke-dasharray="2 3" />)}
+    <text x="290" y="186" font-size="12" fill="#9db6b8" text-anchor="end">a timer tick at every cut</text>
   </g>
-  <path d="M56 176 H296" stroke="#3b7a82" stroke-width="2" />
-  <g fill="#3b7a82"><circle cx="112" cy="176" r="4" /><circle cx="162" cy="176" r="4" /><circle cx="198" cy="176" r="4" /><circle cx="238" cy="176" r="4" /></g>
 </svg>

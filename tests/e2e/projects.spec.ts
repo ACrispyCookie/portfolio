@@ -82,7 +82,7 @@ test('videos are muted inline loops with a poster that play on screen', async ({
     const x = v as HTMLVideoElement;
     return { muted: x.muted, inline: x.playsInline, loop: x.loop, poster: !!x.getAttribute('poster') };
   }));
-  expect(vids).toHaveLength(2);
+  expect(vids).toHaveLength(3); // GPGPU, N-body and DVD
   for (const v of vids) expect(v).toEqual({ muted: true, inline: true, loop: true, poster: true });
   const v = page.locator('#projects .card[data-id="nbody"] video');
   await v.scrollIntoViewIfNeeded();
@@ -96,7 +96,7 @@ test.describe('reduced motion', () => {
     const v = page.locator('#projects .card[data-id="nbody"] video');
     await v.scrollIntoViewIfNeeded();
     await page.waitForTimeout(800);
-    expect(await page.locator('#projects video').evaluateAll((vs) => vs.map((x) => (x as HTMLVideoElement).paused))).toEqual([true, true]);
+    expect(await page.locator('#projects video').evaluateAll((vs) => vs.map((x) => (x as HTMLVideoElement).paused))).toEqual([true, true, true]);
   });
 });
 

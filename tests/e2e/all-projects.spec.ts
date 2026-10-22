@@ -72,3 +72,89 @@ test('All projects: every project shows its tools, six at most', async ({ page }
   await expect(row('Homelab').locator('.tools .tag')).toHaveText(['JavaScript', 'Bash', 'Docker', 'Nginx', 'WireGuard', '+8']);
   await expect(row('Homelab').locator('.tools .more')).toHaveAttribute('title', 'Pi-hole, Ansible, Proxmox, PostgreSQL, MySQL, Git, Traefik, SQLite');
 });
+
+const course = (page: import('@playwright/test').Page, code: string) => page.locator('.course', { has: page.locator('a.ch .cn b', { hasText: code }) });
+
+test('All projects: one course per row, so a short course never sits beside a tall one (Jason, 2026-10-22)', async ({ page }) => {
+  await page.goto('/projects');
+  const boxes = await page.locator('.course').evaluateAll((cs) => cs.map((c) => { const r = c.getBoundingClientRect(); return { x: Math.round(r.x), w: Math.round(r.width), top: r.top, bottom: r.bottom }; }));
+  const list = (await page.locator('.courses').boundingBox())!;
+  for (const b of boxes) {
+    expect(b.x).toBe(Math.round(list.x));
+    expect(Math.abs(b.w - list.width)).toBeLessThanOrEqual(1);
+  }
+  for (let i = 1; i < boxes.length; i++) expect(boxes[i].top).toBeGreaterThanOrEqual(boxes[i - 1].bottom);
+});
+
+test('All projects: course pictures are large, at the home card size or the full width when stacked', async ({ page }) => {
+  await page.goto('/projects');
+  const vw = page.viewportSize()!.width;
+  for (const t of await page.locator('.course .thumb').all()) {
+    const r = (await t.boundingBox())!;
+    const c = (await t.locator('xpath=ancestor::div[contains(@class,"course")][1]').boundingBox())!;
+    if (vw >= 1024) expect(r.width).toBeGreaterThanOrEqual(380); // beside the course: at least a large home card's picture (about 387px at 1024)
+    else expect(Math.abs(r.width - c.width)).toBeLessThanOrEqual(1); // stacked: the full width of the course
+    // 16:10, unless a short screen caps its height
+    if (r.height < page.viewportSize()!.height * 0.6 - 1) expect(Math.abs(r.height / r.width - 0.625)).toBeLessThan(0.02);
+  }
+});
+
+test('All projects: three or more projects sit in two columns wherever the list is 440px or wider', async ({ page }) => {
+  await page.goto('/projects');
+  const columns = (code: string) => course(page, code).locator('ul > li').evaluateAll((ls) => new Set(ls.map((l) => Math.round(l.getBoundingClientRect().x))).size);
+  const roomy = async (code: string) => (await course(page, code).locator('.cbody').boundingBox())!.width >= 440;
+  for (const code of ['ECE415', 'ECE333']) expect(await columns(code)).toBe((await roomy(code)) ? 2 : 1);
+  const vw = page.viewportSize()!.width;
+  if (vw >= 1440) expect(await columns('ECE415')).toBe(2); // desktop: always two
+  if (vw <= 420) expect(await columns('ECE415')).toBe(1); // phone: always one
+  expect(await columns('ECE318')).toBe(1); // two projects stay in one column
+});
+
+test('All projects: every course and personal project has a real picture (no placeholder pad)', async ({ page }) => {
+  await page.goto('/projects');
+  await expect(page.locator('.thumb .pad')).toHaveCount(0);
+  await expect(course(page, 'ECE338').locator('.thumb video')).toHaveAttribute('src', '/media/gpgpu.mp4');
+  await expect(course(page, 'ECE494').locator('.thumb img')).toHaveCount(1);
+  for (const [code, kind] of [['ECE318', 'dedup'], ['ECE340', 'alignment'], ['ECE348', 'runtime'], ['ECE321', 'threads']])
+    await expect(course(page, code).locator(`.thumb svg.diagram[data-kind="${kind}"]`)).toHaveCount(1);
+});
+
+test('the GPGPU video says the FPGA does the work, on /projects and on home', async ({ page }) => {
+  for (const [path, box] of [['/projects', '.course .thumb'], ['/', '#projects .card[data-id="gpgpu"] .media']]) {
+    await page.goto(path);
+    const strip = page.locator(`${box} .onfpga`);
+    await expect(strip).toHaveCount(1);
+    await expect(strip).toContainText('32 RISC-V cores');
+    await expect(strip).toContainText('laptop');
+    // the strip sits over the bottom of the video, inside it
+    const v = (await page.locator(`${box}:has(.onfpga) video`).boundingBox())!;
+    const s = (await strip.boundingBox())!;
+    expect(s.x).toBeGreaterThanOrEqual(v.x - 1);
+    expect(s.x + s.width).toBeLessThanOrEqual(v.x + v.width + 1);
+    expect(Math.abs(s.y + s.height - (v.y + v.height))).toBeLessThanOrEqual(12);
+    // it explains the video without hiding it: at most 30% of its height at any width (Jason saw half on a phone)
+    expect(s.height).toBeLessThanOrEqual(v.height * 0.3);
+  }
+});
+
+test('the origin card shows Minecraft and plugin work, on /projects and on home', async ({ page }) => {
+  for (const path of ['/projects', '/']) {
+    await page.goto(path);
+    await expect(page.locator('a.origin svg[data-kind="minecraft"]')).toHaveCount(1);
+  }
+});
+
+test('the origin drawing: every code line stays inside its window, and the drawing is centred', async ({ page }) => {
+  for (const path of ['/projects', '/']) {
+    await page.goto(path);
+    const f = await page.locator('a.origin svg[data-kind="minecraft"]').evaluate((svg) => {
+      const win = (svg.querySelector('.win') as SVGGraphicsElement).getBBox();
+      const lines = [...svg.querySelectorAll('.win ~ g text')].map((t) => (t as SVGGraphicsElement).getBBox());
+      const art = (svg.querySelector('.art') as SVGGraphicsElement).getBBox();
+      return { inside: lines.every((b) => b.x >= win.x + 6 && b.x + b.width <= win.x + win.width - 6), n: lines.length, left: art.x, right: 320 - (art.x + art.width) };
+    });
+    expect(f.n).toBeGreaterThan(0);
+    expect(f.inside).toBe(true);
+    expect(Math.abs(f.left - f.right)).toBeLessThanOrEqual(4);
+  }
+});

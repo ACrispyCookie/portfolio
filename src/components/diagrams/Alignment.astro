@@ -1,0 +1,25 @@
+---
+// ECE340 Smith-Waterman: the score grid of two DNA sequences, brightest along the best local match, traced in gold.
+// The letters are an example, not the project's data.
+interface Props { label?: string }
+const { label = 'Diagram: the Smith-Waterman score grid of two DNA sequences, with the best local alignment traced in gold' } = Astro.props;
+const top = 'GATTACA'.split(''), side = 'GCATTAC'.split('');
+const x = (c: number) => 74 + c * 22, y = (r: number) => 38 + r * 22;
+// the match ATTAC runs down the diagonal one column left of centre (rows 2–6, columns 1–5), rising as it goes
+const score = (r: number, c: number) => (r >= 2 && c === r - 1 ? 0.35 + (r - 2) * 0.15 : ((r * 7 + c * 3) % 5) * 0.025);
+---
+<svg class="diagram" data-kind="alignment" viewBox="0 0 320 200" role="img" aria-label={label} preserveAspectRatio="xMidYMid slice">
+  <rect width="320" height="200" fill="#183539" />
+  <g font-family="Hanken Grotesk Variable, Hanken Grotesk, sans-serif" font-size="11" fill="#9db6b8" text-anchor="middle">
+    {top.map((l, c) => <text x={x(c) + 10} y="30">{l}</text>)}
+    {side.map((l, r) => <text x="60" y={y(r) + 14}>{l}</text>)}
+  </g>
+  {side.map((_, r) => top.map((_, c) => <rect x={x(c)} y={y(r)} width="20" height="20" rx="3" fill="#41e2f2" fill-opacity={(0.08 + score(r, c)).toFixed(2)} />))}
+  <path d={`M${x(1) + 10} ${y(2) + 10} L${x(5) + 10} ${y(6) + 10}`} stroke="#d8b46a" stroke-width="3" stroke-linecap="round" />
+  <circle cx={x(5) + 10} cy={y(6) + 10} r="4" fill="#d8b46a" />
+  <g font-family="Hanken Grotesk Variable, Hanken Grotesk, sans-serif">
+    <text x="246" y="74" font-size="11" fill="#9db6b8">best match</text>
+    <text x="246" y="100" font-size="13" fill="#eaf2f1" font-family="ui-monospace, monospace" letter-spacing="1">ATTAC</text>{/* taste-skill-ignore: aligned sequences need equal-width letters */}
+    <text x="246" y="118" font-size="13" fill="#eaf2f1" font-family="ui-monospace, monospace" letter-spacing="1">ATTAC</text>{/* taste-skill-ignore: aligned sequences need equal-width letters */}
+  </g>
+</svg>

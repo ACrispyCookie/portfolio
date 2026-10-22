@@ -60,13 +60,13 @@ const tools = (all: string[]) => (all.length <= 6 ? { shown: all, rest: [] } : {
     <div class="courses">
       {courses.map((c) => (
         <div class="course">
-          <a class="cpic" href={courseHref(c.id)} tabindex="-1" aria-hidden="true"><Thumb project={featured(c)} sizes="(max-width: 760px) 100vw, 200px" /></a>
+          <a class="cpic" href={courseHref(c.id)} tabindex="-1" aria-hidden="true"><Thumb project={featured(c)} sizes="(max-width: 760px) 100vw, 520px" /></a>
           <div class="cbody">
             <a class="ch" href={courseHref(c.id)}><span class="cn"><b>{c.data.code}</b></span><span class="g">Grade <b>{c.data.grade}</b>&nbsp;/&nbsp;10</span><span class="n">{c.data.name}</span></a>
             {teams[c.id].length > 0 && (
               <p class="with"><Avatars handles={teams[c.id].map((p) => p.id)} /><span>With {names(teams[c.id])}</span></p>
             )}
-            <ul>
+            <ul class:list={{ two: ofCourse(c.id).length >= 3 }}>
               {ofCourse(c.id).map((p) => {
                 const t = tools(p.data.tools);
                 return (
@@ -83,4 +83,9 @@ const tools = (all: string[]) => (all.length <= 6 ? { shown: all, rest: [] } : {
       ))}
     </div>
   </section>
+  <Fragment slot="scripts">
+    <script>
+      import '../../scripts/videos';
+    </script>
+  </Fragment>
 </Base>

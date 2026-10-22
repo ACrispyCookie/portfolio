@@ -14,6 +14,8 @@ links:
   demo: "https://fpga.njason.dev"
 status: "in-progress"
 media:
-  src: "../../assets/projects/gpgpu-block.jpg"
-  alt: "Block design of the GPGPU on the Zynq"
+  src: "../../assets/projects/gpgpu.jpg"
+  alt: "The GPGPU on a ZedBoard, wired to a laptop that shows its n-body simulation"
+  video: "/media/gpgpu.mp4"
+  overlay: "fpga"
 ---

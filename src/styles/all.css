@@ -8,7 +8,7 @@
 /* pictures: the box sets the size, the image fills it; paper charts sit whole on white */
 .thumb { display: block; position: relative; overflow: hidden; background: var(--color-raised); border-radius: var(--radius-inner); aspect-ratio: 16 / 10; width: 100%; max-height: 60vh; max-height: 60svh; } /* short screens crop, as on home */
 .thumb picture { display: contents; }
-.thumb img, .thumb svg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.thumb img, .thumb video, .thumb > svg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
 .thumb img.paper { object-fit: contain; background: var(--color-paper); padding: 8px; box-sizing: border-box; }
 .thumb .pad { position: absolute; inset: 0; margin: auto; width: 18px; height: 18px; border-radius: 50%; background: var(--color-gold); }
 
@@ -19,9 +19,10 @@
 .personal a span:not(.thumb) { color: var(--color-dim); font-size: var(--text-small); max-width: 65ch; }
 .personal a:hover b { text-decoration: underline; text-underline-offset: 3px; }
 
-.courses { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 500px), 1fr)); gap: 32px 40px; align-items: start; }
-.course { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 18px; align-items: start; }
-.course .cbody { display: grid; gap: 6px; min-width: 0; }
+.courses { display: grid; gap: 44px; container: courses / inline-size; }
+/* one course per row (Jason, 2026-10-22): a short course never sits beside a tall one; its picture at the home card size */
+.course { display: grid; grid-template-columns: min(520px, 46%) minmax(0, 1fr); gap: 28px; align-items: start; }
+.course .cbody { display: grid; gap: 6px; min-width: 0; container: cbody / inline-size; }
 .course .ch { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; gap: 2px 12px; padding: 10px 16px; border-radius: var(--radius-inner); background: var(--color-panel); color: var(--color-silk); text-decoration: none; transition: background-color .2s; }
 .course .ch:hover { background: var(--color-raised); }
 .course .ch .cn { min-width: 0; }
@@ -41,13 +42,11 @@
 .tools { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
 .tools .more { cursor: help; }
 
-/* narrow: the picture goes above the course, capped so the list stays close */
-@container courses (max-width: 520px) {
-  .course { grid-template-columns: 1fr; }
-  .course .thumb { aspect-ratio: auto; height: 140px; }
+/* three or more projects take two columns once the list has room for them */
+@container cbody (min-width: 440px) {
+  .course ul.two { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 24px; }
 }
-.courses { container: courses / inline-size; }
-@media (max-width: 560px) {
-  .course { grid-template-columns: 1fr; }
-  .course .thumb { aspect-ratio: auto; height: 140px; }
+/* narrow: the picture goes above the course at full width */
+@container courses (max-width: 759px) {
+  .course { grid-template-columns: 1fr; gap: 16px; }
 }

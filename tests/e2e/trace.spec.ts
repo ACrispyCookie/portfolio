@@ -57,7 +57,7 @@ test('check.js: no errors or overflow, one edge for traced sections, trace clear
   const frames: number[][] = [];
   let cur: number[] = [];
   for (const x of raw) { if (isNaN(x)) { frames.push(cur); cur = []; } else cur.push(x); }
-  const diag = await page.evaluate(() => JSON.stringify({ lab: document.documentElement.dataset.lab, pulses: document.querySelectorAll('.t-pulse').length, y: scrollY }));
+  const diag = await page.evaluate((x) => JSON.stringify({ ...x, lab: document.documentElement.dataset.lab, pulses: document.querySelectorAll('.t-pulse').length, group: (document.querySelector('.t-pulses') as SVGGElement | null)?.style.opacity, drawn: (document.querySelector('.t-drawn') as SVGPathElement | null)?.style.strokeDashoffset, y: scrollY, vis: document.visibilityState }), { frames: frames.length, errors });
   expect(frames.filter((f) => f.length).length, `frames with a pulse (${diag})`).toBeGreaterThan(5); // headless WebKit draws few frames
   let jumps = 0;
   for (let i = 1; i < frames.length; i++)

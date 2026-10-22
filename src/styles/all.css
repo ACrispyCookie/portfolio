@@ -13,6 +13,7 @@
 .thumb .pad { position: absolute; inset: 0; margin: auto; width: 18px; height: 18px; border-radius: 50%; background: var(--color-gold); }
 
 .personal { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 18px; }
+.personal li { display: grid; gap: 10px; align-content: start; }
 .personal a { display: grid; gap: 6px; color: var(--color-silk); text-decoration: none; }
 .personal a b { margin-top: 6px; font-weight: 700; }
 .personal a span:not(.thumb) { color: var(--color-dim); font-size: var(--text-small); max-width: 65ch; }
@@ -21,15 +22,24 @@
 .courses { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 500px), 1fr)); gap: 32px 40px; align-items: start; }
 .course { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 18px; align-items: start; }
 .course .cbody { display: grid; gap: 6px; min-width: 0; }
-.course .ch { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 10px 16px; border-radius: var(--radius-inner); background: var(--color-panel); color: var(--color-silk); text-decoration: none; transition: background-color .2s; }
+.course .ch { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; gap: 2px 12px; padding: 10px 16px; border-radius: var(--radius-inner); background: var(--color-panel); color: var(--color-silk); text-decoration: none; transition: background-color .2s; }
 .course .ch:hover { background: var(--color-raised); }
-.course .ch .cn { display: flex; flex-wrap: wrap; column-gap: 10px; min-width: 0; }
+.course .ch .cn { min-width: 0; }
+/* the code and grade on one line, the course's name under them at full width */
+.course .ch .n { grid-column: 1 / -1; }
 .course .ch b { font-weight: 700; }
-.course .ch .g { color: var(--color-dim); }
+.course .ch .g { color: var(--color-dim); font-size: var(--text-small); white-space: nowrap; }
+.course .ch .g b { color: var(--color-silk); font-size: var(--text-body); }
 .course ul { list-style: none; margin: 0; padding: 0 0 0 16px; display: grid; }
 .course li { display: grid; gap: 2px; padding: 8px 0; }
 .course li a { color: var(--color-silk); font-weight: 600; text-underline-offset: 3px; }
-.course li span { color: var(--color-dim); font-size: var(--text-small); }
+.course li .hl { color: var(--color-dim); font-size: var(--text-small); }
+/* who it was built with: the avatars, then their names in words */
+.course .with { display: flex; align-items: center; gap: 10px; padding: 4px 0 0 16px; color: var(--color-dim); font-size: var(--text-small); }
+.course .with .av { flex: none; }
+/* a project's tools, as on its card on home */
+.tools { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.tools .more { cursor: help; }
 
 /* narrow: the picture goes above the course, capped so the list stays close */
 @container courses (max-width: 520px) {

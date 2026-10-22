@@ -1,19 +1,36 @@
 ---
 // All projects (spec §4, §5.4a): every project and course on the site, as a plain list. Personal projects first,
-// then the courses in report-card order, each with its main project first. Counts come from the collections.
-import { getCollection } from 'astro:content';
+// with the older portfolio as on home, then the courses by importance: the home order of their best-placed project,
+// never by grade (Jason, 2026-10-22). Each course names its collaborators and shows its grade out of 10; each project
+// shows its tools. Counts come from the collections.
+import { getCollection, getEntries } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import Thumb from '../../components/Thumb.astro';
+import Avatars from '../../components/Avatars.astro';
+import OriginCard from '../../components/OriginCard.astro';
 import { courseHref, pageHref } from '../../lib/links';
+import '../../styles/projects.css';
 import '../../styles/all.css';
 
+type Project = Awaited<ReturnType<typeof getCollection<'projects'>>>[number];
 const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
-const courses = (await getCollection('courses')).sort((a, b) => a.data.order - b.data.order);
-const link = (p: (typeof projects)[number]) => pageHref({ ...p.data, id: p.id, course: p.data.course?.id });
+const link = (p: Project) => pageHref({ ...p.data, id: p.id, course: p.data.course?.id });
 const personal = projects.filter((p) => p.data.kind === 'personal');
-const featured = (c: (typeof courses)[number]) => projects.find((p) => p.id === c.data.featuredProject.id);
 const ofCourse = (id: string) =>
   projects.filter((p) => p.data.course?.id === id).sort((a, b) => Number(b.data.main) - Number(a.data.main) || a.data.order - b.data.order);
+const rank = (id: string) => Math.min(...ofCourse(id).map((p) => p.data.order));
+const courses = (await getCollection('courses')).sort((a, b) => rank(a.id) - rank(b.id));
+const featured = (c: (typeof courses)[number]) => projects.find((p) => p.id === c.data.featuredProject.id);
+// everyone who worked on any of the course's projects, in the order they first appear
+const team = async (id: string) => {
+  const ids = [...new Set(ofCourse(id).flatMap((p) => p.data.team.map((t) => t.id)))];
+  return ids.length ? (await getEntries(ids.map((i) => ({ collection: 'collaborators' as const, id: i })))) : [];
+};
+const teams = Object.fromEntries(await Promise.all(courses.map(async (c) => [c.id, await team(c.id)] as const)));
+const names = (list: { data: { name: string } }[]) =>
+  list.length < 2 ? list.map((p) => p.data.name).join('') : `${list.slice(0, -1).map((p) => p.data.name).join(', ')} and ${list.at(-1)!.data.name}`;
+// up to six tools in full; a longer list shows five and "+N", with the rest in its title
+const tools = (all: string[]) => (all.length <= 6 ? { shown: all, rest: [] } : { shown: all.slice(0, 5), rest: all.slice(5) });
 ---
 <Base title="Projects | Jason Nikas" description={`All ${projects.length} projects on njason.dev, from ${courses.length} university courses and my own work, with links to each one.`}>
   <header class="allhead" data-trace-start>
@@ -25,10 +42,17 @@ const ofCourse = (id: string) =>
   <section id="personal" class="sec" aria-labelledby="personal-h">
     <h2 id="personal-h" data-pad>Personal projects</h2>
     <ul class="personal">
-      {personal.map((p) => (
-        <li><a href={link(p)}><Thumb project={p} sizes="(max-width: 760px) 100vw, 360px" /><b>{p.data.title}</b><span>{p.data.headline}</span></a></li>
-      ))}
+      {personal.map((p) => {
+        const t = tools(p.data.tools);
+        return (
+          <li>
+            <a href={link(p)}><Thumb project={p} sizes="(max-width: 760px) 100vw, 360px" /><b>{p.data.title}</b><span>{p.data.headline}</span></a>
+            <span class="tools">{t.shown.map((x) => <span class="tag">{x}</span>)}{t.rest.length > 0 && <span class="tag more" title={t.rest.join(', ')}>+{t.rest.length}</span>}</span>
+          </li>
+        );
+      })}
     </ul>
+    <OriginCard />
   </section>
 
   <section id="courses" class="sec" aria-labelledby="courses-h">
@@ -38,9 +62,21 @@ const ofCourse = (id: string) =>
         <div class="course">
           <a class="cpic" href={courseHref(c.id)} tabindex="-1" aria-hidden="true"><Thumb project={featured(c)} sizes="(max-width: 760px) 100vw, 200px" /></a>
           <div class="cbody">
-            <a class="ch" href={courseHref(c.id)}><span class="cn"><b>{c.data.code}</b><span class="n">{c.data.name}</span></span><span class="g">{c.data.grade}</span></a>
+            <a class="ch" href={courseHref(c.id)}><span class="cn"><b>{c.data.code}</b></span><span class="g">Grade <b>{c.data.grade}</b>&nbsp;/&nbsp;10</span><span class="n">{c.data.name}</span></a>
+            {teams[c.id].length > 0 && (
+              <p class="with"><Avatars handles={teams[c.id].map((p) => p.id)} /><span>With {names(teams[c.id])}</span></p>
+            )}
             <ul>
-              {ofCourse(c.id).map((p) => <li><a href={link(p)}>{p.data.title}</a><span>{p.data.headline}</span></li>)}
+              {ofCourse(c.id).map((p) => {
+                const t = tools(p.data.tools);
+                return (
+                  <li>
+                    <a href={link(p)}>{p.data.title}</a>
+                    <span class="hl">{p.data.headline}</span>
+                    <span class="tools">{t.shown.map((x) => <span class="tag">{x}</span>)}{t.rest.length > 0 && <span class="tag more" title={t.rest.join(', ')}>+{t.rest.length}</span>}</span>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         </div>

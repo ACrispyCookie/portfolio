@@ -15,9 +15,9 @@ describe('buildTracePath', () => {
     expect(r.d).toContain('H34.5 Q18.5 726 18.5 742');
   });
 
-  test('pads and two vias per pad beside the rail', () => {
+  test('pads, and a via above and below each pad beside the rail (only above the last, where the copper ends)', () => {
     expect(r.padYs).toEqual([800, 1200]);
-    expect(r.vias).toHaveLength(4);
+    expect(r.vias).toHaveLength(3);
     expect(r.vias[0]).toEqual({ x: 32.5, y: 778 });
     expect(r.vias[1]).toEqual({ x: 32.5, y: 822 });
   });
@@ -37,4 +37,11 @@ describe('buildTracePath', () => {
     expect(s.d).toBe('M11 500 V700');
     expect(s.railTop).toBe(500);
   });
+});
+
+test('every via sits on the copper: the last pad ends the trace, so it has no via below it (Jason, 2026-10-22)', () => {
+  const t = buildTracePath({ railX: 14, start: null, turnY: 0, pads: [200, 500, 900] });
+  const last = t.padYs[t.padYs.length - 1];
+  expect(t.vias.every((v) => v.y <= last)).toBe(true);
+  expect(t.vias.map((v) => v.y)).toEqual([178, 222, 478, 522, 878]);
 });

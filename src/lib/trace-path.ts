@@ -18,6 +18,7 @@ export function buildTracePath({ railX, start, turnY, pads }: TraceInput): Trace
     d = `M${railX} ${railTop}`;
   }
   d += ` V${pads[pads.length - 1]}`;
-  const vias = pads.flatMap((y) => [{ x: railX + VIA_DX, y: y - VIA_DY }, { x: railX + VIA_DX, y: y + VIA_DY }]);
+  // a via above and below each pad; the last pad ends the copper, so nothing hangs below it
+  const vias = pads.flatMap((y, i) => [{ x: railX + VIA_DX, y: y - VIA_DY }, ...(i < pads.length - 1 ? [{ x: railX + VIA_DX, y: y + VIA_DY }] : [])]);
   return { d, padYs: [...pads], vias, railTop };
 }

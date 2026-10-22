@@ -69,8 +69,8 @@ test('pads, vias and stubs are SVG; each pad lights when the copper reaches it',
   await page.goto('/');
   const n = await page.locator('main section[id] h2[data-pad]').count();
   await expect(page.locator('svg.trace .t-pad[data-i]')).toHaveCount(n);
-  await expect(page.locator('svg.trace .t-via')).toHaveCount(2 * n);
-  await expect(page.locator('svg.trace .t-stub')).toHaveCount(2 * n);
+  await expect(page.locator('svg.trace .t-via')).toHaveCount(2 * n - 1); // none below the last pad, where the copper ends
+  await expect(page.locator('svg.trace .t-stub')).toHaveCount(2 * n - 1);
   await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
   await expect(page.locator('svg.trace .t-pad[data-i]').last()).toHaveClass(/on/);
   for (const s of await page.locator('main > section:not(.hero)').all()) await expect(s).toHaveClass(/lit/);

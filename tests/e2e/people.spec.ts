@@ -13,7 +13,7 @@ test('the section replaces Other projects, with its lead', async ({ page }) => {
 
 test('people by projects shared: the regulars large, the rest small', async ({ page }) => {
   await page.goto('/');
-  expect(await page.locator('#people .person .name').allTextContents()).toEqual(['Panagiotis Nikolaos Tsogkas', 'Dimitrios Tsiantos', 'Tvangos', 'Anastasios Kalousis', 'Panagiotis Balamotis']);
+  expect(await page.locator('#people .person .name').allTextContents()).toEqual(['Panagiotis Nikolaos Tsogkas', 'Dimitrios Tsiantos', 'Tvangos', 'Panagiotis Balamotis', 'Anastasios Kalousis']);
   expect(await page.locator('#people .person').evaluateAll((ps) => ps.map((p) => p.classList.contains('regular')))).toEqual([true, true, false, false, false]);
   const tsogkas = page.locator('#people .person').first();
   await expect(tsogkas.locator('.count b')).toHaveText('17');
@@ -36,4 +36,11 @@ test('each person links to their site or GitHub, and the one-course people show 
 test('it ends with the way to every project', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('#people a').last()).toHaveAttribute('href', '/projects');
+});
+
+test('no middle-dot meta strings anywhere (spec §11), on home and on /projects', async ({ page }) => {
+  for (const path of ['/', '/projects']) {
+    await page.goto(path);
+    expect(await page.locator('body').evaluate((b) => b.textContent!.includes('·')), path).toBe(false);
+  }
 });

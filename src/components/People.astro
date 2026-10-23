@@ -32,7 +32,7 @@ const img = (github?: string) => (github ? files[`../assets/avatars/${github}.jp
               <div class="pid">
                 <h3 class="name">{p.name}</h3>
                 <p class="where">
-                  {p.website && <><a href={p.website}>{p.website.replace(/^https?:\/\//, '')}</a><span aria-hidden="true"> · </span></>}
+                  {p.website && <a href={p.website}>{p.website.replace(/^https?:\/\//, '')}</a>}
                   {p.github && <a href={`https://github.com/${p.github}`}>GitHub</a>}
                 </p>
               </div>

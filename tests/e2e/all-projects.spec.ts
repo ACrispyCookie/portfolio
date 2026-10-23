@@ -26,14 +26,14 @@ test('All projects: every link stays on the site, as a page or a section (apart 
   for (const h of hrefs) expect(h).toMatch(/^(\/projects\/[a-z0-9-]+|\/courses\/ece\d{3}(\/[a-z0-9-]+|#[a-z0-9-]+)?|#[a-z0-9-]+|https:\/\/fpga\.njason\.dev)$/);
 });
 
-test('the way to it: top bar, footer, and two "See all" links on home', async ({ page }) => {
+test('the way to it: top bar, footer, and two "See all" links on home (Projects and People I build with)', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('.topbar nav a', { hasText: 'Projects' })).toHaveAttribute('href', '#projects');
   await expect(page.locator('.foot .links a').first()).toHaveText('Projects');
   await expect(page.locator('.foot .links a').first()).toHaveAttribute('href', '/projects');
   const seeAll = page.locator('main a.seeall');
   await expect(seeAll).toHaveCount(2);
-  for (const id of ['projects', 'other']) {
+  for (const id of ['projects', 'people']) {
     await expect(page.locator(`#${id} a.seeall`)).toHaveAttribute('href', '/projects');
     // it's the section's last link, and it reads the full wording where it fits (the short one below 420px)
     const last = page.locator(`#${id} a`).last();

@@ -43,7 +43,7 @@ const overlaps = (page: Page) =>
   });
 
 // Containers whose items are peers: items that share a row must be the same height.
-const PEERS = ['.now > a', '.glance > .read', '#projects .grid > .card', '.ccard .cr > .clink'];
+const PEERS = ['.now > a', '.glance > .read', '#projects .grid > .card', '.ccard .cr > .clink', '#people .big > .person', '#people .small > .person'];
 // Text that must stay on one line: an address, a label, a button.
 const ONE_LINE = ['.mail span', '.clink b', '.clink small', '.topbar .name', '.chip', '.btn:not(.origin .btn)', '.tag']; // the origin button may wrap below 400px (Plan 1)
 

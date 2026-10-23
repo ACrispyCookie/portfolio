@@ -1,0 +1,51 @@
+---
+// People I build with (Jason, 2026-10-23), in place of Other projects: everyone I've built a project with, from the
+// projects' teams (src/lib/people.ts). The regulars get large cards; the smaller projects live on /projects.
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import { getCollection } from 'astro:content';
+import { peopleFrom } from '../lib/people';
+import { initialsOf } from '../lib/avatars';
+import SeeAll from './SeeAll.astro';
+import '../styles/people.css';
+
+const projects = (await getCollection('projects')).map((p) => ({ ...p.data, id: p.id, course: p.data.course?.id, fromCourse: p.data.fromCourse?.id, team: p.data.team.map((t) => t.id) }));
+const courses = (await getCollection('courses')).map((c) => ({ id: c.id, code: c.data.code }));
+const collaborators = (await getCollection('collaborators')).map((c) => ({ id: c.id, ...c.data }));
+const people = peopleFrom(projects, courses, collaborators);
+const regulars = people.filter((p) => p.regular);
+const others = people.filter((p) => !p.regular);
+const files = import.meta.glob<{ default: ImageMetadata }>('../assets/avatars/*.jpg', { eager: true });
+const img = (github?: string) => (github ? files[`../assets/avatars/${github}.jpg`]?.default : undefined);
+---
+<section id="people" class="sec" aria-labelledby="people-h">
+  <h2 id="people-h" data-pad>People I build with</h2>
+  <p class="lead">The teammates I keep building with, and what we made together.</p>
+  {[{ list: regulars, cls: 'big' }, { list: others, cls: 'small' }].map(({ list, cls }) => list.length > 0 && (
+    <div class={cls}>
+      {list.map((p) => {
+        const face = img(p.github);
+        return (
+          <div class:list={['person', { regular: p.regular }]}>
+            <div class="head">
+              {face ? <Image src={face} alt="" width={64} height={64} densities={[1, 2]} /> : <span class="ini" aria-hidden="true">{initialsOf(p.name)}</span>}
+              <div class="pid">
+                <h3 class="name">{p.name}</h3>
+                <p class="where">
+                  {p.website && <><a href={p.website}>{p.website.replace(/^https?:\/\//, '')}</a><span aria-hidden="true"> · </span></>}
+                  {p.github && <a href={`https://github.com/${p.github}`}>GitHub</a>}
+                </p>
+              </div>
+              <p class="count"><b>{p.projects}</b><span>{p.projects === 1 ? 'project' : 'projects'}</span></p>
+            </div>
+            {p.regular && <p class="courses">Together in {p.courses.length} courses: {p.courses.join(', ')}</p>}
+            <div class="tags">
+              {p.main.map((m) => <a class="tag" href={m.href}>{!p.regular && m.code && <b>{m.code}</b>}{m.title}</a>)}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  ))}
+  <SeeAll />
+</section>

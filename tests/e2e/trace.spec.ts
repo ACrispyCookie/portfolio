@@ -2,7 +2,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { JSON_URL, STREAM, event, serveStream } from './helpers/lab';
 
-const BOXES = 'main .card, main .w, main .read, main .ccard, main .cproj, main .rc, main .skx2, main .origin, main .mini a, main .board, main .cover, main figure, main .people';
+const BOXES = 'main .card, main .w, main .read, main .ccard, main .cproj, main .rc, main .skx2, main .origin, main .person, main .board, main .cover, main figure, main .people';
 
 // mobile WebKit has no wheel events in Playwright: scroll by script there
 const wheel = (page: Page, dy: number) =>

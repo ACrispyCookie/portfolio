@@ -1,22 +1,7 @@
 import { expect, test } from '@playwright/test';
-import { phoneLayout, railsLayout } from './helpers/layout';
+import { railsLayout } from './helpers/layout';
 
-test('Other projects: 7 course cards, 18 rows linking to course sections, no borders', async ({ page }) => {
-  await page.goto('/');
-  await expect(page.locator('#other .group')).toHaveCount(7);
-  const rows = page.locator('#other .mini a');
-  await expect(rows).toHaveCount(18);
-  for (const href of await rows.evaluateAll((as) => as.map((a) => a.getAttribute('href')!))) expect(href).toMatch(/^\/courses\/ece\d{3}#[a-z0-9-]+$/);
-  const borders = await rows.evaluateAll((as) => as.filter((a) => parseFloat(getComputedStyle(a).borderTopWidth) > 0 || getComputedStyle(a).boxShadow !== 'none').length);
-  expect(borders).toBe(0);
-  await expect(page.locator('#other .group h3').first()).toHaveText('ECE415 High Performance Computing');
-});
-
-test('section order: glance, projects, other, timeline, skills, contact', async ({ page }) => {
-  await page.goto('/');
-  const ids = await page.locator('main > section[id]').evaluateAll((s) => s.map((e) => e.id));
-  expect(ids).toEqual(['glance', 'projects', 'other', 'timeline', 'skills', 'contact']);
-});
+// Other projects and its section order moved to tests/e2e/people.spec.ts (replaced by People I build with, Jason 2026-10-23)
 
 test('lanes layout: under 1000px, the gap is a plain break, no gradients', async ({ page }) => {
   test.skip(railsLayout(page));
@@ -39,22 +24,6 @@ test('rails layout: three git-graph rails instead of lanes', async ({ page }) =>
   await expect(page.locator('#timeline .tlw')).toBeHidden();
   await expect(page.locator('#timeline .tll .it')).toHaveCount(8);
   await expect(page.locator('#timeline .tll .it small').nth(3)).toHaveText('Education: University of Thessaly, 09/2022 – now');
-});
-
-test('wide layout: first rows of the groups in one grid row line up', async ({ page }) => {
-  test.skip(phoneLayout(page));
-  await page.goto('/');
-  // groups whose headings start on the same line share a grid row; their first rows must line up too
-  const rows = await page.locator('#other .group').evaluateAll((gs) => {
-    const by = new Map<number, number[]>();
-    for (const g of gs) {
-      const t = Math.round(g.getBoundingClientRect().top);
-      by.set(t, [...(by.get(t) ?? []), Math.round(g.querySelector('.mini a')!.getBoundingClientRect().top)]);
-    }
-    return [...by.values()];
-  });
-  expect(rows.some((r) => r.length > 1)).toBe(true);
-  for (const r of rows) expect(new Set(r).size).toBe(1);
 });
 
 test('every teaching entry says it was a lab-assistant role', async ({ page }) => {
@@ -80,10 +49,10 @@ test('ECE433 has no Other projects card: its homeworks are not projects (Jason, 
   await expect(page.locator('#other .group h3', { hasText: 'ECE433' })).toHaveCount(0);
 });
 
-test('ECE333 lists all four labs, Lab 1 first', async ({ page }) => {
-  await page.goto('/');
-  const g = page.locator('#other .group', { has: page.locator('h3', { hasText: 'ECE333' }) });
-  await expect(g.locator('.mini a b')).toHaveText(['Seven-segment display', 'UART', 'VGA controller', 'Accelerometer over SPI']);
+test('ECE333 lists all four labs, Lab 1 first (on /projects since Other projects left home)', async ({ page }) => {
+  await page.goto('/projects');
+  const g = page.locator('.course', { has: page.locator('a.ch .cn b', { hasText: 'ECE333' }) });
+  await expect(g.locator('ul li > a')).toHaveText(['Seven-segment display', 'UART', 'VGA controller', 'Accelerometer over SPI']);
 });
 
 test('lanes that would overlap give way to the rails, at any text size', async ({ page }, info) => {

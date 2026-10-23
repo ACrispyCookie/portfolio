@@ -1,6 +1,6 @@
 /* All projects (spec §5.4a, Jason 2026-10-21: larger pictures). Beyond coursework as home's cards; each course
    a block with its main project's picture beside its header and project list. Text lines stay under 65ch. */
-.allhead { padding-top: 40px; display: grid; gap: 8px; }
+.allhead { padding: 40px 0 18px; display: grid; gap: 8px; } /* room under the lead for the trace's start pad */
 .allhead h1 { font: 800 var(--text-display) / 1 var(--font-display); letter-spacing: -.035em; } /* a page title: the display size */
 .allhead .lead { max-width: 65ch; color: var(--color-silk); }
 .counts { color: var(--color-dim); }
@@ -26,7 +26,7 @@
 .course .ch .g { color: var(--color-dim); font-size: var(--text-small); white-space: nowrap; }
 .course .ch .g b { color: var(--color-silk); font-size: var(--text-body); }
 .course ul { list-style: none; margin: 0; padding: 0 0 0 16px; display: grid; }
-.course li { display: grid; gap: 2px; padding: 8px 0; }
+.course li { display: grid; align-content: start; gap: 2px; padding: 8px 0; } /* beside a taller one, it keeps its own height */
 .course li a { color: var(--color-silk); font-weight: 600; text-underline-offset: 3px; }
 .course li .hl { color: var(--color-dim); font-size: var(--text-small); }
 /* who it was built with: the avatars, then their names in words */
@@ -42,14 +42,18 @@
 }
 /* a picture never crops to a strip on a short screen: it keeps 16:10 and narrows until it is 60% of the screen tall */
 .course .thumb { max-height: none; width: min(100%, 96vh); width: min(100%, 96svh); }
-/* narrow (phones in portrait): the picture goes above the course at full width */
+/* narrow (phones in portrait), and tablets in portrait, where beside the course it was too small (Jason, 2026-10-23):
+   the picture goes above the course at full width */
 @container courses (max-width: 559px) {
   .course { grid-template-columns: 1fr; gap: 16px; }
 }
+@media (orientation: portrait) and (max-width: 900px) {
+  .course { grid-template-columns: 1fr; gap: 16px; }
+}
 
-/* personal cards between phone portrait and the three-column grid (landscape phones, tablets): picture beside the
-   text, as home does on tablets in landscape, so a short screen never crops it to a strip */
-@media (min-width: 560px) and (max-width: 900px), (orientation: landscape) and (min-width: 440px) and (max-width: 900px) {
+/* personal cards on landscape phones and small landscape tablets: picture beside the text, as home does on tablets in
+   landscape, so a short screen never crops it to a strip. In portrait the picture goes above at full width. */
+@media (orientation: landscape) and (min-width: 440px) and (max-width: 900px) {
   #beyond .card.personal, #beyond .card.wide { grid-template-columns: minmax(0, .8fr) minmax(0, 1fr); align-items: center; }
 }
 #beyond .card .media { max-height: none; width: min(100%, 96vh); width: min(100%, 96svh); }

@@ -26,9 +26,12 @@ test('All projects: every link stays on the site, as a page or a section (apart 
   for (const h of hrefs) expect(h).toMatch(/^(\/projects\/[a-z0-9-]+|\/courses\/ece\d{3}(\/[a-z0-9-]+|#[a-z0-9-]+)?|#[a-z0-9-]+|https:\/\/fpga\.njason\.dev)$/);
 });
 
-test('the way to it: top bar, footer, and two "See all" links on home (Projects and People I build with)', async ({ page }) => {
+test('the way to it: top bar, menu, hero button, footer, and two "See all" links on home', async ({ page }) => {
   await page.goto('/');
-  await expect(page.locator('.topbar nav a', { hasText: 'Projects' })).toHaveAttribute('href', '#projects');
+  // every Projects link goes to the page, home's included (Jason, 2026-10-23)
+  await expect(page.locator('.topbar nav a', { hasText: 'Projects' })).toHaveAttribute('href', '/projects');
+  await expect(page.locator('.menu-sheet a', { hasText: 'Projects' })).toHaveAttribute('href', '/projects');
+  await expect(page.locator('.cta a', { hasText: 'See my projects' })).toHaveAttribute('href', '/projects');
   await expect(page.locator('.foot .links a').first()).toHaveText('Projects');
   await expect(page.locator('.foot .links a').first()).toHaveAttribute('href', '/projects');
   const seeAll = page.locator('main a.seeall');
@@ -233,4 +236,38 @@ test('on a phone the page header sits on the page margin like home\'s hero; only
   const h2 = (await page.locator('#beyond h2').boundingBox())!;
   expect(Math.abs(h1.x - name.x)).toBeLessThanOrEqual(1);
   expect(h2.x).toBeGreaterThan(h1.x + 20); // the traced sections keep their gutter
+});
+
+test('tablets in portrait: every picture goes above its text at the full width (Jason, 2026-10-23: too small beside it)', async ({ page }) => {
+  const { width: vw, height: vh } = page.viewportSize()!;
+  test.skip(!(vh > vw && vw >= 560 && vw <= 900), 'tablet portrait only');
+  await page.goto('/projects');
+  for (const c of await page.locator('.course').all()) {
+    const [t, body, box] = [(await c.locator('.thumb').boundingBox())!, (await c.locator('.cbody').boundingBox())!, (await c.boundingBox())!];
+    expect(t.y + t.height).toBeLessThanOrEqual(body.y + 1);
+    expect(Math.abs(t.width - Math.min(box.width, vh * 0.96))).toBeLessThanOrEqual(1);
+  }
+  for (const c of await page.locator('#beyond .card').all()) {
+    const [m, body, box] = [(await c.locator('.media').boundingBox())!, (await c.locator('.body').boundingBox())!, (await c.boundingBox())!];
+    expect(m.y + m.height).toBeLessThanOrEqual(body.y + 1);
+    expect(m.width).toBeGreaterThanOrEqual(box.width - 40);
+  }
+});
+
+test('the trace starts clear of the header text: its pad never touches the last line of the lead', async ({ page }) => {
+  await page.goto('/projects');
+  await page.waitForFunction(() => document.querySelector('.t-pad.on:not([data-i])')); // the start pad (the others mark sections)
+  const gap = await page.evaluate(() => {
+    const pad = document.querySelector('.t-pad.on:not([data-i])')!.getBoundingClientRect();
+    const r = document.createRange(); r.selectNodeContents(document.querySelector('.allhead .lead')!);
+    const lines = [...r.getClientRects()];
+    return Math.min(...lines.filter((l) => l.right > pad.left && l.left < pad.right).map((l) => pad.top - l.bottom), pad.top - lines[lines.length - 1].bottom);
+  });
+  expect(gap).toBeGreaterThanOrEqual(8);
+});
+
+test('every pill is the same height: a short project beside a tall one never stretches its pills', async ({ page }) => {
+  await page.goto('/projects');
+  const hs = await page.locator('main .tag').evaluateAll((ts) => ts.filter((t) => t.getBoundingClientRect().width).map((t) => Math.round(t.getBoundingClientRect().height)));
+  expect(Math.max(...hs) - Math.min(...hs)).toBeLessThanOrEqual(1);
 });

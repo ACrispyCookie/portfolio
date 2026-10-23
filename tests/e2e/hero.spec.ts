@@ -40,7 +40,7 @@ test('hero copy and buttons match the spec', async ({ page }) => {
   const cta = page.locator('.cta a');
   expect((await cta.allTextContents()).map((t) => t.trim())).toEqual(['See my projects', 'GitHub', 'LinkedIn']);
   await expect(cta.first()).toHaveClass(/btn-primary/);
-  await expect(cta.first()).toHaveAttribute('href', '#projects');
+  await expect(cta.first()).toHaveAttribute('href', '/projects'); // the page, as every Projects link (Jason, 2026-10-23)
   const now = page.locator('.now a');
   expect((await now.locator('h3').allTextContents()).map((t) => t.trim())).toEqual(['GPGPU v2', 'Homelab']);
 });

@@ -209,9 +209,10 @@ svg.trace { position: absolute; left: 0; top: 0; pointer-events: none; overflow:
   html.rv main > section.lit > h2 { color: var(--color-silk); }
 }
 
-/* phone (Jason, 2026-10-21): only what runs beside the trace sits in its gutter; hero, top bar and footer are centred */
+/* phone (Jason, 2026-10-21): only what runs beside the trace sits in its gutter; hero (or a page's header, which sits
+   above the trace's start), top bar and footer are centred */
 @media (max-width: 760px) {
-  .wrap > main > .hero { margin-left: calc(-1 * var(--rail)); }
+  .wrap > main > .hero, .wrap > main > .allhead { margin-left: calc(-1 * var(--rail)); }
   .topbar .in, .foot-in { padding-left: 0; }
   .menu-sheet { left: 0; }
 }

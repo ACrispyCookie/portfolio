@@ -45,7 +45,7 @@
 .origin { margin-top: 18px; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 22px; align-items: center; padding: 16px 22px 16px 16px; border-radius: var(--radius-panel); background: var(--color-panel); color: var(--color-silk); text-decoration: none; transition: background-color .25s; }
 .origin:hover { background: var(--color-raised); }
 .origin:hover .btn-secondary { background: var(--color-hover); }
-.origin .blk { width: 176px; aspect-ratio: 16 / 10; border-radius: var(--radius-inner); overflow: hidden; background: var(--color-raised); }
+.origin .blk { width: min(200px, 96vh); width: min(200px, 96svh); aspect-ratio: 16 / 10; border-radius: var(--radius-inner); overflow: hidden; background: var(--color-raised); }
 .origin .blk svg { display: block; width: 100%; height: 100%; }
 .origin h3 { font: 700 var(--text-lead) / 1.25 var(--font-display); }
 .origin p { color: var(--color-dim); margin-top: 4px; }
@@ -105,8 +105,11 @@
   .card.wide .meta .row { display: contents; }
   .card.wide .meta .btn-live { grid-column: 1 / -1; order: -1; width: 100%; }
   .card.wide .meta .tag { justify-self: start; }
+}
+/* phones in portrait: the origin card stacks, its picture filling the card (narrowed only if the screen is short) */
+@media (max-width: 559px) {
   .origin { grid-template-columns: 1fr; }
-  .origin .blk { width: 100%; } /* stacked above the text: it fills the card, as every other picture does */
+  .origin .blk { width: min(100%, 96vh); width: min(100%, 96svh); }
   .origin .btn { grid-column: auto; font-size: var(--text-small); white-space: nowrap; }
 }
 /* on the narrowest cards (small phones) headlines drop to the body size so they still fit two lines */

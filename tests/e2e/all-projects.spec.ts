@@ -5,10 +5,10 @@ test('All projects: counts, personal first, then courses by importance as on hom
   // header counts are computed: 28 projects and 11 courses today
   await expect(page.locator('main h1')).toHaveText('Projects');
   await expect(page.locator('.counts')).toHaveText('28 projects and 11 courses');
-  // personal first, then courses by importance: the order of their best-placed project on home, never by grade
-  // (Jason, 2026-10-22)
-  await expect(page.locator('.personal a b')).toHaveText(['Homelab', 'Live FPGA Lab', 'DVD Logo FPGA']);
-  await expect(page.locator('.course a.ch .cn b')).toHaveText(['ECE338', 'ECE415', 'ECE455', 'ECE436', 'ECE433', 'ECE348', 'ECE321', 'ECE318', 'ECE494', 'ECE333', 'ECE340']);
+  // personal first, then courses by importance, never by grade (Jason, 2026-10-22); ECE333 under Distributed Systems and
+  // Operating Systems above Concurrent Programming (Jason, 2026-10-23)
+  await expect(page.locator('#personal .card h3')).toHaveText(['Homelab', 'Live FPGA Lab', 'DVD Logo FPGA']);
+  await expect(page.locator('.course a.ch .cn b')).toHaveText(['ECE338', 'ECE415', 'ECE455', 'ECE436', 'ECE433', 'ECE348', 'ECE333', 'ECE318', 'ECE321', 'ECE494', 'ECE340']);
   // ECE415: grade, main project first to its page, then the four smaller to their sections
   const ece415 = page.locator('.course', { has: page.locator('b', { hasText: 'ECE415' }) });
   // the grade says what it is
@@ -22,7 +22,8 @@ test('All projects: every link stays on the site, as a page or a section (apart 
   await page.goto('/projects');
   const hrefs = await page.locator('main a:not(.av a):not(.origin)').evaluateAll((as) => as.map((a) => a.getAttribute('href')!));
   expect(hrefs.length).toBeGreaterThan(30);
-  for (const h of hrefs) expect(h).toMatch(/^(\/projects\/[a-z0-9-]+|\/courses\/ece\d{3}(\/[a-z0-9-]+|#[a-z0-9-]+)?|#[a-z0-9-]+)$/);
+  // the Live FPGA Lab card goes to the lab itself, as on home
+  for (const h of hrefs) expect(h).toMatch(/^(\/projects\/[a-z0-9-]+|\/courses\/ece\d{3}(\/[a-z0-9-]+|#[a-z0-9-]+)?|#[a-z0-9-]+|https:\/\/fpga\.njason\.dev)$/);
 });
 
 test('the way to it: top bar, footer, and two "See all" links on home', async ({ page }) => {
@@ -58,7 +59,7 @@ test('All projects: each course names its collaborators, and solo courses name n
 
 test('All projects: every project shows its tools, six at most', async ({ page }) => {
   await page.goto('/projects');
-  const rows = page.locator('.personal li, .course li');
+  const rows = page.locator('#personal .card, .course li');
   await expect(rows).toHaveCount(28);
   for (const r of await rows.all()) {
     const tags = r.locator('.tools .tag');
@@ -67,7 +68,7 @@ test('All projects: every project shows its tools, six at most', async ({ page }
     expect(n).toBeLessThanOrEqual(6);
   }
   // up to six tools show in full (N-body has six); a longer list shows five and "+N" (Homelab has 13)
-  const row = (t: string) => page.locator('.personal li, .course li', { has: page.locator('a', { hasText: t }) });
+  const row = (t: string) => page.locator('#personal .card, .course li', { has: page.locator('h3, a', { hasText: t }) });
   await expect(row('N-body on GPUs').locator('.tools .tag')).toHaveText(['C', 'Python', 'Bash', 'CUDA', 'OpenMP', 'Git']);
   await expect(row('Homelab').locator('.tools .tag')).toHaveText(['JavaScript', 'Bash', 'Docker', 'Nginx', 'WireGuard', '+8']);
   await expect(row('Homelab').locator('.tools .more')).toHaveAttribute('title', 'Pi-hole, Ansible, Proxmox, PostgreSQL, MySQL, Git, Traefik, SQLite');
@@ -88,14 +89,15 @@ test('All projects: one course per row, so a short course never sits beside a ta
 
 test('All projects: course pictures are large, at the home card size or the full width when stacked', async ({ page }) => {
   await page.goto('/projects');
-  const vw = page.viewportSize()!.width;
   for (const t of await page.locator('.course .thumb').all()) {
     const r = (await t.boundingBox())!;
     const c = (await t.locator('xpath=ancestor::div[contains(@class,"course")][1]').boundingBox())!;
-    if (vw >= 1024) expect(r.width).toBeGreaterThanOrEqual(380); // beside the course: at least a large home card's picture (about 387px at 1024)
-    else expect(Math.abs(r.width - c.width)).toBeLessThanOrEqual(1); // stacked: the full width of the course
-    // 16:10, unless a short screen caps its height
-    if (r.height < page.viewportSize()!.height * 0.6 - 1) expect(Math.abs(r.height / r.width - 0.625)).toBeLessThan(0.02);
+    const body = (await t.locator('xpath=ancestor::div[contains(@class,"course")][1]').locator('.cbody').boundingBox())!;
+    const vh = page.viewportSize()!.height;
+    if (r.y + r.height <= body.y + 1) expect(Math.abs(r.width - Math.min(c.width, vh * 0.96))).toBeLessThanOrEqual(1); // stacked: the full width (narrowed only on a short screen)
+    else expect(r.width).toBeGreaterThanOrEqual(Math.min(c.width * 0.45, 520, vh * 0.96) - 1); // beside the course: about 46% of it, up to 520px
+    // always 16:10: a short screen narrows the picture rather than cropping it (Jason, 2026-10-23)
+    expect(Math.abs(r.height / r.width - 0.625)).toBeLessThan(0.02);
   }
 });
 
@@ -208,4 +210,28 @@ test('the origin picture fills the card when it sits above the text (phones)', a
     }) as [{ w: number; bottom: number }, { top: number }, number];
     if (blk.bottom <= h3.top) expect(Math.abs(blk.w - inner)).toBeLessThanOrEqual(1); // stacked: full width
   }
+});
+
+test('All projects: personal projects are the same cards as on home, lighter on hover and never underlined (Jason, 2026-10-23)', async ({ page }) => {
+  await page.goto('/projects');
+  const cards = page.locator('#personal .card');
+  await expect(cards).toHaveCount(3);
+  test.skip(!!page.viewportSize() && (await page.evaluate(() => !matchMedia('(hover: hover)').matches)), 'no hover on touch screens');
+  const card = cards.first();
+  await card.scrollIntoViewIfNeeded();
+  const before = await card.evaluate((c) => getComputedStyle(c).backgroundColor);
+  await card.locator('h3').hover();
+  await expect.poll(() => card.evaluate((c) => getComputedStyle(c).backgroundColor)).not.toBe(before);
+  const lines = await card.evaluate((c) => [...c.querySelectorAll('*')].filter((e) => getComputedStyle(e).textDecorationLine.includes('underline')).length);
+  expect(lines).toBe(0);
+});
+
+test('on a phone the page header sits on the page margin like home\'s hero; only what runs beside the trace is inset', async ({ page }) => {
+  test.skip(page.viewportSize()!.width > 760, 'phones only');
+  await page.goto('/projects');
+  const name = (await page.locator('.topbar .name').boundingBox())!;
+  const h1 = (await page.locator('main h1').boundingBox())!;
+  const h2 = (await page.locator('#personal h2').boundingBox())!;
+  expect(Math.abs(h1.x - name.x)).toBeLessThanOrEqual(1);
+  expect(h2.x).toBeGreaterThan(h1.x + 20); // the traced sections keep their gutter
 });

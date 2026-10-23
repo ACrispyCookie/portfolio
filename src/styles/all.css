@@ -12,12 +12,6 @@
 .thumb img.paper { object-fit: contain; background: var(--color-paper); padding: 8px; box-sizing: border-box; }
 .thumb .pad { position: absolute; inset: 0; margin: auto; width: 18px; height: 18px; border-radius: 50%; background: var(--color-gold); }
 
-.personal { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 18px; }
-.personal li { display: grid; gap: 10px; align-content: start; }
-.personal a { display: grid; gap: 6px; color: var(--color-silk); text-decoration: none; }
-.personal a b { margin-top: 6px; font-weight: 700; }
-.personal a span:not(.thumb) { color: var(--color-dim); font-size: var(--text-small); max-width: 65ch; }
-.personal a:hover b { text-decoration: underline; text-underline-offset: 3px; }
 
 .courses { display: grid; gap: 44px; container: courses / inline-size; }
 /* one course per row (Jason, 2026-10-22): a short course never sits beside a tall one; its picture at the home card size */
@@ -46,7 +40,16 @@
 @container cbody (min-width: 440px) {
   .course ul.two { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 24px; }
 }
-/* narrow: the picture goes above the course at full width */
-@container courses (max-width: 759px) {
+/* a picture never crops to a strip on a short screen: it keeps 16:10 and narrows until it is 60% of the screen tall */
+.course .thumb { max-height: none; width: min(100%, 96vh); width: min(100%, 96svh); }
+/* narrow (phones in portrait): the picture goes above the course at full width */
+@container courses (max-width: 559px) {
   .course { grid-template-columns: 1fr; gap: 16px; }
 }
+
+/* personal cards between phone portrait and the three-column grid (landscape phones, tablets): picture beside the
+   text, as home does on tablets in landscape, so a short screen never crops it to a strip */
+@media (min-width: 560px) and (max-width: 900px), (orientation: landscape) and (min-width: 440px) and (max-width: 900px) {
+  #personal .card.personal { grid-template-columns: minmax(0, .8fr) minmax(0, 1fr); align-items: center; }
+}
+#personal .card .media { max-height: none; width: min(100%, 96vh); width: min(100%, 96svh); }

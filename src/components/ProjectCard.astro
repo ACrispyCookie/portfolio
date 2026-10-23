@@ -8,9 +8,12 @@ import Avatars from './Avatars.astro';
 import { diagrams } from './diagrams';
 import OnFpga from './OnFpga.astro';
 import { LAB_URL, projectHref } from '../lib/links';
+import { toolTags } from '../lib/tools';
 
-interface Props { project: CollectionEntry<'projects'>; size: 'wide' | 'large' | 'compact' | 'personal' }
+// `tools`: show the project's tools as pills (the All projects page)
+interface Props { project: CollectionEntry<'projects'>; size: 'wide' | 'large' | 'compact' | 'personal'; tools?: boolean }
 const { project, size } = Astro.props;
+const t = Astro.props.tools ? toolTags(project.data.tools) : null;
 const p = project.data;
 const course = p.course ? await getEntry(p.course) : undefined;
 const href = projectHref({ id: project.id, kind: p.kind, course: p.course?.id });
@@ -35,6 +38,7 @@ const sizes = { wide: '(max-width: 760px) 100vw, 640px', large: '(max-width: 760
       <p class="head">{p.headline}</p>
       {size === 'wide' && <p class="sum">{p.summary}</p>}
     </a>
+    {t && <span class="tools">{t.shown.map((x) => <span class="tag">{x}</span>)}{t.rest.length > 0 && <span class="tag more" title={t.rest.join(', ')}>+{t.rest.length}</span>}</span>}
     <div class="meta">
       {course ? (
         <a class="tag" href={`/courses/${course.id}`}><b>{course.data.code}</b>Grade {course.data.grade}</a>

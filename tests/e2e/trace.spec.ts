@@ -50,7 +50,10 @@ test('check.js: no errors or overflow, one edge for traced sections, trace clear
     // every pulse's offset per frame; a pulse may restart at the trace's start, but never jump ahead along it
     (function f() { for (const pu of document.querySelectorAll<SVGPathElement>('.t-pulse')) w.__l.push(parseFloat(pu.style.strokeDashoffset)); w.__l.push(NaN); requestAnimationFrame(f); })();
   });
-  for (let i = 0; i < 30; i++) { await wheel(page, 70); await page.waitForTimeout(16); }
+  // scroll until the copper is drawn well past where pulses may start (the trace begins below the first screen on a
+  // phone, ~800px down at 390×844): a fixed number of wheel steps fell short when WebKit dropped some under load
+  const drawnPast = () => page.evaluate(() => { const d = document.querySelector<SVGPathElement>('.t-drawn')!; return d.getTotalLength() - parseFloat(d.style.strokeDashoffset || '0'); });
+  for (let i = 0; i < 30 || (i < 150 && (await drawnPast()) < 600); i++) { await wheel(page, 70); await page.waitForTimeout(16); }
   await page.waitForTimeout(400);
   const raw = await page.evaluate(() => (window as unknown as { __l: number[] }).__l);
   // split into frames, then follow each pulse (same index) from frame to frame

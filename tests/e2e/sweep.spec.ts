@@ -134,7 +134,7 @@ test(`${path}, ${mode.name}, every window shape, portrait and landscape: the pag
     await page.waitForTimeout(40);
     const f = await page.evaluate(() => {
       const name = document.querySelector('h1')!.getBoundingClientRect();
-      const tall = [...document.querySelectorAll('main img, main video, main svg.diagram')].flatMap((m) => {
+      const tall = [...document.querySelectorAll('main img, main video, main svg.diagram, main .origin svg')].flatMap((m) => {
         const r = m.getBoundingClientRect();
         if (!r.height) return [];
         // the hero photo may fill up to 80% of the screen; every other picture up to 60%
@@ -151,11 +151,18 @@ test(`${path}, ${mode.name}, every window shape, portrait and landscape: the pag
         const inner = c.getBoundingClientRect().width - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
         return m.width < inner - 2 ? [`${c.getAttribute('data-id')} picture ${Math.round(m.width)}px in a ${Math.round(inner)}px card`] : [];
       });
-      return { nameBottom: Math.round(name.bottom), tall, narrow };
+      // All projects (Jason, 2026-10-23: cropped on a landscape phone): no picture is cut down to a strip by a capped height
+      const strips = location.pathname !== '/projects' ? [] : [...document.querySelectorAll('.thumb, .card .media, .origin .blk')].flatMap((m) => {
+        const r = m.getBoundingClientRect();
+        const what = m.closest('[data-id]')?.getAttribute('data-id') ?? m.closest('.course')?.querySelector('.cn b')?.textContent ?? m.className;
+        return r.height && r.width / r.height > 2 ? [`${what} ${Math.round(r.width)}×${Math.round(r.height)}`] : [];
+      });
+      return { nameBottom: Math.round(name.bottom), tall, narrow, strips };
     });
     if (f.nameBottom > h) failures.push(`${w}×${h}: the page's h1 is below the first screen (bottom at ${f.nameBottom}px)`);
     for (const t of f.tall) failures.push(`${w}×${h}: picture taller than allowed: ${t}`);
     for (const n of f.narrow) failures.push(`${w}×${h}: picture doesn't fill its card: ${n}`);
+    for (const n of f.strips) failures.push(`${w}×${h}: picture cropped to a strip: ${n}`);
   }
   await ctx.close();
   expect(failures).toEqual([]);

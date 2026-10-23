@@ -1,11 +1,13 @@
 ---
 // All projects (spec §4, §5.4a): every project and course on the site, as a plain list. Personal projects first,
-// with the older portfolio as on home, then the courses by importance: the home order of their best-placed project,
-// never by grade (Jason, 2026-10-22). Each course names its collaborators and shows its grade out of 10; each project
+// with the older portfolio as on home, then the courses by importance (each course's `rank`), never by grade
+// (Jason, 2026-10-22 and 2026-10-23). Each course names its collaborators and shows its grade out of 10; each project
 // shows its tools. Counts come from the collections.
 import { getCollection, getEntries } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import Thumb from '../../components/Thumb.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { toolTags } from '../../lib/tools';
 import Avatars from '../../components/Avatars.astro';
 import OriginCard from '../../components/OriginCard.astro';
 import { courseHref, pageHref } from '../../lib/links';
@@ -18,8 +20,7 @@ const link = (p: Project) => pageHref({ ...p.data, id: p.id, course: p.data.cour
 const personal = projects.filter((p) => p.data.kind === 'personal');
 const ofCourse = (id: string) =>
   projects.filter((p) => p.data.course?.id === id).sort((a, b) => Number(b.data.main) - Number(a.data.main) || a.data.order - b.data.order);
-const rank = (id: string) => Math.min(...ofCourse(id).map((p) => p.data.order));
-const courses = (await getCollection('courses')).sort((a, b) => rank(a.id) - rank(b.id));
+const courses = (await getCollection('courses')).sort((a, b) => a.data.rank - b.data.rank);
 const featured = (c: (typeof courses)[number]) => projects.find((p) => p.id === c.data.featuredProject.id);
 // everyone who worked on any of the course's projects, in the order they first appear
 const team = async (id: string) => {
@@ -29,8 +30,6 @@ const team = async (id: string) => {
 const teams = Object.fromEntries(await Promise.all(courses.map(async (c) => [c.id, await team(c.id)] as const)));
 const names = (list: { data: { name: string } }[]) =>
   list.length < 2 ? list.map((p) => p.data.name).join('') : `${list.slice(0, -1).map((p) => p.data.name).join(', ')} and ${list.at(-1)!.data.name}`;
-// up to six tools in full; a longer list shows five and "+N", with the rest in its title
-const tools = (all: string[]) => (all.length <= 6 ? { shown: all, rest: [] } : { shown: all.slice(0, 5), rest: all.slice(5) });
 ---
 <Base title="Projects | Jason Nikas" description={`All ${projects.length} projects on njason.dev, from ${courses.length} university courses and my own work, with links to each one.`}>
   <header class="allhead" data-trace-start>
@@ -41,17 +40,8 @@ const tools = (all: string[]) => (all.length <= 6 ? { shown: all, rest: [] } : {
 
   <section id="personal" class="sec" aria-labelledby="personal-h">
     <h2 id="personal-h" data-pad>Personal projects</h2>
-    <ul class="personal">
-      {personal.map((p) => {
-        const t = tools(p.data.tools);
-        return (
-          <li>
-            <a href={link(p)}><Thumb project={p} sizes="(max-width: 760px) 100vw, 360px" /><b>{p.data.title}</b><span>{p.data.headline}</span></a>
-            <span class="tools">{t.shown.map((x) => <span class="tag">{x}</span>)}{t.rest.length > 0 && <span class="tag more" title={t.rest.join(', ')}>+{t.rest.length}</span>}</span>
-          </li>
-        );
-      })}
-    </ul>
+    {/* the same cards as on home, with their tools (Jason, 2026-10-23: the plain tiles looked too bare) */}
+    <div class="grid three personal">{personal.map((p) => <ProjectCard project={p} size="personal" tools />)}</div>
     <OriginCard />
   </section>
 
@@ -68,7 +58,7 @@ const tools = (all: string[]) => (all.length <= 6 ? { shown: all, rest: [] } : {
             )}
             <ul class:list={{ two: ofCourse(c.id).length >= 3 }}>
               {ofCourse(c.id).map((p) => {
-                const t = tools(p.data.tools);
+                const t = toolTags(p.data.tools);
                 return (
                   <li>
                     <a href={link(p)}>{p.data.title}</a>

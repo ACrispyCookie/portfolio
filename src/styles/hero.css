@@ -5,7 +5,8 @@
 .rcol { gap: 24px; justify-content: space-between; }
 
 .cover { flex: 1 1 auto; min-height: min(380px, 60vh); max-height: 80vh; max-height: 80svh; position: relative; border-radius: var(--radius-panel); overflow: hidden; background: var(--color-panel); }
-.cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 62%; display: block; }
+/* framed for more sky than shirt (Jason, 2026-10-23) */
+.cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 48%; display: block; }
 
 .who { display: grid; gap: 16px; }
 .who h1 { font: 800 var(--text-display) / .95 var(--font-display); letter-spacing: -.035em; }
@@ -16,15 +17,24 @@
 
 .now { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .now > p { grid-column: 1 / -1; color: var(--color-dim); font-size: var(--text-small); }
-.w { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 12px; align-items: center; padding: 10px; border-radius: var(--radius-inner); background: var(--color-panel); color: var(--color-silk); text-decoration: none; transition: background-color .2s; }
-.w:hover { background: var(--color-raised); }
-.w .t { height: 48px; border-radius: 12px; overflow: hidden; background: var(--color-raised); }
+.w { display: grid; grid-template-columns: minmax(84px, 38%) minmax(0, 1fr); gap: 12px; align-items: center; padding: 10px; border-radius: var(--radius-inner); background: var(--color-panel); color: var(--color-silk); text-decoration: none; transition: background-color .2s; }
+.w:hover { background: var(--color-hover); } /* above the raised tone of its picture and pills */
+/* the picture grows with the row (Jason, 2026-10-23: too small on laptops and tablets), always 16:10 */
+.w .t { aspect-ratio: 16 / 10; border-radius: 12px; overflow: hidden; background: var(--color-raised); }
 .w .t img, .w .t svg { width: 100%; height: 100%; object-fit: cover; display: block; }
 .w .t .shift { filter: hue-rotate(-75deg) saturate(.75) brightness(1.05); }
 .w h3 { font-size: var(--text-body); font-weight: 700; line-height: 1.3; }
 .w p { color: var(--color-dim); font-size: var(--text-small); line-height: 1.45; }
 .w .tx { min-width: 0; }
 .w .pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.w .pills:empty { display: none; }
+/* laptops and up: the two rows sit side by side under the photo, too narrow for a picture beside the text, so each is
+   a small card with its picture across the top */
+@media (min-width: 1101px) {
+  .w { grid-template-columns: 1fr; align-content: start; gap: 10px; }
+  .w .t { aspect-ratio: 2 / 1; } /* a little shorter, so the photo above keeps the summit (Jason, 2026-10-23) */
+  .w .tx { padding: 0 4px 2px; }
+}
 
 @media (max-width: 1100px) {
   .top { grid-template-columns: minmax(0, 300px) minmax(0, 1fr); grid-template-areas: "cover who" "side side" "now now"; row-gap: 24px; align-items: start; }

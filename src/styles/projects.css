@@ -7,7 +7,8 @@
 .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
 .card { position: relative; display: grid; gap: 12px; align-content: start; min-width: 0; padding: 14px 14px 18px; border-radius: var(--radius-panel); background: var(--color-panel); color: var(--color-silk); --ring: var(--color-panel); transition: background-color .25s; }
-.card:hover { background: var(--color-raised); --ring: var(--color-raised); }
+/* a hovered card lifts above the raised tone of its pills and pictures, so their edges never vanish (Jason, 2026-10-23) */
+.card:hover { background: var(--color-hover); --ring: var(--color-hover); }
 .card .media { position: relative; aspect-ratio: 16 / 10; border-radius: var(--radius-inner); overflow: hidden; background: var(--color-raised); width: 100%; max-height: 60vh; max-height: 60svh; } /* on short screens a picture crops (full width, capped height) rather than filling the screen */
 .card .media img, .card .media video, .card .media > svg { width: 100%; height: 100%; object-fit: cover; display: block; }
 .card .media.paper { background: var(--color-paper); }
@@ -20,9 +21,13 @@
 .card.wide h3 { font: 600 var(--text-lead) / 1.25 var(--font-text); }
 .card .head { font: 700 var(--text-lead) / 1.25 var(--font-display); letter-spacing: -.015em; text-wrap: balance; color: var(--color-silk); }
 .card .meta { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 4px; position: relative; z-index: 1; }
+/* the row sits above the card's link only where it has links of its own: a click anywhere else, between pills or on a
+   pill that isn't a link, opens the card (Jason, 2026-10-23) */
+.card .meta { pointer-events: none; }
+.card .meta :is(a, button) { pointer-events: auto; }
 .card .meta .row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-left: auto; }
 .card .tag b { color: var(--color-silk); font-weight: 600; }
-.card a.tag:hover { background: var(--color-hover); color: var(--color-silk); }
+.card a.tag:hover { background: var(--color-lift); color: var(--color-silk); }
 
 .card.wide { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 28px; align-items: center; padding: 16px; }
 .card.wide .media { aspect-ratio: 16 / 9.4; }
@@ -37,14 +42,14 @@
 .av { display: flex; }
 .av a { display: block; padding: 2px; margin-left: -9px; border-radius: 50%; background: var(--ring, var(--color-panel)); position: relative; }
 .av a:first-child { margin-left: 0; }
-.av img, .av span { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--color-hover); color: var(--color-silk); font-size: var(--text-small); font-weight: 600; object-fit: cover; }
+.av img, .av span { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--color-raised); color: var(--color-silk); font-size: var(--text-small); font-weight: 600; object-fit: cover; }
 
 .mine { margin-top: 44px; display: grid; }
 .sub-h { font: 700 var(--text-lead) var(--font-display); margin-bottom: 14px; }
 .mine > .lead { color: var(--color-dim); margin: -8px 0 20px; }
 .origin { margin-top: 18px; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 22px; align-items: center; padding: 16px 22px 16px 16px; border-radius: var(--radius-panel); background: var(--color-panel); color: var(--color-silk); text-decoration: none; transition: background-color .25s; }
-.origin:hover { background: var(--color-raised); }
-.origin:hover .btn-secondary { background: var(--color-hover); }
+.origin:hover { background: var(--color-hover); }
+.origin:hover .btn-secondary { background: var(--color-lift); }
 .origin .blk { width: min(200px, 96vh); width: min(200px, 96svh); aspect-ratio: 16 / 10; border-radius: var(--radius-inner); overflow: hidden; background: var(--color-raised); }
 .origin .blk svg { display: block; width: 100%; height: 100%; }
 .origin h3 { font: 700 var(--text-lead) / 1.25 var(--font-display); }

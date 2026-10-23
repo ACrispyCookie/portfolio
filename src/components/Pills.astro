@@ -3,17 +3,19 @@
 import { getEntry, type CollectionEntry } from 'astro:content';
 import { pillsFor } from '../lib/pills';
 
-// `plain`: inside a row that is itself one link (a link can't hold a link), the pills are labels, not links
-interface Props { project: CollectionEntry<'projects'>; plain?: boolean }
+// `plain`: inside a row that is itself one link (a link can't hold a link), the pills are labels, not links.
+// `hide`: marks a place already says in words ("Currently working on" needs no "In progress")
+interface Props { project: CollectionEntry<'projects'>; plain?: boolean; hide?: ('progress' | 'live')[] }
 const p = Astro.props.project;
 const plain = Astro.props.plain ?? false;
+const hide = Astro.props.hide ?? [];
 const ref = async (r?: { id: string }) => {
   const c = r ? await getEntry('courses', r.id) : undefined;
   return c ? { id: c.id, code: c.data.code, grade: c.data.grade } : undefined;
 };
-const pills = pillsFor({ id: p.id, kind: p.data.kind, status: p.data.status }, await ref(p.data.course), await ref(p.data.fromCourse));
+const pills = pillsFor({ status: p.data.status, site: p.data.links.site }, await ref(p.data.course), await ref(p.data.fromCourse));
 ---
-{pills.map((x) => {
+{pills.filter((x) => !x.mark || !hide.includes(x.mark)).map((x) => {
   const inner = <>{x.mark === 'live' && <i class="sdot" aria-hidden="true"></i>}{x.mark === 'progress' && <svg class="prog" viewBox="0 0 10 10" aria-hidden="true"><circle cx="5" cy="5" r="4" fill="none" stroke="currentColor" stroke-width="1.6" /><path d="M5 1 A4 4 0 0 0 5 9 Z" fill="currentColor" /></svg>}{x.code && <b>{x.code}</b>}{x.text}</>;
   return x.href && !plain ? <a class="tag" href={x.href}>{inner}</a> : <span class="tag">{inner}</span>;
 })}

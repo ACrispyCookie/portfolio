@@ -8,8 +8,9 @@ describe('projectHref (plan Task 10 card rule)', () => {
   test('personal projects have their own page', () => {
     expect(projectHref({ id: 'homelab', kind: 'personal' })).toBe('/projects/homelab');
   });
-  test('the Live FPGA Lab card goes to the lab itself', () => {
-    expect(projectHref({ id: 'live-fpga-lab', kind: 'personal' })).toBe('https://fpga.njason.dev');
+  // Jason, 2026-10-23: a deployed project's site is its Live pill; the card goes to the project's page
+  test('the Live FPGA Lab card goes to its project page, not the lab', () => {
+    expect(projectHref({ id: 'live-fpga-lab', kind: 'personal' })).toBe('/projects/live-fpga-lab');
   });
 });
 

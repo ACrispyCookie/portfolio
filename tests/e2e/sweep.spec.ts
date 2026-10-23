@@ -90,6 +90,8 @@ test(`${path}, ${mode.name}, every width 320–2560: no sideways scroll, no over
       }
       const res = {
         sideways: document.documentElement.scrollWidth > innerWidth,
+        // what sticks out, so a failure names its cause (a one-off at 320px in the gate on 2026-10-23 didn't reproduce)
+        wide: document.documentElement.scrollWidth > innerWidth ? [...document.querySelectorAll('body *')].filter((e) => e.getBoundingClientRect().right > innerWidth + 0.5).slice(0, 5).map((e) => `${e.tagName.toLowerCase()}.${typeof e.className === 'string' ? e.className : ''} right ${Math.round(e.getBoundingClientRect().right)}`) : [],
         bar: Math.round(document.querySelector('.topbar')!.getBoundingClientRect().height),
         // two lines from 390px up (spec §11); below that, where only the body size is left on the scale, three
         heads: [...document.querySelectorAll('#projects p.head')].filter((p) => p.getBoundingClientRect().height / parseFloat(getComputedStyle(p).lineHeight) > (innerWidth < 390 ? 3.2 : 2.2)).map((p) => p.textContent!.slice(0, 30)),
@@ -109,7 +111,7 @@ test(`${path}, ${mode.name}, every width 320–2560: no sideways scroll, no over
       const wrapped = oneLine.flatMap((sel) => [...document.querySelectorAll<HTMLElement>(sel)].filter((e) => e.offsetParent && breaks(e)).map((e) => `${sel} "${e.textContent!.trim().slice(0, 30)}"`));
       return { ...res, wrapped };
     }, [PEERS, ONE_LINE] as const);
-    if (f.sideways) failures.push(`${w}: page scrolls sideways`);
+    if (f.sideways) failures.push(`${w}: page scrolls sideways (${f.wide.join('; ')})`);
     if (f.bar > 75) failures.push(`${w}: top bar is ${f.bar}px (wrapped)`);
     for (const h of f.heads) failures.push(`${w}: headline too many lines: "${h}"`);
     for (const u of f.uneven) failures.push(`${w}: uneven row: ${u}`);

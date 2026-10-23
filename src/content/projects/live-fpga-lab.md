@@ -8,7 +8,7 @@ summary: "A real FPGA board in my homelab. Visitors pick a demo, wait in a fair 
 tools: ["C", "Python", "HTML/CSS", "TypeScript", "React", "Tcl", "Vivado/Vitis", "ARM/Zynq", "Docker", "Git"]
 team: []
 links:
-  demo: "https://fpga.njason.dev"
+  site: "https://fpga.njason.dev"
 media:
   src: "../../assets/projects/lab.jpg"
   alt: "The lab's dashboard: the board's status and the demos anyone can start"

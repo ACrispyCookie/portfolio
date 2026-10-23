@@ -18,6 +18,6 @@ const Diagram = p.diagram ? diagrams[p.diagram] : null;
   <div class="tx">
     <h3>{p.title}</h3>
     <p>{p.nowLine ?? p.headline}</p>
-    <div class="pills"><Pills project={project} plain /></div>
+    <div class="pills"><Pills project={project} plain hide={['progress']} /></div>
   </div>
 </a>

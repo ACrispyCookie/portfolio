@@ -8,6 +8,7 @@
   --color-panel: #11282d;
   --color-raised: #183539;
   --color-hover: #1f4248;
+  --color-lift: #28525a; /* one step above hover: a control inside a hovered card */
   --color-silk: #eaf2f1;
   --color-dim: #9db6b8;
   --color-groove: #183539;

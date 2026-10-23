@@ -6,7 +6,7 @@ main: false
 order: 110
 headline: "Bridge and roller-coaster problems"
 summary: "Bridge and roller-coaster problems"
-tools: ["C", "Bash", "pthreads", "Git"]
+tools: ["C", "pthreads", "Bash", "Git"]
 team: ["tsogkas", "tvangos"]
 group: "Bridge and roller-coaster problems"
 ---

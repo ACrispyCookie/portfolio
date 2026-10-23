@@ -6,7 +6,7 @@ main: false
 order: 116
 headline: "DNA alignment on FPGA"
 summary: "DNA alignment on FPGA"
-tools: ["C", "C++", "Python", "Tcl", "Bash", "Verilog", "OpenCL", "OpenMP", "Vivado/Vitis", "Vitis HLS", "ARM/Zynq", "Git"]
+tools: ["Vitis HLS", "OpenCL", "ARM/Zynq", "C++", "Verilog", "Vivado/Vitis", "OpenMP", "C", "Python", "Tcl", "Bash", "Git"]
 team: ["tsogkas"]
 group: "DNA alignment on FPGA"
 diagram: "alignment"

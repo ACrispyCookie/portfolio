@@ -5,7 +5,7 @@ main: true
 order: 7.5
 headline: "Our GPGPU's next step: graphics and DDR memory"
 summary: "We're extending our RISC-V GPGPU with graphics support, DDR memory, branch divergence and warp scheduling. A new host controller, with memory-mapped control registers over AXI, already works, and a command-line tool automates testing and synthesis. The memory controller is next."
-tools: ["C", "Python", "JavaScript", "HTML/CSS", "Tcl", "Bash", "SystemVerilog", "Vivado/Vitis", "ARM/Zynq", "RISC-V", "Git"]
+tools: ["SystemVerilog", "RISC-V", "Vivado/Vitis", "ARM/Zynq", "C", "Python", "Tcl", "JavaScript", "HTML/CSS", "Bash", "Git"]
 team: ["tsiantos", "tsogkas"]
 fromCourse: "ece338"
 status: "in-progress"

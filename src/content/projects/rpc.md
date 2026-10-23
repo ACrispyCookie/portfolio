@@ -6,7 +6,7 @@ main: false
 order: 104
 headline: "Reliable calls over UDP"
 summary: "Reliable calls over UDP"
-tools: ["C", "Python", "Bash", "pthreads", "Git"]
+tools: ["C", "pthreads", "Python", "Bash", "Git"]
 team: []
 group: "Reliable calls over UDP"
 ---

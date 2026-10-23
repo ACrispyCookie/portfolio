@@ -6,7 +6,7 @@ main: true
 order: 3
 headline: "Read an offline PC's data from its RAM's radio noise"
 summary: "We reproduced published research showing that a computer with no network connection can still leak data through the radio emissions of its RAM."
-tools: ["C", "Python", "pthreads", "SDR (ADALM-PLUTO)", "GNU Radio", "Git"]
+tools: ["SDR (ADALM-PLUTO)", "GNU Radio", "C", "pthreads", "Python", "Git"]
 team: ["tsiantos", "tsogkas"]
 media:
   src: "../../assets/projects/rambo.jpg"

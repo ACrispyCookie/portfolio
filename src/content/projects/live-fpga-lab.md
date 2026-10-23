@@ -5,7 +5,7 @@ main: true
 order: 9
 headline: "A real FPGA board anyone can use from the browser"
 summary: "A real FPGA board in my homelab. Visitors pick a demo, wait in a fair queue if someone else is using it, and run it live."
-tools: ["C", "Python", "HTML/CSS", "TypeScript", "React", "Tcl", "Vivado/Vitis", "ARM/Zynq", "Docker", "Git"]
+tools: ["Vivado/Vitis", "ARM/Zynq", "TypeScript", "React", "Python", "Docker", "C", "Tcl", "HTML/CSS", "Git"]
 team: []
 links:
   site: "https://fpga.njason.dev"

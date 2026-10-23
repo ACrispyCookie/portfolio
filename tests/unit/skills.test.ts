@@ -94,6 +94,19 @@ describe('buildSkillIndex', () => {
 });
 
 describe('content matches the evidence scan', () => {
+  // the scan says which tools a project used; the order is set by hand, what the project is built with first, since
+  // the most code is not always what defines it (Jason, 2026-10-23: the GPGPU's CLI is mostly Python)
+  test('each project lists its tools by what defines it, Git last', async () => {
+    const { projects } = await loadContent();
+    for (const p of projects) if (p.tools.includes('Git')) expect(p.tools.at(-1), p.id).toBe('Git');
+    for (const id of ['gpgpu', 'gpgpu-v2']) {
+      const t = projects.find((p) => p.id === id)!.tools;
+      expect(t[0]).toBe('SystemVerilog');
+      expect(t.slice(0, 5)).toContain('RISC-V'); // shown on the card, not behind "+N"
+    }
+    const first = Object.fromEntries(projects.map((p) => [p.id, p.tools[0]]));
+    expect(first).toMatchObject({ nbody: 'CUDA', kmeans: 'OpenMP', 'smith-waterman': 'Vitis HLS', fuse: 'FUSE', house: 'OpenGL', rambo: 'SDR (ADALM-PLUTO)', homelab: 'Proxmox' });
+  });
   test("every project's tools are exactly what scripts/skills-evidence.mjs found", async () => {
     const { projects } = await loadContent();
     for (const p of projects) expect([...p.tools].sort(), p.id).toEqual([...(evidence.projects as Record<string, string[]>)[p.id]].sort());

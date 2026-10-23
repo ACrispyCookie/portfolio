@@ -6,7 +6,7 @@ main: false
 order: 113
 headline: "Serial link in Verilog"
 summary: "Serial link in Verilog"
-tools: ["Bash", "Verilog", "Vivado/Vitis", "Git"]
+tools: ["Verilog", "Vivado/Vitis", "Bash", "Git"]
 team: []
 group: "Serial link in Verilog"
 ---

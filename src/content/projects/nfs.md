@@ -6,7 +6,7 @@ main: false
 order: 106
 headline: "With a client cache"
 summary: "With a client cache"
-tools: ["C", "Python", "Bash", "pthreads", "Git"]
+tools: ["C", "pthreads", "Python", "Bash", "Git"]
 team: []
 group: "With a client cache"
 ---

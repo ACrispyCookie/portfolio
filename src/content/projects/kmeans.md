@@ -6,7 +6,7 @@ main: false
 order: 101
 headline: "Clustering on 56 threads"
 summary: "Clustering on 56 threads"
-tools: ["C", "Python", "Bash", "OpenMP", "Git"]
+tools: ["OpenMP", "C", "Python", "Bash", "Git"]
 team: ["tsiantos", "tsogkas"]
 group: "Clustering on 56 threads"
 ---

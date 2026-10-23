@@ -69,11 +69,11 @@ test('All projects: every project shows its tools, six at most', async ({ page }
     expect(n).toBeGreaterThan(0);
     expect(n).toBeLessThanOrEqual(6);
   }
-  // up to six tools show in full (N-body has six); a longer list shows five and "+N" (Homelab has 13)
+  // in each project's own order, what defines it first (Jason, 2026-10-23); up to six tools show in full (N-body has six); a longer list shows five and "+N" (Homelab has 13)
   const row = (t: string) => page.locator('#beyond .card, .course li', { has: page.locator('h3, a', { hasText: t }) });
-  await expect(row('N-body on GPUs').locator('.tools .tag')).toHaveText(['C', 'Python', 'Bash', 'CUDA', 'OpenMP', 'Git']);
-  await expect(row('Homelab').locator('.tools .tag')).toHaveText(['JavaScript', 'Bash', 'Docker', 'Nginx', 'WireGuard', '+8']);
-  await expect(row('Homelab').locator('.tools .more')).toHaveAttribute('title', 'Pi-hole, Ansible, Proxmox, PostgreSQL, MySQL, Git, Traefik, SQLite');
+  await expect(row('N-body on GPUs').locator('.tools .tag')).toHaveText(['CUDA', 'OpenMP', 'C', 'Python', 'Bash', 'Git']);
+  await expect(row('Homelab').locator('.tools .tag')).toHaveText(['Proxmox', 'Docker', 'Traefik', 'WireGuard', 'Ansible', '+8']);
+  await expect(row('Homelab').locator('.tools .more')).toHaveAttribute('title', 'Nginx, Pi-hole, PostgreSQL, MySQL, SQLite, JavaScript, Bash, Git');
 });
 
 const course = (page: import('@playwright/test').Page, code: string) => page.locator('.course', { has: page.locator('a.ch .cn b', { hasText: code }) });

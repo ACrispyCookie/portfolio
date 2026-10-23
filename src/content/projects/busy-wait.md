@@ -6,7 +6,7 @@ main: false
 order: 109
 headline: "Pipe, worker pool, merge sort"
 summary: "Pipe, worker pool, merge sort"
-tools: ["C", "Bash", "pthreads", "Git"]
+tools: ["C", "pthreads", "Bash", "Git"]
 team: ["tsogkas", "tvangos"]
 group: "Pipe, worker pool, merge sort"
 ---

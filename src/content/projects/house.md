@@ -6,7 +6,7 @@ main: true
 order: 5
 headline: "A 3D engine we wrote from scratch in C++ and OpenGL"
 summary: "A first-person house with a day and night cycle, a flashlight, OBJ model loading and NURBS terrain."
-tools: ["C", "C++", "Python", "OpenGL", "Git"]
+tools: ["OpenGL", "C++", "C", "Python", "Git"]
 team: ["tsogkas", "kalousis"]
 media:
   src: "../../assets/projects/house.jpg"

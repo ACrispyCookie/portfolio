@@ -21,7 +21,12 @@ export interface ProjectData {
   status?: 'in-progress';
   nowLine?: string;
   milestones?: { name: string; state: 'done' | 'now' | 'next' }[];
-  links?: { repo?: string; teamRepo?: string; demo?: string };
+  links?: { repo?: string; teamRepo?: string; demo?: string; site?: string };
+  numbers?: { value: string; label: string }[];
+  overview?: string;
+  steps?: { title: string; text: string }[];
+  results?: { text: string; bars?: { label: string; value: number; display: string }[] };
+  code?: { file: string; lang: string; url: string; caption: string };
 }
 export interface CourseData { id: string; code: string; name: string; grade: number; intro?: string; featuredProject: string }
 export interface CollaboratorData { id: string; name: string; github: string }

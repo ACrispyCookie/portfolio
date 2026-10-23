@@ -28,6 +28,14 @@ const projects = defineCollection({
       nowLine: z.string().optional(), // its 3–5 words there (brief: name + 3–5 words)
       group: z.string().optional(),
       fromCourse: reference('courses').optional(), // a project outside courses that grew out of this course
+      // page content (Plan 2): all optional, a section with no true content is left out (spec §5.2)
+      numbers: z.array(z.object({ value: z.string(), label: z.string() })).max(4).optional(), // the key numbers
+      overview: z.string().optional(), // one or two short paragraphs, blank lines between them
+      steps: z.array(z.object({ title: z.string(), text: z.string() })).optional(), // How it works
+      results: z.object({ text: z.string(), bars: z.array(z.object({ label: z.string(), value: z.number(), display: z.string() })).optional() }).optional(),
+      // a code excerpt: the file under src/content/code/, and its GitHub blob URL at a pinned commit with line anchors
+      code: z.object({ file: z.string(), lang: z.string(), url: z.string().url(), caption: z.string() }).optional(),
+      gallery: z.array(z.object({ src: image(), alt: z.string() })).optional(),
     }),
 });
 

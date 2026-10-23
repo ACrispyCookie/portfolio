@@ -13,6 +13,6 @@ links:
 fromCourse: "From ECE333"
 media:
   src: "../../assets/projects/dvd.jpg"
-  alt: "The DVD logo bouncing on a monitor driven by the FPGA"
+  alt: "A hand tilting the FPGA board beside the monitor it drives, where the DVD logo moves the same way"
   video: "/media/dvd.mp4"
 ---

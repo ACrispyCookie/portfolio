@@ -158,3 +158,25 @@ test('the origin drawing: every code line stays inside its window, and the drawi
     expect(Math.abs(f.left - f.right)).toBeLessThanOrEqual(4);
   }
 });
+
+test('the Homelab drawing has no live dot (Jason, 2026-10-23: it only lists service categories)', async ({ page }) => {
+  for (const path of ['/projects', '/']) {
+    await page.goto(path);
+    await expect(page.locator('svg.diagram[data-kind="homelab"]').first()).toBeAttached();
+    await expect(page.locator('svg.diagram[data-kind="homelab"] circle')).toHaveCount(0);
+  }
+});
+
+test('the lab screenshot and the DVD video are 16:10 at the source, so the box never crops or stretches them (Jason, 2026-10-23)', async ({ page }) => {
+  await page.goto('/');
+  const lab = page.locator('#projects .card[data-id="live-fpga-lab"] .media img');
+  await lab.scrollIntoViewIfNeeded();
+  await expect.poll(() => lab.evaluate((i) => (i as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+  const [w, h] = await lab.evaluate((i) => [(i as HTMLImageElement).naturalWidth, (i as HTMLImageElement).naturalHeight]);
+  expect(Math.abs(w / h - 1.6)).toBeLessThan(0.01);
+  // the video's poster is its own frame at its own size; it loads as an image in every browser (this machine's WebKit
+  // can't decode H.264, so it never reports the video's size)
+  const poster = await page.locator('#projects .card[data-id="dvd-logo-fpga"] video').getAttribute('poster');
+  const [vw, vh] = await page.evaluate((src) => new Promise<number[]>((ok) => { const i = new Image(); i.onload = () => ok([i.naturalWidth, i.naturalHeight]); i.src = src!; }), poster);
+  expect(Math.abs(vw / vh - 1.6)).toBeLessThan(0.01);
+});

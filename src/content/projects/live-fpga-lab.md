@@ -11,6 +11,5 @@ links:
   demo: "https://fpga.njason.dev"
 media:
   src: "../../assets/projects/lab.jpg"
-  alt: "The lab dashboard"
-  position: "left top"
+  alt: "The lab's dashboard: the board's status and the demos anyone can start"
 ---

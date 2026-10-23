@@ -2,12 +2,12 @@ import { expect, test } from '@playwright/test';
 
 test('All projects: counts, personal first, then courses by importance as on home', async ({ page }) => {
   await page.goto('/projects');
-  // header counts are computed: 28 projects and 11 courses today
+  // header counts are computed: 29 projects and 11 courses today
   await expect(page.locator('main h1')).toHaveText('Projects');
-  await expect(page.locator('.counts')).toHaveText('28 projects and 11 courses');
+  await expect(page.locator('.counts')).toHaveText('29 projects and 11 courses');
   // personal first, then courses by importance, never by grade (Jason, 2026-10-22); ECE333 under Distributed Systems and
   // Operating Systems above Concurrent Programming (Jason, 2026-10-23)
-  await expect(page.locator('#personal .card h3')).toHaveText(['Homelab', 'Live FPGA Lab', 'DVD Logo FPGA']);
+  await expect(page.locator('#beyond .card h3')).toHaveText(['GPGPU v2', 'Homelab', 'Live FPGA Lab', 'DVD Logo FPGA']);
   await expect(page.locator('.course a.ch .cn b')).toHaveText(['ECE338', 'ECE415', 'ECE455', 'ECE436', 'ECE433', 'ECE348', 'ECE333', 'ECE318', 'ECE321', 'ECE494', 'ECE340']);
   // ECE415: grade, main project first to its page, then the four smaller to their sections
   const ece415 = page.locator('.course', { has: page.locator('b', { hasText: 'ECE415' }) });
@@ -37,7 +37,7 @@ test('the way to it: top bar, footer, and two "See all" links on home', async ({
     await expect(page.locator(`#${id} a.seeall`)).toHaveAttribute('href', '/projects');
     // it's the section's last link, and it reads the full wording where it fits (the short one below 420px)
     const last = page.locator(`#${id} a`).last();
-    await expect(last).toHaveText(page.viewportSize()!.width > 420 ? 'See all 28 projects and 11 courses' : 'See all projects and courses', { useInnerText: true });
+    await expect(last).toHaveText(page.viewportSize()!.width > 420 ? 'See all 29 projects and 11 courses' : 'See all projects and courses', { useInnerText: true });
   }
   await page.goto('/projects');
   await expect(page.locator('.topbar nav a', { hasText: 'Projects' })).toHaveAttribute('href', '/projects');
@@ -45,22 +45,21 @@ test('the way to it: top bar, footer, and two "See all" links on home', async ({
 
 test('All projects: the older portfolio, as on home', async ({ page }) => {
   await page.goto('/projects');
-  await expect(page.locator('#personal a.origin')).toHaveAttribute('href', 'https://acrispycookie.dev');
+  await expect(page.locator('#beyond a.origin')).toHaveAttribute('href', 'https://acrispycookie.dev');
 });
 
-test('All projects: each course names its collaborators, and solo courses name none', async ({ page }) => {
+test('All projects: each course names its collaborators (solo courses: tests/e2e/beyond.spec.ts)', async ({ page }) => {
   await page.goto('/projects');
   const course = (code: string) => page.locator('.course', { has: page.locator('a.ch .cn b', { hasText: code }) });
   await expect(course('ECE415').locator('.with')).toHaveText('With Dimitrios Tsiantos and Panagiotis Nikolaos Tsogkas', { useInnerText: true });
-  await expect(course('ECE415').locator('.with .av a')).toHaveCount(2);
+  await expect(course('ECE415').locator('.with .av a')).toHaveCount(3); // me and the two of them
   await expect(course('ECE340').locator('.with')).toHaveText('With Panagiotis Nikolaos Tsogkas', { useInnerText: true });
-  for (const solo of ['ECE348', 'ECE333']) await expect(course(solo).locator('.with')).toHaveCount(0);
 });
 
 test('All projects: every project shows its tools, six at most', async ({ page }) => {
   await page.goto('/projects');
-  const rows = page.locator('#personal .card, .course li');
-  await expect(rows).toHaveCount(28);
+  const rows = page.locator('#beyond .card, .course li');
+  await expect(rows).toHaveCount(29);
   for (const r of await rows.all()) {
     const tags = r.locator('.tools .tag');
     const n = await tags.count();
@@ -68,7 +67,7 @@ test('All projects: every project shows its tools, six at most', async ({ page }
     expect(n).toBeLessThanOrEqual(6);
   }
   // up to six tools show in full (N-body has six); a longer list shows five and "+N" (Homelab has 13)
-  const row = (t: string) => page.locator('#personal .card, .course li', { has: page.locator('h3, a', { hasText: t }) });
+  const row = (t: string) => page.locator('#beyond .card, .course li', { has: page.locator('h3, a', { hasText: t }) });
   await expect(row('N-body on GPUs').locator('.tools .tag')).toHaveText(['C', 'Python', 'Bash', 'CUDA', 'OpenMP', 'Git']);
   await expect(row('Homelab').locator('.tools .tag')).toHaveText(['JavaScript', 'Bash', 'Docker', 'Nginx', 'WireGuard', '+8']);
   await expect(row('Homelab').locator('.tools .more')).toHaveAttribute('title', 'Pi-hole, Ansible, Proxmox, PostgreSQL, MySQL, Git, Traefik, SQLite');
@@ -212,10 +211,10 @@ test('the origin picture fills the card when it sits above the text (phones)', a
   }
 });
 
-test('All projects: personal projects are the same cards as on home, lighter on hover and never underlined (Jason, 2026-10-23)', async ({ page }) => {
+test('All projects: Beyond coursework uses the same cards as on home, lighter on hover and never underlined (Jason, 2026-10-23)', async ({ page }) => {
   await page.goto('/projects');
-  const cards = page.locator('#personal .card');
-  await expect(cards).toHaveCount(3);
+  const cards = page.locator('#beyond .card');
+  await expect(cards).toHaveCount(4);
   test.skip(!!page.viewportSize() && (await page.evaluate(() => !matchMedia('(hover: hover)').matches)), 'no hover on touch screens');
   const card = cards.first();
   await card.scrollIntoViewIfNeeded();
@@ -231,7 +230,7 @@ test('on a phone the page header sits on the page margin like home\'s hero; only
   await page.goto('/projects');
   const name = (await page.locator('.topbar .name').boundingBox())!;
   const h1 = (await page.locator('main h1').boundingBox())!;
-  const h2 = (await page.locator('#personal h2').boundingBox())!;
+  const h2 = (await page.locator('#beyond h2').boundingBox())!;
   expect(Math.abs(h1.x - name.x)).toBeLessThanOrEqual(1);
   expect(h2.x).toBeGreaterThan(h1.x + 20); // the traced sections keep their gutter
 });

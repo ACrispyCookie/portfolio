@@ -1,0 +1,19 @@
+---
+// A project's context pills (src/lib/pills.ts), the same wherever the project appears.
+import { getEntry, type CollectionEntry } from 'astro:content';
+import { pillsFor } from '../lib/pills';
+
+// `plain`: inside a row that is itself one link (a link can't hold a link), the pills are labels, not links
+interface Props { project: CollectionEntry<'projects'>; plain?: boolean }
+const p = Astro.props.project;
+const plain = Astro.props.plain ?? false;
+const ref = async (r?: { id: string }) => {
+  const c = r ? await getEntry('courses', r.id) : undefined;
+  return c ? { id: c.id, code: c.data.code, grade: c.data.grade } : undefined;
+};
+const pills = pillsFor({ id: p.id, kind: p.data.kind, status: p.data.status }, await ref(p.data.course), await ref(p.data.fromCourse));
+---
+{pills.map((x) => {
+  const inner = <>{x.mark === 'live' && <i class="sdot" aria-hidden="true"></i>}{x.mark === 'progress' && <svg class="prog" viewBox="0 0 10 10" aria-hidden="true"><circle cx="5" cy="5" r="4" fill="none" stroke="currentColor" stroke-width="1.6" /><path d="M5 1 A4 4 0 0 0 5 9 Z" fill="currentColor" /></svg>}{x.code && <b>{x.code}</b>}{x.text}</>;
+  return x.href && !plain ? <a class="tag" href={x.href}>{inner}</a> : <span class="tag">{inner}</span>;
+})}

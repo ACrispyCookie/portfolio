@@ -18,7 +18,7 @@ if (!entries) {
   const courses = await getCollection('courses');
   const codes = Object.fromEntries(courses.map((c) => [c.id, c.data.code]));
   const input = projects.map((p) => ({ ...p.data, id: p.id, course: p.data.course?.id }));
-  entries = buildSkillIndex(toSkillProjects(input, codes, skills.origin), { vocabulary: skills.vocabulary, coursework: evidence.coursework });
+  entries = buildSkillIndex(toSkillProjects(input, codes, skills.origin), { coursework: evidence.coursework });
 }
 const json = JSON.stringify(entries).replace(/</g, '\\u003c');
 ---

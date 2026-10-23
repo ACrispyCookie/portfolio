@@ -1,13 +1,15 @@
 ---
-// Project card (spec §7.5): picture or video, name, headline, course tag with grade, team avatars (Jason alone on solo work).
+// Project card (spec §7.5): picture or video, name, headline, its pills (src/lib/pills.ts) and who built it as avatars
+// (only mine on solo work).
 // The whole card is one link: name and headline sit inside it and it stretches over the card; tags, avatars and
 // the demo button sit above it. Text inside the link keeps it from being covered by the stretched layer.
 import { Picture } from 'astro:assets';
-import { getEntry, type CollectionEntry } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
 import Avatars from './Avatars.astro';
 import { diagrams } from './diagrams';
 import OnFpga from './OnFpga.astro';
-import { LAB_URL, projectHref } from '../lib/links';
+import { projectHref } from '../lib/links';
+import Pills from './Pills.astro';
 import { toolTags } from '../lib/tools';
 
 // `tools`: show the project's tools as pills (the All projects page)
@@ -15,7 +17,6 @@ interface Props { project: CollectionEntry<'projects'>; size: 'wide' | 'large' |
 const { project, size } = Astro.props;
 const t = Astro.props.tools ? toolTags(project.data.tools) : null;
 const p = project.data;
-const course = p.course ? await getEntry(p.course) : undefined;
 const href = projectHref({ id: project.id, kind: p.kind, course: p.course?.id });
 const team = p.team.map((t) => t.id);
 const Diagram = diagrams[p.diagram ?? 'runtime'];
@@ -28,7 +29,7 @@ const sizes = { wide: '(max-width: 760px) 100vw, 640px', large: '(max-width: 760
     ) : p.media ? (
       <Picture src={p.media.src} formats={['avif', 'webp']} widths={[240, 480, 720, 1080]} sizes={sizes} alt={p.media.alt} loading="lazy" style={p.media.position ? `object-position:${p.media.position}` : undefined} />
     ) : (
-      <Diagram />
+      <Diagram milestones={p.milestones} />
     )}
     {p.media?.overlay === 'fpga' && <OnFpga />}
   </div>
@@ -40,18 +41,12 @@ const sizes = { wide: '(max-width: 760px) 100vw, 640px', large: '(max-width: 760
     </a>
     {t && <span class="tools">{t.shown.map((x) => <span class="tag">{x}</span>)}{t.rest.length > 0 && <span class="tag more" title={t.rest.join(', ')}>+{t.rest.length}</span>}</span>}
     <div class="meta">
-      {course ? (
-        <a class="tag" href={`/courses/${course.id}`}><b>{course.data.code}</b>Grade {course.data.grade}</a>
-      ) : p.fromCourse ? (
-        <span class="tag"><b>{p.fromCourse}</b></span>
-      ) : (
-        <span class="tag"><b>Personal</b></span>
-      )}
-      {href === LAB_URL && <span class="tag"><i class="sdot" aria-hidden="true"></i>Live</span>}
+      <Pills project={project} />
       <div class="row">
         {/* any project that runs in the lab, unless the card itself already goes there */}
         {p.links.demo && href !== p.links.demo && <a class="btn btn-live" href={p.links.demo}>Run the demo</a>}
-        {p.kind === 'course' && <Avatars handles={['jason', ...team]} />}
+        {/* who built it: me, then the team (a solo project shows only me) */}
+        <Avatars handles={['jason', ...team]} />
       </div>
     </div>
   </div>

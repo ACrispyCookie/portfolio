@@ -10,7 +10,7 @@ team: []
 links:
   repo: "https://github.com/ACrispyCookie/DVD-Logo-FPGA"
   demo: "https://fpga.njason.dev"
-fromCourse: "From ECE333"
+fromCourse: "ece333"
 media:
   src: "../../assets/projects/dvd.jpg"
   alt: "A hand tilting the FPGA board beside the monitor it drives, where the DVD logo moves the same way"

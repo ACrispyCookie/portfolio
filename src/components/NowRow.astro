@@ -1,14 +1,23 @@
 ---
+// One "Currently working on" row: an in-progress project's picture, name, 3–5 words and the same pills as its card.
 import { Image } from 'astro:assets';
-import Homelab from './diagrams/Homelab.astro';
-import gpgpu from '../assets/projects/gpgpu-block.jpg';
+import type { CollectionEntry } from 'astro:content';
+import { diagrams } from './diagrams';
+import Pills from './Pills.astro';
+import { pageHref } from '../lib/links';
 
-interface Props { title: string; sub: string; href: string; thumb: 'gpgpu-block' | 'homelab-diagram' }
-const { title, sub, href, thumb } = Astro.props;
+interface Props { project: CollectionEntry<'projects'> }
+const { project } = Astro.props;
+const p = project.data;
+const Diagram = p.diagram ? diagrams[p.diagram] : null;
 ---
-<a class="w" href={href}>
+<a class="w" href={pageHref({ id: project.id, kind: p.kind, course: p.course?.id, main: p.main })}>
   <div class="t" aria-hidden="true">
-    {thumb === 'gpgpu-block' ? <Image src={gpgpu} alt="" width={112} class="shift" /> : <Homelab label="" />}
+    {p.media ? <Image src={p.media.src} alt="" width={112} /> : Diagram && <Diagram label="" milestones={p.milestones} compact />}
   </div>
-  <div><h3>{title}</h3><p>{sub}</p></div>
+  <div class="tx">
+    <h3>{p.title}</h3>
+    <p>{p.nowLine ?? p.headline}</p>
+    <div class="pills"><Pills project={project} plain /></div>
+  </div>
 </a>

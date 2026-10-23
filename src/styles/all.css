@@ -1,4 +1,4 @@
-/* All projects (spec §5.4a, Jason 2026-10-21: larger pictures). Personal projects as three picture tiles; each course
+/* All projects (spec §5.4a, Jason 2026-10-21: larger pictures). Beyond coursework as home's cards; each course
    a block with its main project's picture beside its header and project list. Text lines stay under 65ch. */
 .allhead { padding-top: 40px; display: grid; gap: 8px; }
 .allhead h1 { font: 800 var(--text-display) / 1 var(--font-display); letter-spacing: -.035em; } /* a page title: the display size */
@@ -50,6 +50,6 @@
 /* personal cards between phone portrait and the three-column grid (landscape phones, tablets): picture beside the
    text, as home does on tablets in landscape, so a short screen never crops it to a strip */
 @media (min-width: 560px) and (max-width: 900px), (orientation: landscape) and (min-width: 440px) and (max-width: 900px) {
-  #personal .card.personal { grid-template-columns: minmax(0, .8fr) minmax(0, 1fr); align-items: center; }
+  #beyond .card.personal, #beyond .card.wide { grid-template-columns: minmax(0, .8fr) minmax(0, 1fr); align-items: center; }
 }
-#personal .card .media { max-height: none; width: min(100%, 96vh); width: min(100%, 96svh); }
+#beyond .card .media { max-height: none; width: min(100%, 96vh); width: min(100%, 96svh); }

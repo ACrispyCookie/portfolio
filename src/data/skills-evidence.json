@@ -214,6 +214,19 @@
       "Git",
       "Traefik",
       "SQLite"
+    ],
+    "gpgpu-v2": [
+      "C",
+      "Python",
+      "JavaScript",
+      "HTML/CSS",
+      "Tcl",
+      "Bash",
+      "SystemVerilog",
+      "Vivado/Vitis",
+      "ARM/Zynq",
+      "RISC-V",
+      "Git"
     ]
   },
   "coursework": {

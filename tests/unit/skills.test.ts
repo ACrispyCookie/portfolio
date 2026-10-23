@@ -7,7 +7,7 @@ import { loadContent } from './helpers/content';
 async function index() {
   const { projects, courses } = await loadContent();
   const codes = Object.fromEntries(courses.map((c) => [c.id, c.code]));
-  return buildSkillIndex(toSkillProjects(projects, codes, skills.origin), { vocabulary: skills.vocabulary, coursework: evidence.coursework });
+  return buildSkillIndex(toSkillProjects(projects, codes, skills.origin), { coursework: evidence.coursework });
 }
 const entry = async (tool: string) => (await index()).find((e) => e.tool === tool)!;
 
@@ -63,22 +63,33 @@ describe('buildSkillIndex', () => {
   });
 
   test('MongoDB is gone: nothing uses it (Jason, 2026-10-21)', async () => {
-    expect(skills.vocabulary).not.toContain('MongoDB');
     expect((await index()).map((e) => e.tool)).not.toContain('MongoDB');
   });
 
-  test('the whole vocabulary shows, sorted by count, then A to Z', async () => {
+  // the chips come from the data (Jason, 2026-10-23): every tool a project, the Minecraft origin or off-site coursework
+  // uses, and nothing hand-listed, so adding a project never needs a second edit
+  test('the chips are exactly the tools the projects, the origin and the off-site coursework use', async () => {
+    const { projects } = await loadContent();
+    const used = new Set([...projects.flatMap((p) => p.tools), ...skills.origin.tools, ...Object.values(evidence.coursework).flat()]);
+    expect(new Set((await index()).map((e) => e.tool))).toEqual(used);
+    expect(skills).not.toHaveProperty('vocabulary');
+  });
+
+  test('a tool only off-site coursework used shows with no count: AutoCAD from Engineering Drawing', async () => {
+    expect(await entry('AutoCAD')).toMatchObject({ count: 0, usedIn: [], alsoIn: ['ECE120 Engineering Drawing'] });
+  });
+
+  test('every chip shows, sorted by count, then A to Z', async () => {
     const all = await index();
-    expect(all).toHaveLength(skills.vocabulary.length);
     for (let i = 1; i < all.length; i++) {
       const [a, b] = [all[i - 1], all[i]];
       expect(a.count > b.count || (a.count === b.count && a.tool.localeCompare(b.tool) < 0), `${a.tool} before ${b.tool}`).toBe(true);
     }
   });
 
-  test('a tool used by a project but missing from the vocabulary still appears', () => {
-    const out = buildSkillIndex([{ slug: 'x', title: 'X', tools: ['Zig'], href: '/x' }], { vocabulary: ['C'], coursework: {} });
-    expect(out.map((e) => e.tool)).toEqual(['Zig', 'C']);
+  test('a new project brings its tools with it; coursework adds count-0 chips', () => {
+    const out = buildSkillIndex([{ slug: 'x', title: 'X', tools: ['Zig'], href: '/x' }], { coursework: { 'Some course': ['C'] } });
+    expect(out.map((e) => [e.tool, e.count])).toEqual([['Zig', 1], ['C', 0]]);
   });
 });
 

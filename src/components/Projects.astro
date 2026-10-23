@@ -1,5 +1,6 @@
 ---
-// Projects and personal projects (spec §5.1 items 3–4). Order comes from each project's `order`.
+// Projects and Beyond coursework (spec §5.1 items 3–4; renamed from Personal projects, Jason 2026-10-23). Order comes
+// from each project's `order`.
 import { getCollection } from 'astro:content';
 import ProjectCard from './ProjectCard.astro';
 import OriginCard from './OriginCard.astro';
@@ -8,7 +9,7 @@ import '../styles/projects.css';
 
 const main = (await getCollection('projects', (p) => p.data.main)).sort((a, b) => a.data.order - b.data.order);
 const course = main.filter((p) => p.data.kind === 'course');
-const personal = main.filter((p) => p.data.kind === 'personal');
+const [ownLead, ...ownRest] = main.filter((p) => p.data.kind === 'personal');
 const [flagship, ...rest] = course;
 const large = rest.filter((p) => p.data.media);
 const compact = rest.filter((p) => !p.data.media);
@@ -22,9 +23,13 @@ const compact = rest.filter((p) => !p.data.media);
     <div class="grid compact">{compact.map((p) => <ProjectCard project={p} size="compact" />)}</div>
   </div>
   <div class="mine">
-    <h3 class="sub-h">Personal projects</h3>
-    <p class="lead">Built on my own, outside any course.</p>
-    <div class="grid three">{personal.map((p) => <ProjectCard project={p} size="personal" />)}</div>
+    <h3 class="sub-h">Beyond coursework</h3>
+    <p class="lead">Built outside any course, on my own or with teammates.</p>
+    {/* the first in site order leads as a wide card (GPGPU v2 today), the rest in a row of three */}
+    <div class="cards">
+      <ProjectCard project={ownLead} size="wide" />
+      <div class="grid three">{ownRest.map((p) => <ProjectCard project={p} size="personal" />)}</div>
+    </div>
     <OriginCard />
   </div>
   <SeeAll />

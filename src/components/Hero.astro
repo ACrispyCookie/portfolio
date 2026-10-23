@@ -5,8 +5,11 @@ import NowRow from './NowRow.astro';
 import LabWidget from './LabWidget.astro';
 import GitHub from './icons/GitHub.astro';
 import LinkedIn from './icons/LinkedIn.astro';
-import now from '../data/now.json';
+import { getCollection } from 'astro:content';
 import '../styles/hero.css';
+
+// Currently working on: every project marked in progress, in site order (nothing listed by hand)
+const now = (await getCollection('projects', (p) => p.data.status === 'in-progress')).sort((a, b) => a.data.order - b.data.order);
 ---
 <section class="hero" aria-label="About me">
   <div class="top">
@@ -16,7 +19,7 @@ import '../styles/hero.css';
       </div>
       <div class="now" data-trace-start>
         <p>Currently working on</p>
-        {now.map((n) => <NowRow title={n.title} sub={n.sub} href={n.href} thumb={n.thumb as 'gpgpu-block' | 'homelab-diagram'} />)}
+        {now.map((p) => <NowRow project={p} />)}
       </div>
     </div>
     <div class="rcol">

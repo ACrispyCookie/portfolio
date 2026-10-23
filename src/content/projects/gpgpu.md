@@ -12,7 +12,6 @@ links:
   repo: "https://github.com/ACrispyCookie/GPGPU"
   teamRepo: "https://github.com/PANAGIVTHS/ECE338-Parallel-Computer-Architecture"
   demo: "https://fpga.njason.dev"
-status: "in-progress"
 media:
   src: "../../assets/projects/gpgpu.jpg"
   alt: "The GPGPU on a ZedBoard, wired to a laptop that shows its n-body simulation"

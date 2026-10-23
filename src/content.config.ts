@@ -7,7 +7,7 @@ const projects = defineCollection({
   schema: ({ image }) =>
     z.object({
       title: z.string(),
-      kind: z.enum(['course', 'personal']),
+      kind: z.enum(['course', 'personal']), // personal: outside any course (Beyond coursework), solo or with a team
       course: reference('courses').optional(),
       main: z.boolean(),
       order: z.number(),
@@ -18,12 +18,15 @@ const projects = defineCollection({
       media: z
         .object({ src: image(), alt: z.string(), video: z.string().optional(), position: z.string().optional(), paper: z.boolean().optional(), overlay: z.enum(['fpga']).optional() })
         .optional(),
-      diagram: z.enum(['runtime', 'threads', 'homelab', 'dedup', 'alignment']).optional(),
+      diagram: z.enum(['runtime', 'threads', 'homelab', 'dedup', 'alignment', 'roadmap']).optional(),
+      // a project still being built: where it stands, drawn by the roadmap diagram
+      milestones: z.array(z.object({ name: z.string(), state: z.enum(['done', 'now', 'next']) })).optional(),
       links: z.object({ repo: z.string().url().optional(), teamRepo: z.string().url().optional(), demo: z.string().url().optional() }).default({}),
       report: z.string().optional(),
-      status: z.enum(['in-progress']).optional(),
+      status: z.enum(['in-progress']).optional(), // in progress: listed under "Currently working on"
+      nowLine: z.string().optional(), // its 3–5 words there (brief: name + 3–5 words)
       group: z.string().optional(),
-      fromCourse: z.string().optional(),
+      fromCourse: reference('courses').optional(), // a project outside courses that grew out of this course
     }),
 });
 

@@ -4,7 +4,7 @@ import { phoneLayout } from './helpers/layout';
 const ORDER = [
   ['gpgpu', 'wide'], ['nbody', 'large'], ['rambo', 'large'], ['wifi', 'large'], ['house', 'large'],
   ['runtime', 'compact'], ['threads', 'compact'],
-  ['homelab', 'personal'], ['live-fpga-lab', 'personal'], ['dvd-logo-fpga', 'personal'],
+  ['gpgpu-v2', 'wide'], ['homelab', 'personal'], ['live-fpga-lab', 'personal'], ['dvd-logo-fpga', 'personal'],
 ];
 
 test('cards follow spec §5.1 items 3–4 in order and size, then the Minecraft origin card', async ({ page }) => {
@@ -22,7 +22,7 @@ test('each card is one stretched link to its section, page or the lab', async ({
   expect(hrefs).toEqual([
     '/courses/ece338#gpgpu', '/courses/ece415#nbody', '/courses/ece455#rambo', '/courses/ece436#wifi', '/courses/ece433#house',
     '/courses/ece348#runtime', '/courses/ece321#threads',
-    '/projects/homelab', 'https://fpga.njason.dev', '/projects/dvd-logo-fpga',
+    '/projects/gpgpu-v2', '/projects/homelab', 'https://fpga.njason.dev', '/projects/dvd-logo-fpga',
   ]);
   // clicking the card body (not a nested link) follows the title link
   const card = page.locator('#projects .card[data-id="house"]');

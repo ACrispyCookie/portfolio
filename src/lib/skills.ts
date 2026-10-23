@@ -22,8 +22,10 @@ export function toSkillProjects(
   return [...list, origin];
 }
 
-export function buildSkillIndex(projects: SkillProject[], opts: { coursework: Record<string, string[]>; vocabulary: string[] }): SkillEntry[] {
-  const uses = new Map<string, SkillUse[]>(opts.vocabulary.map((t) => [t, []]));
+/** The chips are every tool the projects and the off-site coursework use (Jason, 2026-10-23: nothing hand-listed, so a
+ * new project needs no second edit); coursework-only tools show with a count of 0. */
+export function buildSkillIndex(projects: SkillProject[], opts: { coursework: Record<string, string[]> }): SkillEntry[] {
+  const uses = new Map<string, SkillUse[]>();
   for (const p of projects) {
     for (const t of p.tools) {
       const use: SkillUse = { title: p.title, href: p.href };
@@ -31,6 +33,7 @@ export function buildSkillIndex(projects: SkillProject[], opts: { coursework: Re
       uses.set(t, [...(uses.get(t) ?? []), use]);
     }
   }
+  for (const t of Object.values(opts.coursework).flat()) if (!uses.has(t)) uses.set(t, []);
   return [...uses]
     .map(([tool, usedIn]) => ({
       tool,

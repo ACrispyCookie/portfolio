@@ -35,6 +35,8 @@ Source of truth for content and priorities. Facts come from Jason's answers, his
 
 ## "Now" windows (what Jason is doing now)
 - **GPGPU v2:** extending our RISC-V GPGPU with graphics support, DDR memory, branch divergence and warp scheduling ✅
+  - **Status (Jason, 2026-10-23) ✅:** same team (Jason + Tsiantos + Tsogkas) and the same repo as GPGPU (ECE338). Done: the new host controller, with memory-mapped control/status registers over AXI, works; a command-line tool (Python) automates testing and synthesis. In progress: the memory controller. No picture yet (Jason is looking for one); until then its card shows its milestones.
+  - **On the site (Jason, 2026-10-23):** its own project, leading "Beyond coursework" (renamed from Personal projects: "Built outside any course, on my own or with teammates."), with a "From ECE338" pill like DVD Logo FPGA's "From ECE333", and "In progress" like Homelab. Pills, avatars and "Currently working on" all come from each project's data. A solo project shows only Jason's avatar; where team work reads "With …", solo work reads "Solo".
 - **Live FPGA Lab:** keeping a real FPGA board online for anyone to run demos on ✅
 - **Homelab:** self-hosted infrastructure, automation and networking 📄
 - ❓ Optional: thesis topic or anything else current.

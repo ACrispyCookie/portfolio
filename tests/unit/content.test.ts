@@ -46,14 +46,14 @@ describe('content', () => {
     for (const c of courses) {
       const p = projects.find((x) => x.id === c.featuredProject);
       expect(p, c.id).toBeDefined();
-      expect(p!.course === c.id || p!.fromCourse === `From ${c.code}`, c.id).toBe(true);
+      expect(p!.course === c.id || p!.fromCourse === c.id, c.id).toBe(true);
     }
   });
 
   test('no rendered field leaks private or unfinished text', async () => {
     const { projects, courses } = await loadContent();
     const fields = [
-      ...projects.flatMap((p) => [p.title, p.headline, p.summary, p.group ?? '', ...p.tools]),
+      ...projects.flatMap((p) => [p.title, p.headline, p.summary, p.group ?? '', p.nowLine ?? '', ...p.tools, ...(p.milestones ?? []).map((m) => m.name)]),
       ...courses.flatMap((c) => [c.name, c.intro ?? '', c.featuredProject]),
     ];
     for (const f of fields) for (const re of FORBIDDEN) expect(re.test(f), `${re} in "${f}"`).toBe(false);

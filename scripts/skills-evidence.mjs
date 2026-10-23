@@ -301,6 +301,9 @@ for (const [key, found] of Object.entries(scanned)) {
     if (b.kind === 'outside') outside.push(b.label);
   }
 }
+// projects that live in another project's repo take its tools (GPGPU v2 is developed in the GPGPU repo; Jason, 2026-10-23)
+const SHARES_REPO = { 'gpgpu-v2': 'gpgpu' };
+for (const [p, src] of Object.entries(SHARES_REPO)) projects[p] = projects[src];
 for (const [k, v] of Object.entries(ADD_COURSEWORK)) {
   if (!coursework[k]) outside.push(k);
   coursework[k] = [...new Set([...(coursework[k] ?? []), ...v])];

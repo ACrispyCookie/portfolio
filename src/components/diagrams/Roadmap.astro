@@ -1,0 +1,39 @@
+---
+// A project still being built (GPGPU v2): its milestones from the project's data, done to next, on a short copper rail.
+// `compact`: a thumbnail too small for words (the "Currently working on" row) shows only the markers, left to right
+interface Props { label?: string; milestones?: { name: string; state: 'done' | 'now' | 'next' }[]; compact?: boolean }
+const { milestones = [], compact = false } = Astro.props;
+const { label = `Progress: ${milestones.map((m) => `${m.name} (${m.state === 'now' ? 'in progress' : m.state})`).join(', ')}` } = Astro.props;
+const step = Math.min(34, 150 / Math.max(1, milestones.length - 1));
+const top = 100 - (step * (milestones.length - 1)) / 2;
+const y = (i: number) => top + i * step;
+const cx = (i: number) => 70 + (i * 180) / Math.max(1, milestones.length - 1); // inside the crop of a near-square box
+---
+{compact ? (
+<svg class="diagram" data-kind="roadmap" viewBox="0 0 320 200" role="img" aria-label={label} preserveAspectRatio="xMidYMid slice">
+  <rect width="320" height="200" fill="#183539" />
+  <path d={`M${cx(0)} 100 H${cx(milestones.length - 1)}`} stroke="#3b7a82" stroke-width="8" />
+  {milestones.map((m, i) => (
+    <g data-state={m.state}>
+      {m.state === 'done' && <circle cx={cx(i)} cy="100" r="22" fill="#86e3bd" />}
+      {m.state === 'now' && <><circle cx={cx(i)} cy="100" r="22" fill="#183539" stroke="#d8b46a" stroke-width="8" /><circle cx={cx(i)} cy="100" r="9" fill="#d8b46a" /></>}
+      {m.state === 'next' && <circle cx={cx(i)} cy="100" r="18" fill="#183539" stroke="#3b7a82" stroke-width="7" />}
+    </g>
+  ))}
+</svg>
+) : (
+<svg class="diagram" data-kind="roadmap" viewBox="0 0 320 200" role="img" aria-label={label} preserveAspectRatio="xMidYMid slice">
+  <rect width="320" height="200" fill="#183539" />
+  {milestones.length > 1 && <path d={`M48 ${y(0)} V${y(milestones.length - 1)}`} stroke="#3b7a82" stroke-width="2" />}
+  <g font-family="Hanken Grotesk Variable, Hanken Grotesk, sans-serif" font-size="13">
+    {milestones.map((m, i) => (
+      <g data-state={m.state}>
+        {m.state === 'done' && <><circle cx="48" cy={y(i)} r="8" fill="#86e3bd" /><path d={`M44 ${y(i)} l3 3 l5 -6`} fill="none" stroke="#05252a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></>}
+        {m.state === 'now' && <><circle cx="48" cy={y(i)} r="8" fill="#183539" stroke="#d8b46a" stroke-width="2.5" /><circle cx="48" cy={y(i)} r="3.5" fill="#d8b46a" /></>}
+        {m.state === 'next' && <circle cx="48" cy={y(i)} r="7" fill="#183539" stroke="#3b7a82" stroke-width="2" />}
+        <text x="68" y={y(i) + 4.5} fill={m.state === 'next' ? '#9db6b8' : '#eaf2f1'} font-weight={m.state === 'now' ? 700 : 400}>{m.name}</text>
+      </g>
+    ))}
+  </g>
+</svg>
+)}

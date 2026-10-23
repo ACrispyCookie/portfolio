@@ -1,5 +1,5 @@
 ---
-// All projects (spec §4, §5.4a): every project and course on the site, as a plain list. Personal projects first,
+// All projects (spec §4, §5.4a): every project and course on the site, as a plain list. Beyond coursework first,
 // with the older portfolio as on home, then the courses by importance (each course's `rank`), never by grade
 // (Jason, 2026-10-22 and 2026-10-23). Each course names its collaborators and shows its grade out of 10; each project
 // shows its tools. Counts come from the collections.
@@ -17,7 +17,7 @@ import '../../styles/all.css';
 type Project = Awaited<ReturnType<typeof getCollection<'projects'>>>[number];
 const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
 const link = (p: Project) => pageHref({ ...p.data, id: p.id, course: p.data.course?.id });
-const personal = projects.filter((p) => p.data.kind === 'personal');
+const [ownLead, ...ownRest] = projects.filter((p) => p.data.kind === 'personal');
 const ofCourse = (id: string) =>
   projects.filter((p) => p.data.course?.id === id).sort((a, b) => Number(b.data.main) - Number(a.data.main) || a.data.order - b.data.order);
 const courses = (await getCollection('courses')).sort((a, b) => a.data.rank - b.data.rank);
@@ -35,13 +35,16 @@ const names = (list: { data: { name: string } }[]) =>
   <header class="allhead" data-trace-start>
     <h1>Projects</h1>
     <p class="counts">{projects.length} projects and {courses.length} courses</p>
-    <p class="lead">Every project on this site in one place: what I built on my own first, then each course and what came out of it.</p>
+    <p class="lead">Every project on this site in one place: what I built outside courses first, then each course and what came out of it.</p>
   </header>
 
-  <section id="personal" class="sec" aria-labelledby="personal-h">
-    <h2 id="personal-h" data-pad>Personal projects</h2>
-    {/* the same cards as on home, with their tools (Jason, 2026-10-23: the plain tiles looked too bare) */}
-    <div class="grid three personal">{personal.map((p) => <ProjectCard project={p} size="personal" tools />)}</div>
+  <section id="beyond" class="sec" aria-labelledby="beyond-h">
+    <h2 id="beyond-h" data-pad>Beyond coursework</h2>
+    {/* the same cards as on home, with their tools: the first in site order leads as a wide card */}
+    <div class="cards">
+      <ProjectCard project={ownLead} size="wide" tools />
+      <div class="grid three own">{ownRest.map((p) => <ProjectCard project={p} size="personal" tools />)}</div>
+    </div>
     <OriginCard />
   </section>
 
@@ -53,9 +56,8 @@ const names = (list: { data: { name: string } }[]) =>
           <a class="cpic" href={courseHref(c.id)} tabindex="-1" aria-hidden="true"><Thumb project={featured(c)} sizes="(max-width: 760px) 100vw, 520px" /></a>
           <div class="cbody">
             <a class="ch" href={courseHref(c.id)}><span class="cn"><b>{c.data.code}</b></span><span class="g">Grade <b>{c.data.grade}</b>&nbsp;/&nbsp;10</span><span class="n">{c.data.name}</span></a>
-            {teams[c.id].length > 0 && (
-              <p class="with"><Avatars handles={teams[c.id].map((p) => p.id)} /><span>With {names(teams[c.id])}</span></p>
-            )}
+            {/* who: me and the team, named in words; a solo course says so beside my avatar */}
+            <p class="with"><Avatars handles={['jason', ...teams[c.id].map((p) => p.id)]} /><span>{teams[c.id].length ? `With ${names(teams[c.id])}` : 'Solo'}</span></p>
             <ul class:list={{ two: ofCourse(c.id).length >= 3 }}>
               {ofCourse(c.id).map((p) => {
                 const t = toolTags(p.data.tools);

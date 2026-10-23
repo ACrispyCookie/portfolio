@@ -8,4 +8,6 @@ summary: "Self-hosted infrastructure for services, automation and networking exp
 tools: ["JavaScript", "Bash", "Docker", "Nginx", "WireGuard", "Pi-hole", "Ansible", "Proxmox", "PostgreSQL", "MySQL", "Git", "Traefik", "SQLite"]
 team: []
 diagram: "homelab"
+status: "in-progress"
+nowLine: "Web, media, remote access, monitoring"
 ---

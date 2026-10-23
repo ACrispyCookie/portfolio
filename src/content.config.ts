@@ -47,7 +47,8 @@ const courses = defineCollection({
 
 const collaborators = defineCollection({
   loader: glob({ pattern: '*.json', base: './src/content/collaborators' }),
-  schema: z.object({ name: z.string(), github: z.string(), website: z.string().url().optional() }),
+  // linkedin: only for people who agreed to it (Jason, 2026-10-23)
+  schema: z.object({ name: z.string(), github: z.string(), website: z.string().url().optional(), linkedin: z.string().url().optional() }),
 });
 
 export const collections = { projects, courses, collaborators };

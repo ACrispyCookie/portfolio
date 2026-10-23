@@ -5,7 +5,7 @@ import { pageHref } from './links';
 
 interface ProjectIn { id: string; title: string; kind: 'course' | 'personal'; course?: string; fromCourse?: string; main: boolean; order: number; team: string[] }
 interface CourseIn { id: string; code: string }
-interface PersonIn { id: string; name: string; github?: string; website?: string }
+interface PersonIn { id: string; name: string; github?: string; website?: string; linkedin?: string }
 export interface MainProject { title: string; href: string; code?: string }
 export interface Person extends PersonIn { projects: number; courses: string[]; main: MainProject[]; regular: boolean; best: number }
 

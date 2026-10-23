@@ -3,10 +3,10 @@ import { expect, test, type Page } from '@playwright/test';
 const EMAIL = 'nikasjason1@gmail.com';
 const tap = (page: Page, sel: string, isMobile: boolean) => (isMobile ? page.locator(sel).tap() : page.locator(sel).click());
 
-test('section order ends Timeline, Skills, Contact', async ({ page }) => {
+test('section order ends Timeline, Skills, People I build with, Contact', async ({ page }) => {
   await page.goto('/');
   const ids = await page.locator('main > section[id]').evaluateAll((s) => s.map((e) => e.id));
-  expect(ids.slice(-3)).toEqual(['timeline', 'skills', 'contact']);
+  expect(ids.slice(-4)).toEqual(['timeline', 'skills', 'people', 'contact']);
 });
 
 test('skills: intro, the first 14 chips, and a hint until a tap', async ({ page }) => {

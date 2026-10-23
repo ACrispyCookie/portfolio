@@ -15,6 +15,7 @@ test('check.js: no errors or overflow, one edge for traced sections, trace clear
   page.on('pageerror', (e) => errors.push(e.message));
   await serveStream(page, event());
   await page.goto('/', { waitUntil: 'networkidle' });
+  await page.locator('svg.trace .t-drawn').waitFor({ state: 'attached' }); // built after load; slower under a busy test run
   await page.waitForTimeout(900);
   const r = await page.evaluate((sel) => {
     const W = innerWidth;
@@ -74,8 +75,11 @@ test('pads, vias and stubs are SVG; each pad lights when the copper reaches it',
   await expect(page.locator('svg.trace .t-pad[data-i]')).toHaveCount(n);
   await expect(page.locator('svg.trace .t-via')).toHaveCount(2 * n - 1); // none below the last pad, where the copper ends
   await expect(page.locator('svg.trace .t-stub')).toHaveCount(2 * n - 1);
-  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
-  await expect(page.locator('svg.trace .t-pad[data-i]').last()).toHaveClass(/on/);
+  // to the real bottom: under a busy test run the page can still grow as lazy pictures load after the first scroll
+  await expect(async () => {
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    await expect(page.locator('svg.trace .t-pad[data-i]').last()).toHaveClass(/on/, { timeout: 1500 });
+  }).toPass({ timeout: 15000 });
   for (const s of await page.locator('main > section:not(.hero)').all()) await expect(s).toHaveClass(/lit/);
 });
 

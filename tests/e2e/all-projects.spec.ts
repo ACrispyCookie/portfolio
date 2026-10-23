@@ -124,7 +124,7 @@ test('the GPGPU video says the FPGA does the work, on /projects and on home', as
     await page.goto(path);
     const strip = page.locator(`${box} .onfpga`);
     await expect(strip).toHaveCount(1);
-    await expect(strip).toContainText('32 RISC-V cores');
+    await expect(strip).toContainText('32-core RISC-V GPGPU'); // its name, not just its cores (Jason, 2026-10-23)
     await expect(strip).toContainText('laptop');
     // the strip sits over the bottom of the video, inside it
     const v = (await page.locator(`${box}:has(.onfpga) video`).boundingBox())!;
@@ -179,4 +179,33 @@ test('the lab screenshot and the DVD video are 16:10 at the source, so the box n
   const poster = await page.locator('#projects .card[data-id="dvd-logo-fpga"] video').getAttribute('poster');
   const [vw, vh] = await page.evaluate((src) => new Promise<number[]>((ok) => { const i = new Image(); i.onload = () => ok([i.naturalWidth, i.naturalHeight]); i.src = src!; }), poster);
   expect(Math.abs(vw / vh - 1.6)).toBeLessThan(0.01);
+});
+
+test('the house screenshot and the n-body video are 16:10 at the source: no window frame, the galaxy filling the frame (Jason, 2026-10-23)', async ({ page }) => {
+  await page.goto('/');
+  const house = page.locator('#projects .card[data-id="house"] .media img');
+  await house.scrollIntoViewIfNeeded();
+  await expect.poll(() => house.evaluate((i) => (i as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+  const [w, h] = await house.evaluate((i) => [(i as HTMLImageElement).naturalWidth, (i as HTMLImageElement).naturalHeight]);
+  expect(Math.abs(w / h - 1.6)).toBeLessThan(0.01);
+  const poster = await page.locator('#projects .card[data-id="nbody"] video').getAttribute('poster');
+  const [vw, vh] = await page.evaluate((src) => new Promise<number[]>((ok) => { const i = new Image(); i.onload = () => ok([i.naturalWidth, i.naturalHeight]); i.src = src!; }), poster);
+  expect(Math.abs(vw / vh - 1.6)).toBeLessThan(0.01);
+});
+
+test('the GPGPU card names it: a 32-core RISC-V GPGPU (Jason, 2026-10-23)', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('#projects .card[data-id="gpgpu"] .head')).toHaveText('Our 32-core RISC-V GPGPU, running on a real FPGA');
+});
+
+test('the origin picture fills the card when it sits above the text (phones)', async ({ page }) => {
+  for (const path of ['/projects', '/']) {
+    await page.goto(path);
+    const card = page.locator('a.origin').first();
+    const [blk, h3, inner] = await card.evaluate((c) => {
+      const cs = getComputedStyle(c);
+      return [c.querySelector('.blk')!.getBoundingClientRect(), c.querySelector('h3')!.getBoundingClientRect(), c.getBoundingClientRect().width - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)].map((r) => (typeof r === 'number' ? r : { w: r.width, bottom: r.bottom, top: r.top }));
+    }) as [{ w: number; bottom: number }, { top: number }, number];
+    if (blk.bottom <= h3.top) expect(Math.abs(blk.w - inner)).toBeLessThanOrEqual(1); // stacked: full width
+  }
 });

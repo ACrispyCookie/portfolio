@@ -1,0 +1,8 @@
+---
+// Up to four key numbers, each with its condition in words (spec §5.2); the first leads in cyan.
+interface Props { numbers: { value: string; label: string }[] }
+const { numbers } = Astro.props;
+---
+<ul class="knums" aria-label="Key numbers">
+  {numbers.map((n) => <li class="knum"><b>{n.value}</b><span>{n.label}</span></li>)}
+</ul>

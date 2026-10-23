@@ -7,11 +7,15 @@ import skills from '../data/skills.json';
 import evidence from '../data/skills-evidence.json';
 import '../styles/skills.css';
 
+// `id`, `heading`, `intro`: a project page shows its own tools as "Tools" (Plan 2)
 interface Props {
   entries?: SkillEntry[];
   self?: string;
+  id?: string;
+  heading?: string;
+  intro?: string;
 }
-const { self = '' } = Astro.props;
+const { self = '', id = 'skills', heading = 'Skills', intro = 'What my projects are built with, and how often each tool comes back.' } = Astro.props;
 let { entries } = Astro.props;
 if (!entries) {
   const projects = await getCollection('projects');
@@ -22,9 +26,9 @@ if (!entries) {
 }
 const json = JSON.stringify(entries).replace(/</g, '\\u003c');
 ---
-<section id="skills" class="sec" aria-labelledby="skills-h">
-  <h2 id="skills-h" data-pad>Skills</h2>
-  <p class="lead">What my projects are built with, and how often each tool comes back.</p>
+<section id={id} class="sec" aria-labelledby={`${id}-h`}>
+  <h2 id={`${id}-h`} data-pad>{heading}</h2>
+  <p class="lead">{intro}</p>
   <div class="skx panel" data-self={self}>
     <div class="chips">
       {entries.map((e) => (

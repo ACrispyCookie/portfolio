@@ -1,0 +1,15 @@
+---
+// A result as flat bars drawn from the data (spec §5.2): each bar's length is its value against the largest one.
+interface Props { bars: { label: string; value: number; display: string }[] }
+const { bars } = Astro.props;
+const max = Math.max(...bars.map((b) => b.value));
+---
+<div class="bars panel">
+  {bars.map((b) => (
+    <div class="bar">
+      <span class="lbl">{b.label}</span>
+      <span class="track" aria-hidden="true"><span class="fill" style={`width:${(b.value / max) * 100}%`}></span></span>
+      <b class="val">{b.display}</b>
+    </div>
+  ))}
+</div>

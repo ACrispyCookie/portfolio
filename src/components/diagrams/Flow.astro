@@ -1,0 +1,42 @@
+---
+// ECE338 GPGPU: how a program reaches the GPGPU (final presentation, slide 6, approved by Jason 2026-10-23).
+// C code is compiled by the RISC-V gcc, the assembly goes over UART to the Zynq's ARM core, which writes it over AXI
+// into the GPGPU's instruction memory. Two rows of three so the words stay readable on a phone.
+interface Props { label?: string }
+const { label = 'Diagram: C code, compiled to RISC-V assembly, sent over UART to the ARM core, then over AXI into the instruction memory of the GPGPU' } = Astro.props;
+const W = 84, H = 44, X = [8, 128, 248];
+const rows = [
+  { y: 20, steps: [['C code'], ['RISC-V gcc'], ['assembly']] },
+  { y: 132, steps: [['Zynq', 'ARM core'], ['instruction', 'memory'], ['GPGPU']] },
+];
+const arrow = (x: number, y: number) => `M${x - 7} ${y - 5} L${x} ${y} L${x - 7} ${y + 5}`;
+---
+<svg class="diagram" data-kind="flow" viewBox="0 0 340 196" role="img" aria-label={label}>
+  <rect width="340" height="196" fill="#183539" />
+  <g font-family="Hanken Grotesk Variable, Hanken Grotesk, sans-serif" font-size="13" text-anchor="middle">
+    {rows.map((r, ri) => r.steps.map((lines, i) => {
+      const last = ri === 1 && i === 2;
+      const cx = X[i] + W / 2, cy = r.y + H / 2;
+      return (
+        <g>
+          <rect x={X[i]} y={r.y} width={W} height={H} rx="10" fill={last ? '#41e2f2' : '#11282d'} />
+          {lines.map((t, li) => <text x={cx} y={cy + 4.5 + (li - (lines.length - 1) / 2) * 15} fill={last ? '#05252a' : '#eaf2f1'} font-weight={last ? 700 : 400}>{t}</text>)}
+          {i < 2 && (
+            <g>
+              <path d={`M${X[i] + W} ${cy} H${X[i + 1] - 2}`} stroke="#3b7a82" stroke-width="2" />
+              <path d={arrow(X[i + 1] - 2, cy)} fill="none" stroke="#3b7a82" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </g>
+          )}
+        </g>
+      );
+    }))}
+    {/* assembly down to the ARM core over UART: a copper trace with a gold pad at each end */}
+    <path d={`M${X[2] + W / 2} 64 V98 H${X[0] + W / 2} V128`} fill="none" stroke="#3b7a82" stroke-width="2" stroke-linejoin="round" />
+    <path d={`M${X[0] + W / 2 - 5} 123 L${X[0] + W / 2} 130 L${X[0] + W / 2 + 5} 123`} fill="none" stroke="#3b7a82" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    <circle cx={X[2] + W / 2} cy="98" r="4" fill="#d8b46a" />
+    <rect x="146" y="88" width="48" height="20" rx="10" fill="#11282d" />
+    <text x="170" y="102.5" fill="#d8b46a" font-weight="700">UART</text>
+    {/* ARM core to instruction memory over AXI */}
+    <text x={(X[0] + W + X[1]) / 2} y="146" fill="#d8b46a" font-weight="700">AXI</text>
+  </g>
+</svg>

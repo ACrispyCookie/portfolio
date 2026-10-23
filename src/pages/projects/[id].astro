@@ -1,0 +1,11 @@
+---
+// A project outside any course has its own page (spec §4): /projects/homelab.
+import { getCollection } from 'astro:content';
+import ProjectPage from '../../components/ProjectPage.astro';
+
+export async function getStaticPaths() {
+  const own = await getCollection('projects', (p) => p.data.kind === 'personal');
+  return own.map((p) => ({ params: { id: p.id }, props: { entry: p } }));
+}
+---
+<ProjectPage entry={Astro.props.entry} />

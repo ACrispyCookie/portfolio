@@ -1,0 +1,9 @@
+---
+// The page's sections as a list (spec §5.2): a sticky column beside the text on wide screens, a strip that scrolls
+// inside itself on narrow ones. Plain anchors, so it works without JavaScript; toc.ts marks the section in view.
+interface Props { items: { id: string; title: string }[] }
+const { items } = Astro.props;
+---
+<nav class="toc" aria-label="On this page">
+  <ol>{items.map((i) => <li><a href={`#${i.id}`}>{i.title}</a></li>)}</ol>
+</nav>

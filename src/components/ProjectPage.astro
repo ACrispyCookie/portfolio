@@ -1,0 +1,122 @@
+---
+// A project's own page (spec §5.2). Everything comes from the project's entry: the header pills and buttons from its
+// data (the same pills as its card), the sections from its Markdown `##` headings, the key numbers and result bars
+// from its frontmatter. A section with no true content is simply absent, and the contents list follows what is there.
+import { Picture } from 'astro:assets';
+import { getCollection, getEntries, getEntry, type CollectionEntry } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Pills from './Pills.astro';
+import OnFpga from './OnFpga.astro';
+import Toc from './Toc.astro';
+import KeyNumbers from './KeyNumbers.astro';
+import ResultBars from './ResultBars.astro';
+import Team from './Team.astro';
+import PrevNext from './PrevNext.astro';
+import Skills from './Skills.astro';
+import { diagrams } from './diagrams';
+import { courseHref, projectHref } from '../lib/links';
+import { buildSkillIndex, toSkillProjects } from '../lib/skills';
+import skills from '../data/skills.json';
+import evidence from '../data/skills-evidence.json';
+import '../styles/projects.css';
+import '../styles/project.css';
+
+interface Props { entry: CollectionEntry<'projects'> }
+const { entry } = Astro.props;
+const p = entry.data;
+const course = p.course ? await getEntry('courses', p.course.id) : undefined;
+
+// the page's sections, in the order spec §5.2 gives them; the Markdown supplies their text
+const ORDER = ['what-it-is', 'why-its-hard', 'how-it-works', 'results', 'how-we-tested-it', 'my-part', 'whats-next'];
+const strip = (s: string) => s.replace(/<[^>]+>/g, '').replace(/&#39;|&#x27;/g, "'").replace(/&amp;/g, '&').trim();
+const H2 = /^<h2 id="([^"]+)">([\s\S]*?)<\/h2>/;
+const md = new Map<string, { title: string; html: string }>();
+for (const chunk of (entry.rendered?.html ?? '').split(/(?=<h2 id=")/)) {
+  const m = H2.exec(chunk);
+  if (m) md.set(m[1], { title: strip(m[2]), html: chunk.slice(m[0].length) });
+}
+const unknown = [...md.keys()].filter((id) => !ORDER.includes(id));
+if (unknown.length) throw new Error(`${entry.id}: sections outside spec §5.2: ${unknown.join(', ')}`);
+if (p.results && !md.has('results')) md.set('results', { title: 'Results', html: '' });
+const sections = ORDER.filter((id) => md.has(id)).map((id) => ({ id, ...md.get(id)! }));
+
+const members = await getEntries([{ collection: 'collaborators' as const, id: 'jason' }, ...p.team.map((t) => ({ collection: 'collaborators' as const, id: t.id }))]);
+
+// Tools: the skills explorer limited to this project's tools, in the project's own order (what defines it first)
+const projects = await getCollection('projects');
+const courses = await getCollection('courses');
+const codes = Object.fromEntries(courses.map((c) => [c.id, c.data.code]));
+const index = buildSkillIndex(toSkillProjects(projects.map((x) => ({ ...x.data, id: x.id, course: x.data.course?.id })), codes, skills.origin), { coursework: evidence.coursework });
+const tools = p.tools.map((t) => index.find((e) => e.tool === t)!).filter(Boolean);
+const self = projectHref({ id: entry.id, kind: p.kind, course: p.course?.id });
+
+const toc = [...sections.map(({ id, title }) => ({ id, title })), { id: 'team', title: 'Team' }, { id: 'tools', title: 'Tools' }];
+const Diagram = diagrams[p.diagram ?? 'runtime'];
+---
+<Base title={`${p.title} | Jason Nikas`} description={p.headline}>
+  <header class="phead" data-trace-start>
+    {course && (
+      <nav class="crumb" aria-label="Breadcrumb">
+        <a href={courseHref(course.id)}>{course.data.code} {course.data.name}</a> / <span aria-current="page">{p.title}</span>
+      </nav>
+    )}
+    <h1>{p.title}</h1>
+    <p class="lead">{p.headline}</p>
+    <div class="pills"><Pills project={entry} /></div>
+    {(p.links.demo || p.links.repo || p.links.teamRepo) && (
+      <div class="btns">
+        {p.links.demo && <a class="btn btn-live" href={p.links.demo}>Run the demo</a>}
+        {p.links.repo && <a class="btn btn-secondary" href={p.links.repo}>Code</a>}
+        {p.links.teamRepo && <a class="btn btn-secondary" href={p.links.teamRepo}>Team repo</a>}
+      </div>
+    )}
+  </header>
+
+  <figure class:list={['hero-media', { paper: p.media?.paper }]}>
+    {p.media?.video ? (
+      <video src={p.media.video} poster={p.media.video.replace(/\.mp4$/, '.jpg')} muted loop playsinline preload="none" aria-label={p.media.alt}></video>
+    ) : p.media ? (
+      <Picture src={p.media.src} formats={['avif', 'webp']} widths={[480, 720, 1080, 1440]} sizes="(max-width: 760px) 100vw, 1064px" alt={p.media.alt} style={p.media.position ? `object-position:${p.media.position}` : undefined} />
+    ) : (
+      <Diagram milestones={p.milestones} />
+    )}
+    {p.media?.overlay === 'fpga' && <OnFpga />}
+  </figure>
+
+  {p.numbers && <KeyNumbers numbers={p.numbers} />}
+
+  <div class="pbody"><div class="pgrid">
+    <Toc items={toc} />
+    <div class="psecs">
+      {sections.map((s) => (
+        <section id={s.id} class="sec psec" aria-labelledby={`${s.id}-h`}>
+          <h2 id={`${s.id}-h`} data-pad>{s.title}</h2>
+          {s.id === 'results' && p.results && (
+            <>
+              <p>{p.results.text}</p>
+              {p.results.bars && <ResultBars bars={p.results.bars} />}
+            </>
+          )}
+          <Fragment set:html={s.html} />
+          {(p.figures ?? []).filter((f) => f.section === s.id).map((f) => {
+            const Drawing = f.diagram && diagrams[f.diagram];
+            return (
+              <figure class:list={['pfig', { drawn: Drawing, square: f.src && f.src.height > f.src.width * 0.8 }]}>
+                {Drawing ? <Drawing label={f.alt} /> : <Picture src={f.src!} formats={['avif', 'webp']} widths={[480, 720, 1080]} sizes="(max-width: 760px) 100vw, 700px" alt={f.alt} loading="lazy" />}
+              </figure>
+            );
+          })}
+        </section>
+      ))}
+      <Team members={members} />
+      <Skills entries={tools} self={self} id="tools" heading="Tools" intro="What this project was built with. Pick one to see where else I used it." />
+    </div>
+  </div></div>
+
+  <PrevNext current={entry.id} />
+</Base>
+<script>
+  import '../scripts/skills';
+  import '../scripts/videos';
+  import '../scripts/toc';
+</script>

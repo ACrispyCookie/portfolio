@@ -1,0 +1,11 @@
+---
+// A main course project's page, under its course (spec §4): /courses/ece338/gpgpu.
+import { getCollection } from 'astro:content';
+import ProjectPage from '../../../components/ProjectPage.astro';
+
+export async function getStaticPaths() {
+  const main = await getCollection('projects', (p) => p.data.kind === 'course' && p.data.main && !!p.data.course);
+  return main.map((p) => ({ params: { code: p.data.course!.id, project: p.id }, props: { entry: p } }));
+}
+---
+<ProjectPage entry={Astro.props.entry} />

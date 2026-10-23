@@ -1,0 +1,16 @@
+---
+// Previous and next among the main projects, in site order, wrapping at the ends (spec §5.2).
+import { getCollection } from 'astro:content';
+import { pageHref } from '../lib/links';
+
+interface Props { current: string }
+const main = (await getCollection('projects', (p) => p.data.main)).sort((a, b) => a.data.order - b.data.order);
+const i = main.findIndex((p) => p.id === Astro.props.current);
+const at = (k: number) => main[(k + main.length) % main.length];
+const href = (p: (typeof main)[number]) => pageHref({ ...p.data, id: p.id, course: p.data.course?.id });
+const [prev, next] = [at(i - 1), at(i + 1)];
+---
+<nav class="prevnext" aria-label="More projects">
+  <a class="prev" href={href(prev)}><span>Previous project</span><b>{prev.data.title}</b></a>
+  <a class="next" href={href(next)}><span>Next project</span><b>{next.data.title}</b></a>
+</nav>

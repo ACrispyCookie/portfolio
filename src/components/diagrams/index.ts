@@ -6,5 +6,6 @@ import Homelab from './Homelab.astro';
 import Dedup from './Dedup.astro';
 import Alignment from './Alignment.astro';
 import Roadmap from './Roadmap.astro';
+import Flow from './Flow.astro';
 
-export const diagrams = { runtime: Runtime, threads: Threads, homelab: Homelab, dedup: Dedup, alignment: Alignment, roadmap: Roadmap };
+export const diagrams = { runtime: Runtime, threads: Threads, homelab: Homelab, dedup: Dedup, alignment: Alignment, roadmap: Roadmap, flow: Flow };

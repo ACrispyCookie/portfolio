@@ -448,6 +448,7 @@ The whole site is one dark circuit board. The live lab widget is the powered par
 **Allowed exceptions** are only those written here, each marked in code with the tool's own mechanism (`taste-skill-ignore` comment, an Impeccable ignore rule) and a reason:
 
 - the Menu sheet's shadow (it floats over the page).
+- the inspector's `few-pictures` rule (at least four pictures at desktop width) on project pages only (Jason, 2026-10-23): a project page shows only the pictures and footage Jason approved and is never padded to reach four. Drawings fill the gaps where a section needs a picture. The gate passes it with the inspector's `--allow` flag from `scripts/gate-allow.mjs`. The rule still applies to every other page.
 
 **Known failures in the approved mock that the build must fix** (from the 2026-10-20 run; the mock itself is not patched):
 

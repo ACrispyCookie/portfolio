@@ -16,7 +16,7 @@ import Team from './Team.astro';
 import NextCard from './NextCard.astro';
 import PrevNext from './PrevNext.astro';
 import Skills from './Skills.astro';
-import { diagrams } from './diagrams';
+import { diagrams, shapes } from './diagrams';
 import { courseHref, pageHref } from '../lib/links';
 import { docsFor } from '../lib/docs';
 import { buildSkillIndex, toSkillProjects } from '../lib/skills';
@@ -66,7 +66,7 @@ const toc = [...sections.map(({ id, title }) => ({ id, title })), ...(docs.lengt
 const Diagram = diagrams[p.diagram ?? 'runtime'];
 ---
 <Base title={`${p.title} | Jason Nikas`} description={p.headline}>
-  <header class="phead" data-trace-start>
+  <header class="phead" data-trace-start="wide">
     {course && (
       <nav class="crumb" aria-label="Breadcrumb">
         <a href={courseHref(course.id)}>{course.data.code} {course.data.name}</a> / <span aria-current="page">{p.title}</span>
@@ -79,11 +79,13 @@ const Diagram = diagrams[p.diagram ?? 'runtime'];
       <div class="btns">
         {p.links.demo && <a class="btn btn-live" href={p.links.demo}>Run the demo</a>}
         {p.links.repo && <a class="btn btn-secondary" href={p.links.repo}>Code</a>}
-        {docs.map((d) => <a class="btn btn-secondary" href={d.href}>{d.label}</a>)}
+        {docs.map((d) => <a class="btn btn-secondary" href={d.href} target="_blank" rel="noopener">{d.label}</a>)}
       </div>
     )}
   </header>
 
+  <!-- the video and its numbers, one block; on a phone it spans the full width and the copper starts under it -->
+  <div class="ptop" data-trace-start="phone">
   <figure class:list={['hero-media', { paper: p.media?.paper }]}>
     {p.media?.video ? (
       <video src={p.media.video} poster={p.media.video.replace(/\.mp4$/, '.jpg')} muted loop playsinline preload="none" aria-label={p.media.alt}></video>
@@ -96,6 +98,7 @@ const Diagram = diagrams[p.diagram ?? 'runtime'];
   </figure>
 
   {p.numbers && <KeyNumbers numbers={p.numbers} />}
+  </div>
 
   <div class="pbody"><div class="pgrid">
     <Toc items={toc} />
@@ -114,7 +117,7 @@ const Diagram = diagrams[p.diagram ?? 'runtime'];
           {(p.figures ?? []).filter((f) => f.section === s.id).map((f) => {
             const Drawing = f.diagram && diagrams[f.diagram];
             return (
-              <figure class:list={['pfig', { drawn: Drawing }]} style={f.src ? `--ar:${(f.src.width / f.src.height).toFixed(3)}` : undefined}>
+              <figure class:list={['pfig', { drawn: Drawing }]} style={`--ar:${(f.src ? f.src.width / f.src.height : shapes[f.diagram!] ?? 1.6).toFixed(3)}`}>
                 {Drawing ? <Drawing label={f.alt} /> : (
                   // a picture opens full screen at its full size (Jason, 2026-10-24: hard to see on every device);
                   // without JavaScript the link is the full-size file itself
@@ -135,9 +138,9 @@ const Diagram = diagrams[p.diagram ?? 'runtime'];
             {docs.map((d) => (
               <li class="doc panel">
                 <span class="sheet" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>
-                <span class="what"><b>{d.label}</b><span>PDF, opens in the browser</span></span>
+                <span class="what"><b>{d.label}</b><span>PDF, opens in a new tab</span></span>
                 <span class="acts">
-                  <a class="btn btn-secondary" href={d.href}>Read</a>
+                  <a class="btn btn-secondary" href={d.href} target="_blank" rel="noopener">Read</a>
                   <a class="btn btn-secondary" href={d.href} download={`${p.title} - ${d.label}.pdf`}>Download</a>
                 </span>
               </li>
@@ -152,6 +155,7 @@ const Diagram = diagrams[p.diagram ?? 'runtime'];
 
   <PrevNext current={entry.id} />
   <dialog class="viewer" aria-label="Picture, full size">
+    <div class="stage"></div>
     <button class="btn btn-secondary close" type="button">Close</button>
     <p class="hint" aria-live="polite">Tap the picture to see it at full size</p>
   </dialog>

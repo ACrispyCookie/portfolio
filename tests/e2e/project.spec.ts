@@ -28,7 +28,7 @@ test('GPGPU header: breadcrumb to the course, title, its headline, its pills, an
   expect((await btn.allTextContents()).map(text)).toEqual(['Run the demo', 'Code', ...GPGPU_DOCS.map((d) => d.label)]); // only my own repo (Jason, 2026-10-24)
   for (const [i, d] of GPGPU_DOCS.entries()) await expect(btn.nth(2 + i)).toHaveAttribute('href', d.href);
   await expect(btn.nth(1)).toHaveAttribute('href', 'https://github.com/ACrispyCookie/GPGPU');
-  await expect(btn.first()).toHaveAttribute('href', 'https://fpga.njason.dev');
+  await expect(btn.first()).toHaveAttribute('href', 'https://fpga.njason.dev/?start=gpgpu-nbody'); // starts this demo in the lab (Jason, 2026-10-24)
 });
 
 test('Homelab header: no breadcrumb, no demo, no Code (the repo is private); In progress from its data', async ({ page }) => {
@@ -104,7 +104,7 @@ test('tap a picture to see it full screen at full size, then close it', async ({
     await expect(viewer.locator('.hint')).toBeVisible();
     await big.click({ position: { x: box.width - 4, y: box.height / 2 } });
     await expect(viewer).toHaveClass(/actual/);
-    expect(await viewer.evaluate((v) => v.scrollLeft)).toBeGreaterThan(0);
+    expect(await viewer.locator('.stage').evaluate((v) => v.scrollLeft)).toBeGreaterThan(0);
   }
   await page.keyboard.press('Escape');
   await expect(viewer).toBeHidden();
@@ -134,10 +134,21 @@ test('a project with no cleaned PDF shows no report section or button', async ({
   await expect(page.locator('main .phead .btns a', { hasText: /Report|Presentation/ })).toHaveCount(0);
 });
 
-test('the execution flow stays readable on a phone: its words at least 13px on screen', async ({ page }) => {
+// Jason, 2026-10-24: a drawing for Verification, redrawn from the final presentation's end-to-end test flow (slide 32)
+test('GPGPU Verification draws the end-to-end test flow from the presentation', async ({ page }) => {
   await page.goto(GPGPU);
-  const sizes = await page.locator('#from-c-code-to-the-board svg[role="img"] text').evaluateAll((ts) => ts.map((t) => t.getBoundingClientRect().height));
-  expect(sizes.length).toBeGreaterThan(5);
+  const svg = page.locator('#verification figure svg[role="img"]');
+  await expect(svg).toHaveCount(1);
+  const label = (await svg.getAttribute('aria-label'))!;
+  for (const part of ['assembly', 'binary generator', 'expected generator', 'UART', 'ARM core', 'FPGA logic', 'memory dump', 'comparator', 'pass or fail']) expect(label).toContain(part);
+  const words = text(await svg.textContent());
+  for (const w of ['assembly', 'binary', 'expected', 'UART', 'PS', 'PL', 'dump', 'comparator', 'pass / fail']) expect(words).toContain(w);
+});
+
+test('the drawings stay readable on a phone: their words at least 13px on screen', async ({ page }) => {
+  await page.goto(GPGPU);
+  const sizes = await page.locator('main .psec figure svg[role="img"] text').evaluateAll((ts) => ts.map((t) => t.getBoundingClientRect().height));
+  expect(sizes.length).toBeGreaterThan(12); // the flow and the verification drawing
   for (const h of sizes) expect(h).toBeGreaterThanOrEqual(13);
 });
 
@@ -209,8 +220,9 @@ test('Team: me first, then the team; a solo project lists only me', async ({ pag
 
 test('the trace starts at the title and has one pad per section; the Live Lab pill shows from load', async ({ page }) => {
   await page.goto(GPGPU);
-  await expect(page.locator('main [data-trace-start]')).toHaveCount(1);
-  expect(await page.locator('main [data-trace-start] h1, main h1[data-trace-start]').count()).toBe(1);
+  // wide screens start the trace under the title; phones under the video and numbers, which use the full width there
+  await expect(page.locator('main [data-trace-start="wide"] h1')).toHaveCount(1);
+  await expect(page.locator('main [data-trace-start="phone"] .hero-media')).toHaveCount(1);
   const n = (await h2s(page)).length;
   await expect(page.locator('svg.trace .t-pad[data-i]')).toHaveCount(n);
   await expect(page.locator('.topbar .labpill')).toBeVisible();
@@ -311,4 +323,122 @@ test('tablet width: the contents links wrap onto rows, none cut under the strip\
   await page.goto(GPGPU);
   const [sw, cw] = await page.locator('main nav.toc ol').evaluate((o) => [o.scrollWidth, o.clientWidth]);
   expect(sw).toBeLessThanOrEqual(cw + 1);
+});
+
+// Jason, 2026-10-24: the spacing around the video and the key numbers looked off on a phone, upright and sideways
+test('the key numbers sit close under the video they belong to, at every phone shape', async ({ page }) => {
+  for (const [w, h] of [[390, 844], [844, 390], [360, 740], [932, 430], [1440, 900]]) {
+    await page.setViewportSize({ width: w, height: h });
+    await page.goto(GPGPU);
+    const v = (await page.locator('main .hero-media').boundingBox())!;
+    const k = (await page.locator('main .knums').boundingBox())!;
+    expect(k.y - (v.y + v.height), `${w}×${h}`).toBeLessThanOrEqual(24);
+    expect(k.y - (v.y + v.height), `${w}×${h}`).toBeGreaterThanOrEqual(12);
+  }
+});
+
+// Jason, 2026-10-24: the video could be bigger on a phone, where it sat in the trace's gutter beside empty space
+test('phone: the video and the numbers use the full width, and the trace starts below them', async ({ page }) => {
+  for (const [w, h] of [[390, 844], [360, 740], [430, 932]]) {
+    await page.setViewportSize({ width: w, height: h });
+    await page.goto(GPGPU);
+    const bar = (await page.locator('.topbar .in').boundingBox())!;
+    for (const sel of ['main .hero-media', 'main .knums']) {
+      const b = (await page.locator(sel).boundingBox())!;
+      expect(Math.abs(b.x - bar.x), `${w} ${sel} left`).toBeLessThanOrEqual(1);
+      expect(Math.abs(b.width - bar.width), `${w} ${sel} width`).toBeLessThanOrEqual(2);
+    }
+    const nums = (await page.locator('main .knums').boundingBox())!;
+    await expect(page.locator('svg.trace .t-pad.on').first()).toBeAttached();
+    // the start pad is centred on the block's bottom edge, as it is on the title's on wide screens
+    const start = await page.locator('svg.trace circle.t-pad:not([data-i])').evaluate((c) => { const r = c.getBoundingClientRect(); return r.top + r.height / 2; });
+    expect(Math.abs(start - (nums.y + nums.height)), `${w}: the trace starts at the numbers' bottom`).toBeLessThanOrEqual(1);
+  }
+});
+
+test('zoomed picture: a fitted picture never scrolls, a zoomed one scrolls both ways under a finger', async ({ page, browserName }) => {
+  test.skip(browserName !== 'chromium', 'raw touch events through Chrome DevTools');
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(GPGPU);
+  const cdp = await page.context().newCDPSession(page);
+  const swipe = async (x: number, y: number, dx: number, dy: number) => {
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
+    for (let i = 1; i <= 10; i++) await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: x + (dx * i) / 10, y: y + (dy * i) / 10 }] });
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  };
+  const stage = page.locator('dialog.viewer .stage');
+  const pos = () => stage.evaluate((s) => [s.scrollLeft, s.scrollTop, s.scrollWidth - s.clientWidth, s.scrollHeight - s.clientHeight]);
+  const open = page.locator('#inside-the-gpgpu a.zoom'); // the device view
+  await open.scrollIntoViewIfNeeded();
+  await open.click();
+  await expect.poll(() => page.locator('dialog.viewer img').evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth)).toBeGreaterThan(0);
+  const [, , ow, oh] = await pos();
+  expect([ow, oh]).toEqual([0, 0]); // fitted: nothing to scroll
+  const box = (await page.locator('dialog.viewer img').boundingBox())!;
+  await page.locator('dialog.viewer img').click({ position: { x: box.width / 2, y: box.height / 2 } });
+  await expect(page.locator('dialog.viewer')).toHaveClass(/actual/);
+  const [l0] = await pos();
+  await swipe(195, 420, -120, 0);
+  await expect.poll(async () => (await pos())[0]).toBeGreaterThan(l0);
+});
+
+// Lighthouse, 2026-10-24: on a phone the page jumped when the web fonts arrived (the breadcrumb rewrapped); the
+// fonts are preloaded so the first paint already uses them
+test('loading the page on a phone barely shifts it (layout shift under 0.05)', async ({ page }) => {
+  await page.setViewportSize({ width: 412, height: 823 });
+  await page.addInitScript(() => {
+    const w = window as unknown as { __cls: number };
+    w.__cls = 0;
+    new PerformanceObserver((l) => { for (const e of l.getEntries() as unknown as { value: number; hadRecentInput: boolean }[]) if (!e.hadRecentInput) w.__cls += e.value; }).observe({ type: 'layout-shift', buffered: true });
+  });
+  await page.goto(GPGPU);
+  await page.waitForTimeout(2000);
+  expect(await page.evaluate(() => (window as unknown as { __cls: number }).__cls)).toBeLessThan(0.05);
+});
+
+// taste inspector, 2026-10-24: at the video's foot the caption read as a label above the key numbers just below it;
+// on the project page it sits at the top, which also leaves the board and the laptop in view
+test('the video caption sits at the top of the video, clear of the numbers under it', async ({ page }) => {
+  await page.goto(GPGPU);
+  const v = (await page.locator('main .hero-media').boundingBox())!;
+  const c = (await page.locator('main .hero-media .onfpga').boundingBox())!;
+  expect(c.y + c.height).toBeLessThan(v.y + v.height / 2);
+});
+
+// Jason, 2026-10-24: on a phone held upright the buttons and the video sat far apart; the trace no longer runs between
+// them there, so they keep a normal gap
+test('phone, upright: the video follows the buttons at a normal gap', async ({ page }) => {
+  for (const [w, h] of [[390, 844], [360, 740], [430, 932]]) {
+    await page.setViewportSize({ width: w, height: h });
+    await page.goto(GPGPU);
+    const b = (await page.locator('main .phead .btns').boundingBox())!;
+    const v = (await page.locator('main .hero-media').boundingBox())!;
+    const gap = v.y - (b.y + b.height);
+    expect(gap, `${w}×${h}`).toBeGreaterThanOrEqual(20);
+    expect(gap, `${w}×${h}`).toBeLessThanOrEqual(32);
+  }
+});
+
+// Jason, 2026-10-24: turning a phone from sideways to upright left the trace starting under the title
+test('turning the phone moves the trace start to where that layout puts it, and back', async ({ page }) => {
+  await page.setViewportSize({ width: 844, height: 390 });
+  await page.goto(GPGPU);
+  const startY = () => page.locator('svg.trace circle.t-pad:not([data-i])').evaluate((c) => { const r = c.getBoundingClientRect(); return r.top + r.height / 2 + scrollY; });
+  const bottom = (sel: string) => page.locator(sel).evaluate((e) => e.getBoundingClientRect().bottom + scrollY);
+  await expect.poll(async () => Math.abs((await startY()) - (await bottom('main .phead')))).toBeLessThanOrEqual(1);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect.poll(async () => Math.abs((await startY()) - (await bottom('main .ptop')))).toBeLessThanOrEqual(1);
+  await page.setViewportSize({ width: 844, height: 390 });
+  await expect.poll(async () => Math.abs((await startY()) - (await bottom('main .phead')))).toBeLessThanOrEqual(1);
+});
+
+// Jason, 2026-10-24: on a tablet held upright the numbers sat far above the first section title
+test('tablet width: the contents list follows the numbers at a short gap', async ({ page }) => {
+  for (const [w, h] of [[768, 1024], [820, 1180], [834, 1194]]) {
+    await page.setViewportSize({ width: w, height: h });
+    await page.goto(GPGPU);
+    const k = (await page.locator('main .knums').boundingBox())!;
+    const t = (await page.locator('main nav.toc').boundingBox())!;
+    expect(t.y - (k.y + k.height), `${w}×${h}`).toBeLessThanOrEqual(36);
+  }
 });

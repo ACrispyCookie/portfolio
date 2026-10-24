@@ -9,7 +9,7 @@ tools: ["Verilog", "Vivado/Vitis", "Git"]
 team: []
 links:
   repo: "https://github.com/ACrispyCookie/DVD-Logo-FPGA"
-  demo: "https://fpga.njason.dev"
+  demo: "https://fpga.njason.dev/?start=dvd-logo-video" # the lab joins this demo's queue on arrival
 fromCourse: "ece333"
 media:
   src: "../../assets/projects/dvd.jpg"

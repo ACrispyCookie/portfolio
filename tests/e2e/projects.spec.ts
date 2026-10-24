@@ -37,7 +37,7 @@ test('GPGPU card: Run the demo goes to the lab', async ({ page }) => {
   await page.goto('/');
   const demo = page.locator('#projects .card[data-id="gpgpu"] a.btn-live');
   await expect(demo).toHaveText('Run the demo');
-  await expect(demo).toHaveAttribute('href', 'https://fpga.njason.dev');
+  await expect(demo).toHaveAttribute('href', 'https://fpga.njason.dev/?start=gpgpu-nbody'); // straight into that demo's queue (Jason, 2026-10-24)
 });
 
 test('course tags, team avatars (Jason first); solo work shows only Jason (no Solo pill)', async ({ page }) => {
@@ -125,12 +125,12 @@ test('a demo button wherever a project runs in the lab, except the card that alr
   await expect(demo('gpgpu')).toHaveText('Run the demo');
   // Jason (2026-10-21): the DVD logo runs in the lab too
   await expect(demo('dvd-logo-fpga')).toHaveText('Run the demo');
-  await expect(demo('dvd-logo-fpga')).toHaveAttribute('href', 'https://fpga.njason.dev');
+  await expect(demo('dvd-logo-fpga')).toHaveAttribute('href', 'https://fpga.njason.dev/?start=dvd-logo-video');
   await expect(demo('live-fpga-lab')).toHaveCount(0);
   // the button is above the card's stretched link: a real click on it goes to the lab, not the project
   await demo('dvd-logo-fpga').scrollIntoViewIfNeeded();
   await page.waitForTimeout(500); // the section's reveal settles
   const box = (await demo('dvd-logo-fpga').boundingBox())!;
   const hit = await page.evaluate(([x, y]) => document.elementFromPoint(x, y)?.closest('a')?.getAttribute('href'), [box.x + box.width / 2, box.y + box.height / 2]);
-  expect(hit).toBe('https://fpga.njason.dev');
+  expect(hit).toBe('https://fpga.njason.dev/?start=dvd-logo-video');
 });

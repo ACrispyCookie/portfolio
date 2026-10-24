@@ -16,3 +16,15 @@ for (const path of ['/', '/projects']) {
     for (const l of links.filter((l) => !/^https?:/.test(l.href))) expect(l.target, l.href).toBeNull();
   });
 }
+
+// Jason, 2026-10-24: a report or presentation opens in a new tab, like another site, so the project page stays open
+test('project page: Report, Presentation and Read open the PDF in a new tab; Download stays a download', async ({ page }) => {
+  await page.goto('/courses/ece338/gpgpu');
+  const pdfs = page.locator('main a[href$=".pdf"]');
+  expect(await pdfs.count()).toBeGreaterThan(0);
+  for (const a of await pdfs.all()) {
+    if (await a.getAttribute('download')) { expect(await a.getAttribute('target')).toBeNull(); continue; }
+    expect(await a.getAttribute('target')).toBe('_blank');
+    expect((await a.getAttribute('rel')) ?? '').toContain('noopener');
+  }
+});

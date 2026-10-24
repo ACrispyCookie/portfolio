@@ -7,5 +7,8 @@ import Dedup from './Dedup.astro';
 import Alignment from './Alignment.astro';
 import Roadmap from './Roadmap.astro';
 import Flow from './Flow.astro';
+import Verify from './Verify.astro';
 
-export const diagrams = { runtime: Runtime, threads: Threads, homelab: Homelab, dedup: Dedup, alignment: Alignment, roadmap: Roadmap, flow: Flow };
+export const diagrams = { runtime: Runtime, threads: Threads, homelab: Homelab, dedup: Dedup, alignment: Alignment, roadmap: Roadmap, flow: Flow, verify: Verify };
+/** A drawing's shape (width over height, from its viewBox), so a page can size it to fit the screen. */
+export const shapes: Partial<Record<keyof typeof diagrams, number>> = { flow: 340 / 196, verify: 340 / 300 };

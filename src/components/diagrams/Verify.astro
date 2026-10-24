@@ -1,0 +1,71 @@
+---
+// ECE338 GPGPU: the end-to-end test flow, redrawn from the final presentation's slide 32 (Jason, 2026-10-24: the
+// drawing should follow how verification works, as the presentation draws it). A test program in assembly goes two
+// ways: the binary generator makes the machine code, sent over UART to the ARM core (PS), which runs the kernel on the
+// FPGA logic (PL) and reads its memory back; the expected generator (the golden model) predicts the result, and the
+// comparator checks the dump against it. Three columns, so the words stay readable on a phone.
+interface Props { label?: string }
+const { label = 'Diagram: a test program in assembly goes to a binary generator, whose machine code is sent over UART to the ARM core (PS), which runs the kernel on the FPGA logic (PL) and returns a memory dump; the same program goes to the expected generator, and a comparator checks the memory dump against the expected output and gives pass or fail' } = Astro.props;
+const W = 84, H = 44, X = [8, 128, 248];
+const box = (x: number, y: number, lines: string[], tone: 'plain' | 'file' | 'end' = 'plain') => ({ x, y, lines, tone });
+const boxes = [
+  box(X[1], 12, ['assembly'], 'file'),
+  box(X[0], 84, ['binary', 'generator']),
+  box(X[2], 84, ['expected', 'generator']),
+  box(X[1], 156, ['PS', 'ARM core']),
+  box(X[2], 156, ['comparator']),
+  box(X[1], 244, ['PL', 'FPGA logic']),
+  box(X[2], 244, ['pass / fail'], 'end'),
+];
+const fill = { plain: '#11282d', file: '#1f4248', end: '#41e2f2' };
+const down = (x: number, y: number) => `M${x - 5} ${y - 7} L${x} ${y} L${x + 5} ${y - 7}`;
+const up = (x: number, y: number) => `M${x - 5} ${y + 7} L${x} ${y} L${x + 5} ${y + 7}`;
+const right = (x: number, y: number) => `M${x - 7} ${y - 5} L${x} ${y} L${x - 7} ${y + 5}`;
+const cx = (x: number) => x + W / 2;
+// a small gold label on a trace, like the flow drawing's UART
+const tags = [
+  { x: 50, y: 150, t: 'UART', w: 48 },
+  { x: 118, y: 221, t: 'kernel', w: 52 },
+  { x: 212, y: 221, t: 'dump', w: 44 },
+];
+---
+<svg class="diagram" data-kind="verify" viewBox="0 0 340 300" role="img" aria-label={label}>
+  <rect width="340" height="300" fill="#183539" />
+  <g fill="none" stroke="#3b7a82" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    {/* assembly splits to the two generators */}
+    <path d={`M${cx(X[1])} 56 V70 H${cx(X[0])} V82 M${cx(X[1])} 70 H${cx(X[2])} V82`} />
+    <path d={down(cx(X[0]), 82)} />
+    <path d={down(cx(X[2]), 82)} />
+    {/* the binary goes over UART to the PS */}
+    <path d={`M${cx(X[0])} 128 V178 H${X[1] - 2}`} />
+    <path d={right(X[1] - 2, 178)} />
+    {/* the expected output waits at the comparator */}
+    <path d={`M${cx(X[2])} 128 V154`} />
+    <path d={down(cx(X[2]), 154)} />
+    {/* the PS runs the kernel on the PL and reads its memory back */}
+    <path d={`M${cx(X[1]) - 14} 200 V242`} />
+    <path d={down(cx(X[1]) - 14, 242)} />
+    <path d={`M${cx(X[1]) + 14} 244 V202`} />
+    <path d={up(cx(X[1]) + 14, 202)} />
+    {/* the PS sends the dump to the comparator, which gives pass or fail */}
+    <path d={`M${X[1] + W} 178 H${X[2] - 2}`} />
+    <path d={right(X[2] - 2, 178)} />
+    <path d={`M${cx(X[2])} 200 V242`} />
+    <path d={down(cx(X[2]), 242)} />
+  </g>
+  <circle cx={cx(X[1])} cy="70" r="4" fill="#d8b46a" />
+  <g font-family="Hanken Grotesk Variable, Hanken Grotesk, sans-serif" font-size="13" text-anchor="middle">
+    {boxes.map((b) => (
+      <g>
+        <rect x={b.x} y={b.y} width={W} height={H} rx="10" fill={fill[b.tone]} />
+        {b.lines.map((t, li) => <text x={b.x + W / 2} y={b.y + H / 2 + 4.5 + (li - (b.lines.length - 1) / 2) * 15} fill={b.tone === 'end' ? '#05252a' : li > 0 ? '#9db6b8' : '#eaf2f1'} font-weight={b.tone === 'end' || (b.lines.length > 1 && li === 0 && b.lines[0].length <= 2) ? 700 : 400}>{t}</text>)}
+      </g>
+    ))}
+    {tags.map((g) => (
+      <g>
+        <rect x={g.x - g.w / 2} y={g.y - 10} width={g.w} height="20" rx="10" fill="#11282d" />
+        <text x={g.x} y={g.y + 4.5} fill="#d8b46a" font-weight="700">{g.t}</text>
+      </g>
+    ))}
+  </g>
+</svg>

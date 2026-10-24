@@ -215,7 +215,7 @@ svg.trace { position: absolute; left: 0; top: 0; pointer-events: none; overflow:
 /* phone (Jason, 2026-10-21): only what runs beside the trace sits in its gutter; hero (or a page's header, which sits
    above the trace's start), top bar and footer are centred */
 @media (max-width: 760px) {
-  .wrap > main > .hero, .wrap > main > .allhead { margin-left: calc(-1 * var(--rail)); }
+  .wrap > main > .hero, .wrap > main > .allhead, .wrap > main > .phead, .wrap > main > .ptop { margin-left: calc(-1 * var(--rail)); } /* a project page's video and numbers too (Jason, 2026-10-24: make the video bigger) */
   .topbar .in, .foot-in { padding-left: 0; }
   .menu-sheet { left: 0; }
 }

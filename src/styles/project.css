@@ -22,7 +22,7 @@
 /* every figure at most --pic-h tall, whatever its shape; --ar is its width over its height */
 /* a picture may use the column's whole width, not just the text's (Jason, 2026-10-24: hard to see) */
 .psec > .pfig { max-width: min(100%, calc(var(--pic-h) * var(--ar, 1.78))); }
-.pfig.drawn { --ar: 1.73; background: var(--color-raised); }
+.pfig.drawn { background: var(--color-raised); } /* its --ar comes from the drawing's own shape */
 .psec > .pfig.drawn { max-width: min(520px, calc(var(--pic-h) * var(--ar))); } /* a drawing at about the size of its words */
 .pfig.drawn svg { display: block; width: 100%; height: auto; }
 .hero-media.paper img { object-fit: contain; background: var(--color-paper); padding: 12px; box-sizing: border-box; }
@@ -33,6 +33,22 @@
 .knum:first-child b { color: var(--color-cyan); }
 .knum span { color: var(--color-dim); font-size: var(--text-small); line-height: 1.45; }
 @media (max-width: 900px) { .knums { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+/* the numbers belong to the video above them: one block, close together, not a whole section gap apart (Jason, 2026-10-24) */
+.ptop { display: grid; gap: 20px; min-width: 0; justify-items: start; }
+/* the numbers take the video's width, also where a short screen caps it (on a real phone or tablet held sideways the
+   toolbars shorten the screen, so svh is smaller than in an emulator: Jason, 2026-10-24) */
+.ptop > .knums { width: min(100%, calc(var(--pic-h) * 2.35)); }
+/* a tablet-wide body shows the contents list above the text, not beside it: it follows the numbers closely */
+@media (min-width: 761px) and (max-width: 995.98px) { .ptop + .pbody { margin-top: calc(32px - var(--gap)); } }
+@media (max-width: 760px) {
+  /* the trace starts under the video on a phone, so nothing runs between the buttons and it: a normal gap, not a
+     section's (Jason, 2026-10-24) */
+  .phead { padding-bottom: 0; }
+  .phead + .ptop { margin-top: calc(24px - var(--gap)); }
+  .ptop { gap: 16px; }
+  .knums { gap: 10px; }
+  .knum { padding: 16px; gap: 4px; }
+}
 
 /* the contents list beside the text where there is room for both, measured on the page body (the grid is an inner
    box: a container query can't restyle its own container) */
@@ -95,13 +111,12 @@
 .zoom-hint { position: absolute; right: 10px; top: 10px; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: color-mix(in srgb, var(--color-mask) 82%, transparent); transition: background-color .2s; }
 .zoom-hint svg { width: 16px; height: 16px; }
 .pfig .zoom:hover .zoom-hint { background: var(--color-hover); }
-.viewer { width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: var(--color-mask); color: var(--color-silk); overflow: auto; overscroll-behavior: contain; }
+.viewer { width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: var(--color-mask); color: var(--color-silk); overflow: hidden; }
 .viewer::backdrop { background: var(--color-mask); }
-.viewer[open] { display: grid; place-items: center; }
-.viewer img { display: block; width: 100%; height: 100%; object-fit: contain; cursor: zoom-in; }
-.viewer:has(.hint[hidden]) img { cursor: default; }
-.viewer.actual { place-items: start; }
-.viewer.actual img { width: auto; height: auto; max-width: none; cursor: zoom-out; }
+/* the stage is the scroll box: it fills the screen; the picture centres in it, and once bigger than it, scrolls */
+.viewer .stage { position: absolute; inset: 0; display: flex; overflow: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; touch-action: pan-x pan-y pinch-zoom; }
+.viewer img { display: block; margin: auto; width: 100%; height: 100%; object-fit: contain; cursor: zoom-in; }
+.viewer.actual img { flex: none; width: auto; height: auto; max-width: none; object-fit: none; cursor: zoom-out; }
 .viewer .close { position: fixed; top: max(14px, env(safe-area-inset-top, 0px)); right: max(14px, env(safe-area-inset-right, 0px)); }
 
 /* the report and the presentation: a drawn page, what it is, and Read or Download */
@@ -147,3 +162,5 @@
 .road .mark { position: absolute; left: 0; top: 50%; width: 20px; height: 20px; margin-top: -10px; }
 .road li[data-state="now"] { font-weight: 700; }
 .road li[data-state="next"] { color: var(--color-dim); }
+/* the video caption at the top on a project page: at the foot it read as a label above the key numbers below it */
+.hero-media .onfpga { top: 8px; bottom: auto; }

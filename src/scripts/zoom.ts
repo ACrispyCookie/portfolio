@@ -4,13 +4,15 @@
 const viewer = document.querySelector<HTMLDialogElement>('dialog.viewer');
 if (viewer) {
   // the picture is made here, with its file, so the page never ships an image without one
+  // the picture scrolls inside its own stage: a swipe on the dialog itself didn't always scroll (Jason, 2026-10-24)
+  const stage = viewer.querySelector<HTMLElement>('.stage')!;
   const img = document.createElement('img');
-  viewer.prepend(img);
+  stage.append(img);
   const hint = viewer.querySelector<HTMLElement>('.hint')!;
   const verb = matchMedia('(pointer: fine)').matches ? 'Click' : 'Tap';
   const fitText = `${verb} the picture to see it at full size`;
   // a picture no bigger than the screen is already at its full size: no zoom, no hint
-  const zoomable = () => img.naturalWidth > viewer.clientWidth || img.naturalHeight > viewer.clientHeight;
+  const zoomable = () => img.naturalWidth > stage.clientWidth || img.naturalHeight > stage.clientHeight;
   img.addEventListener('load', () => { hint.hidden = !zoomable(); });
   let from: HTMLAnchorElement | null = null;
   for (const a of document.querySelectorAll<HTMLAnchorElement>('a.zoom')) {
@@ -37,9 +39,9 @@ if (viewer) {
     const fy = Math.min(1, Math.max(0, (e.clientY - top) / (img.naturalHeight * s)));
     const actual = viewer.classList.toggle('actual');
     hint.textContent = actual ? `${verb} the picture to fit it to the screen` : fitText;
-    if (actual) viewer.scrollTo({ left: fx * img.naturalWidth - viewer.clientWidth / 2, top: fy * img.naturalHeight - viewer.clientHeight / 2 });
+    if (actual) stage.scrollTo({ left: fx * img.naturalWidth - stage.clientWidth / 2, top: fy * img.naturalHeight - stage.clientHeight / 2 });
   });
   viewer.querySelector('.close')!.addEventListener('click', () => viewer.close());
-  viewer.addEventListener('click', (e) => { if (e.target === viewer) viewer.close(); });
+  viewer.addEventListener('click', (e) => { if (e.target === viewer || e.target === stage) viewer.close(); });
   viewer.addEventListener('close', () => { img.removeAttribute('src'); from?.focus(); });
 }

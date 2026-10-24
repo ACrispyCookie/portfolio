@@ -11,7 +11,7 @@ team: ["tsiantos", "tsogkas"]
 next: "gpgpu-v2"
 links:
   repo: "https://github.com/ACrispyCookie/GPGPU"
-  demo: "https://fpga.njason.dev"
+  demo: "https://fpga.njason.dev/?start=gpgpu-nbody" # the lab joins this demo's queue on arrival
 media:
   src: "../../assets/projects/gpgpu.jpg"
   alt: "The GPGPU on a ZedBoard, wired to a laptop that shows its n-body simulation"
@@ -29,6 +29,9 @@ figures:
   - section: "from-c-code-to-the-board"
     diagram: "flow"
     alt: "How a program reaches the GPGPU: C code, compiled by the RISC-V gcc into assembly, sent over UART to the Zynq's ARM core, which writes it over AXI into the GPGPU's instruction memory"
+  - section: "verification"
+    diagram: "verify"
+    alt: "How a test runs on the board: a test program in assembly goes to a binary generator, whose machine code is sent over UART to the ARM core (PS), which runs the kernel on the FPGA logic (PL) and returns a memory dump; the same program goes to the expected generator, and a comparator checks the memory dump against it and gives pass or fail"
   - section: "from-c-code-to-the-board"
     src: "../../assets/projects/gpgpu-block.jpg"
     alt: "The GPGPU wired to the Zynq's ARM core through AXI GPIO blocks, in Vivado's block design"

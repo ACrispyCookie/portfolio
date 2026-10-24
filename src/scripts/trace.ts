@@ -8,6 +8,8 @@ const PULSE = 44;
 const PULSE_EVERY = 1100; // ms between launches
 const PULSE_SPEED = 0.75; // px per ms
 
+const phoneLayout = matchMedia('(max-width: 760px)');
+
 export function initTrace(host: HTMLElement): void {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   // On home the current comes from the live board: the pulse runs only while it reports online.
@@ -80,7 +82,11 @@ export function initTrace(host: HTMLElement): void {
     if (!heads.length) return;
     secTops = secs.map((sec) => (sec ? sec.getBoundingClientRect().top - hb.top : Infinity));
     const pads = heads.map((e) => { const r = rel(e.getBoundingClientRect()); return r.y + Math.min(r.h / 2, 24); });
-    const s = host.querySelector<HTMLElement>('[data-trace-start]');
+    // where the copper starts can depend on the layout: data-trace-start="phone" or "wide" (a project page starts it
+    // under its title on wide screens, under its full-width video and numbers on a phone); no value means both
+    // the same test as the CSS's phone layout: innerWidth can lag behind it while a phone turns (Jason, 2026-10-24)
+    const layout = phoneLayout.matches ? 'phone' : 'wide';
+    const s = [...host.querySelectorAll<HTMLElement>('[data-trace-start]')].find((e) => !e.dataset.traceStart || e.dataset.traceStart === layout);
     let start = null, turnY = 0;
     if (s?.offsetParent) {
       const r = rel(s.getBoundingClientRect());
@@ -178,6 +184,8 @@ export function initTrace(host: HTMLElement): void {
     });
   };
   new ResizeObserver(schedule).observe(host);
+  // switching between the phone and wide layouts moves where the copper starts: rebuild then, even if the sizes match
+  phoneLayout.addEventListener('change', () => { lastW = 0; schedule(); });
   addEventListener('load', () => { lastW = 0; schedule(); });
   schedule();
   requestAnimationFrame(frame);

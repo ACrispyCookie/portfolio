@@ -166,6 +166,11 @@ test(`${path}, ${mode.name}, every window shape, portrait and landscape: the pag
       const col = (document.querySelector('.knums') ?? document.querySelector('.phead'))?.getBoundingClientRect();
       if (hero && col && hero.width < Math.min(col.width, hero.height * 2.35) - 2) narrow.push(`top picture ${Math.round(hero.width)}px in a ${Math.round(col.width)}px column`);
       if (hero && hero.width / hero.height > 2.4) strips.push(`top picture ${Math.round(hero.width)}×${Math.round(hero.height)}`);
+      // the key numbers belong to the video: always its width, also where a short screen caps the video (Jason,
+      // 2026-10-24: on real phones and tablets held sideways the toolbars shorten the screen and the video came out
+      // narrower than the numbers)
+      const nums = document.querySelector('.knums')?.getBoundingClientRect();
+      if (hero && nums && Math.abs(nums.width - hero.width) > 2) narrow.push(`key numbers ${Math.round(nums.width)}px wide under a ${Math.round(hero.width)}px video`);
       // on a short landscape screen a section picture either fills the text's width or most of the screen's height
       const textW = document.querySelector('.psec > p')?.getBoundingClientRect().width ?? 0;
       if (innerWidth > innerHeight && innerHeight < 600) for (const f of document.querySelectorAll('.psec > .pfig')) {

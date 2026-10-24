@@ -23,7 +23,7 @@ test('All projects: every link stays on the site, as a page or a section (apart 
   const hrefs = await page.locator('main a:not(.av a):not(.origin)').evaluateAll((as) => as.map((a) => a.getAttribute('href')!));
   expect(hrefs.length).toBeGreaterThan(30);
   // the Live FPGA Lab card goes to the lab itself, as on home
-  for (const h of hrefs) expect(h).toMatch(/^(\/projects\/[a-z0-9-]+|\/courses\/ece\d{3}(\/[a-z0-9-]+|#[a-z0-9-]+)?|#[a-z0-9-]+|https:\/\/fpga\.njason\.dev)$/);
+  for (const h of hrefs) expect(h).toMatch(/^(\/projects\/[a-z0-9-]+|\/courses\/ece\d{3}(\/[a-z0-9-]+|#[a-z0-9-]+)?|#[a-z0-9-]+|https:\/\/fpga\.njason\.dev(\/\?start=[a-z0-9-]+)?)$/); // a demo button starts its demo (Jason, 2026-10-24)
 });
 
 test('the way to it: top bar, menu, hero button, footer, and two "See all" links on home', async ({ page }) => {

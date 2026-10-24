@@ -9,7 +9,8 @@ const GPGPU = '/courses/ece338/gpgpu';
 // the report and presentation show once Jason has put their PDFs in public/reports
 const GPGPU_DOCS = docsFor({ id: 'gpgpu', course: 'ece338' }, existsSync);
 const DOCS_TITLE = GPGPU_DOCS.map((d) => d.label).join(' and ');
-const GPGPU_SECTIONS = ['What it is', 'Inside the GPGPU', 'From C code to the board', 'Results', 'How we tested it', "What's next", ...(GPGPU_DOCS.length ? [DOCS_TITLE] : []), 'Team', 'Tools'];
+// Verification before Results, and named for what it is (Jason, 2026-10-24)
+const GPGPU_SECTIONS = ['What it is', 'Inside the GPGPU', 'From C code to the board', 'Verification', 'Results', "What's next", ...(GPGPU_DOCS.length ? [DOCS_TITLE] : []), 'Team', 'Tools'];
 const framed = (hs: string[]) => hs[0] === 'What it is' && hs.at(-2) === 'Team' && hs.at(-1) === 'Tools';
 const MAIN = ['/courses/ece338/gpgpu', '/courses/ece415/nbody', '/courses/ece455/rambo', '/courses/ece436/wifi', '/courses/ece433/house', '/courses/ece348/runtime', '/courses/ece321/threads', '/projects/gpgpu-v2', '/projects/homelab', '/projects/live-fpga-lab', '/projects/dvd-logo-fpga'];
 const text = (s: string | null) => (s ?? '').replace(/\s+/g, ' ').replace(/’/g, "'").trim(); // headings set curly apostrophes
@@ -56,10 +57,11 @@ test('GPGPU body: four key numbers with their conditions, sections in order, a m
   for (const f of await page.locator('#results .bars .fill').all()) expect(await f.evaluate((e) => getComputedStyle(e).backgroundImage)).toBe('none');
 });
 
-test('GPGPU Inside the GPGPU shows the design filling the chip, then the block design (Jason, 2026-10-23/24)', async ({ page }) => {
+test('GPGPU pictures: the design filling the chip inside the GPGPU; the block design where the board wiring is explained (Jason, 2026-10-23/24)', async ({ page }) => {
   await page.goto(GPGPU);
-  const imgs = page.locator('#inside-the-gpgpu figure img');
-  await expect(imgs).toHaveCount(2);
+  await expect(page.locator('#inside-the-gpgpu figure img')).toHaveCount(1);
+  await expect(page.locator('#from-c-code-to-the-board figure img')).toHaveCount(1);
+  const imgs = page.locator('#inside-the-gpgpu figure img, #from-c-code-to-the-board figure img');
   for (const img of await imgs.all()) {
     expect((await img.getAttribute('alt'))!.length).toBeGreaterThan(10);
     await img.scrollIntoViewIfNeeded(); // it loads lazily
@@ -70,7 +72,7 @@ test('GPGPU Inside the GPGPU shows the design filling the chip, then the block d
 test('GPGPU From C code to the board draws the execution flow (Jason, 2026-10-23)', async ({ page }) => {
   await page.goto(GPGPU);
   const figs = page.locator('#from-c-code-to-the-board figure');
-  await expect(figs).toHaveCount(1);
+  await expect(figs).toHaveCount(2);
   const flow = figs.first().locator('svg[role="img"]');
   await expect(flow).toHaveCount(1);
   const label = (await flow.getAttribute('aria-label'))!;
@@ -80,14 +82,14 @@ test('GPGPU From C code to the board draws the execution flow (Jason, 2026-10-23
 // Jason, 2026-10-24: the GPGPU pictures were hard to see on every device
 test('a section picture uses the column\'s width while the screen is tall enough', async ({ page }) => {
   await page.goto(GPGPU);
-  const fig = page.locator('#inside-the-gpgpu figure').nth(1); // the block design, wider than tall
+  const fig = page.locator('#from-c-code-to-the-board figure').nth(1); // the block design, wider than tall
   const [w, col, h] = await fig.evaluate((f) => [f.getBoundingClientRect().width, f.parentElement!.getBoundingClientRect().width, f.getBoundingClientRect().height]);
   if (h < page.viewportSize()!.height * 0.55) expect(w).toBeGreaterThanOrEqual(col - 2);
 });
 
 test('tap a picture to see it full screen at full size, then close it', async ({ page }) => {
   await page.goto(GPGPU);
-  const open = page.locator('#inside-the-gpgpu figure a.zoom').nth(1);
+  const open = page.locator('#from-c-code-to-the-board figure a.zoom'); // the block design
   await open.scrollIntoViewIfNeeded();
   await open.click();
   const viewer = page.locator('dialog.viewer');
@@ -147,9 +149,36 @@ test('Team is one panel with a row per person, not a row of identical icon cards
   expect(await page.locator('#team .member').first().evaluate((m) => getComputedStyle(m).backgroundColor)).toBe('rgba(0, 0, 0, 0)'); // rows on the panel, not cards of their own
 });
 
-test("GPGPU's What's next links to GPGPU v2's page", async ({ page }) => {
+// Jason, 2026-10-24: What's next is more than a sentence and a link: a card for the project that continues this one
+test("GPGPU's What's next is a card for GPGPU v2: its roadmap, title, headline and summary", async ({ page }) => {
   await page.goto(GPGPU);
-  await expect(page.locator('#whats-next a[href="/projects/gpgpu-v2"]')).toHaveCount(1);
+  const card = page.locator('#whats-next a.nextcard');
+  await expect(card).toHaveCount(1);
+  await expect(card).toHaveAttribute('href', '/projects/gpgpu-v2');
+
+  await expect(card.locator('h3')).toHaveText('GPGPU v2');
+  await expect(card).toContainText('In progress');
+  // the roadmap: every milestone with where it stands, as text that keeps its size on any screen (≥13px)
+  const road = card.locator('ol.road li');
+  expect(await road.evaluateAll((ls) => ls.map((l) => `${l.getAttribute('data-state')} ${l.querySelector('.nm')!.textContent!.trim()}`))).toEqual([
+    'done Host controller over AXI', 'done CLI for tests and synthesis', 'now Memory controller', 'next DDR memory and graphics', 'next Branch divergence, warp scheduling',
+  ]);
+  for (const size of await road.evaluateAll((ls) => ls.map((l) => parseFloat(getComputedStyle(l).fontSize)))) expect(size).toBeGreaterThanOrEqual(13);
+  await expect(card.locator('.sum')).toContainText('memory controller is next');
+});
+
+test('a link inside the copy is underlined, unlike the text around it (Jason, 2026-10-24)', async ({ page }) => {
+  await page.goto('/projects/live-fpga-lab');
+  const a = page.locator('#what-it-is p a').first();
+  expect(await a.evaluate((el) => getComputedStyle(el).textDecorationLine)).toBe('underline');
+  // buttons are not text links: no underline
+  await page.goto(GPGPU);
+  for (const b of await page.locator('main .psec a.btn').all()) expect(await b.evaluate((el) => getComputedStyle(el).textDecorationLine)).toBe('none');
+});
+
+test('GPGPU explains each part: Inside the GPGPU and From C code to the board each have their own sub-parts', async ({ page }) => {
+  await page.goto(GPGPU);
+  for (const id of ['inside-the-gpgpu', 'from-c-code-to-the-board', 'verification']) expect(await page.locator(`#${id} h3`).count(), id).toBeGreaterThanOrEqual(2);
 });
 
 test('Tools: only the project\'s own tools; a tool says where else it was used', async ({ page }) => {

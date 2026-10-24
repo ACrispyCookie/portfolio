@@ -13,6 +13,7 @@ import Toc from './Toc.astro';
 import KeyNumbers from './KeyNumbers.astro';
 import ResultBars from './ResultBars.astro';
 import Team from './Team.astro';
+import NextCard from './NextCard.astro';
 import PrevNext from './PrevNext.astro';
 import Skills from './Skills.astro';
 import { diagrams } from './diagrams';
@@ -44,6 +45,7 @@ if (p.results && !md.has('results')) md.set('results', { title: 'Results', html:
 const todo = (p.milestones ?? []).filter((m) => m.state !== 'done');
 const esc = (t: string) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;');
 if (todo.length && !md.has('whats-next')) md.set('whats-next', { title: "What's next", html: `<ul>${todo.map((m) => `<li>${m.state === 'now' ? 'Now' : 'Next'}: ${esc(m.name)}</li>`).join('')}</ul>` });
+if (p.next && !md.has('whats-next')) md.set('whats-next', { title: "What's next", html: '' });
 const sections = [...md].map(([id, s]) => ({ id, ...s }));
 const lost = (p.figures ?? []).filter((f) => !md.has(f.section));
 if (lost.length) throw new Error(`${entry.id}: figures for missing sections: ${lost.map((f) => f.section).join(', ')}`);
@@ -108,6 +110,7 @@ const Diagram = diagrams[p.diagram ?? 'runtime'];
             </>
           )}
           <Fragment set:html={s.html} />
+          {s.id === 'whats-next' && p.next && <NextCard id={p.next.id} />}
           {(p.figures ?? []).filter((f) => f.section === s.id).map((f) => {
             const Drawing = f.diagram && diagrams[f.diagram];
             return (

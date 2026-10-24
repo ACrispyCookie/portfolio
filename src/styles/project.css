@@ -116,3 +116,34 @@
 .doc .acts { display: flex; flex-wrap: wrap; gap: 8px; }
 @media (max-width: 560px) { .doc { grid-template-columns: auto minmax(0, 1fr); } .doc .acts { grid-column: 1 / -1; } }
 .viewer .hint { position: fixed; left: 50%; bottom: max(14px, env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); margin: 0; padding: 8px 14px; border-radius: 999px; background: var(--color-panel); color: var(--color-silk); font-size: var(--text-small); white-space: nowrap; pointer-events: none; }
+
+/* a section's own parts (Jason, 2026-10-24: explain how each part works) */
+.psec h3 { font: 700 var(--text-lead) / 1.3 var(--font-display); letter-spacing: -.01em; color: var(--color-silk); margin: 34px 0 10px; text-wrap: balance; }
+.psec h2 + h3 { margin-top: 6px; }
+.psec h3 + p { margin-top: 0; }
+.psec > ul:not([class]) { margin-top: 14px; }
+/* a link inside the copy is underlined in gold, so it reads as a link (Jason, 2026-10-24: What's next's didn't) */
+.psec > p a:not(.btn), .psec > ul:not([class]) li a { text-decoration: underline; text-decoration-color: var(--color-gold); text-decoration-thickness: 1.5px; text-underline-offset: 3px; transition: color .2s; }
+.psec > p a:not(.btn):hover, .psec > ul:not([class]) li a:hover { color: var(--color-gold); }
+
+/* What's next: the project that continues this one, as one whole-card link (Jason, 2026-10-24) */
+.nextcard { margin-top: 18px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 24px; align-items: center; padding: 14px; color: var(--color-silk); text-decoration: none; transition: background-color .25s; --ring: var(--color-panel); }
+.psec > .nextcard { max-width: none; }
+.nextcard:hover { background: var(--color-hover); --ring: var(--color-hover); }
+.nextcard .art { display: block; border-radius: var(--radius-inner); overflow: hidden; background: var(--color-raised); aspect-ratio: 16 / 10; }
+.nextcard .art > svg, .nextcard .art img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.nextcard .body { display: grid; gap: 8px; padding-right: 10px; min-width: 0; }
+.nextcard .row { display: flex; flex-wrap: wrap; gap: 8px; }
+.nextcard .row:empty { display: none; }
+.nextcard h3 { margin: 0; font: 800 var(--text-title) / 1.05 var(--font-display); letter-spacing: -.025em; }
+.nextcard .head { font: 700 var(--text-lead) / 1.25 var(--font-display); text-wrap: balance; }
+.nextcard .sum { color: var(--color-dim); font-size: var(--text-small); line-height: 1.55; max-width: 60ch; }
+@media (max-width: 760px) { .nextcard { grid-template-columns: minmax(0, 1fr); } .nextcard .body { padding: 6px 6px 0; } .nextcard .art { order: 2; } } /* stacked: the title first, so nothing reads as a label above it */
+/* the roadmap as text: a copper rail with a mark per milestone (done: mint check, now: gold ring, next: copper ring) */
+.nextcard .road-art { aspect-ratio: auto; display: grid; align-content: center; padding: 20px 22px; }
+.road { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; position: relative; }
+.road::before { content: ""; position: absolute; left: 9px; top: 10px; bottom: 10px; width: 2px; background: var(--color-copper); }
+.road li { position: relative; padding-left: 34px; color: var(--color-silk); font-size: var(--text-small); line-height: 1.4; }
+.road .mark { position: absolute; left: 0; top: 50%; width: 20px; height: 20px; margin-top: -10px; }
+.road li[data-state="now"] { font-weight: 700; }
+.road li[data-state="next"] { color: var(--color-dim); }

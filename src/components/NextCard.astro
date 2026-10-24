@@ -1,0 +1,45 @@
+---
+// What's next as a card for the project that continues this one (Jason, 2026-10-24: more than a sentence and a link):
+// its picture or drawing (for a project in progress, the roadmap of its milestones), its pills, title, headline and
+// summary, all from its own entry.
+import { Picture } from 'astro:assets';
+import { getEntry } from 'astro:content';
+import Pills from './Pills.astro';
+import { diagrams } from './diagrams';
+import { pageHref } from '../lib/links';
+
+interface Props { id: string }
+const entry = (await getEntry('projects', Astro.props.id))!;
+const p = entry.data;
+const Diagram = p.diagram ? diagrams[p.diagram] : null;
+---
+<a class="nextcard panel" href={pageHref({ id: entry.id, kind: p.kind, course: p.course?.id, main: p.main })}>
+  {p.milestones?.length ? (
+    // a project in progress: its roadmap, drawn like the Roadmap diagram but as text, so the words keep their size on
+    // a narrow phone (an SVG scales them below 13px)
+    <span class="art road-art">
+      <ol class="road" aria-label="Milestones">
+        {p.milestones.map((m) => (
+          <li data-state={m.state}>
+            <svg class="mark" viewBox="0 0 20 20" aria-hidden="true">
+              {m.state === 'done' && <><circle cx="10" cy="10" r="9" fill="#86e3bd" /><path d="M6 10.5l3 3 5-6" fill="none" stroke="#05252a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" /></>}
+              {m.state === 'now' && <><circle cx="10" cy="10" r="8" fill="#183539" stroke="#d8b46a" stroke-width="2.5" /><circle cx="10" cy="10" r="3.5" fill="#d8b46a" /></>}
+              {m.state === 'next' && <circle cx="10" cy="10" r="7.5" fill="#183539" stroke="#3b7a82" stroke-width="2" />}
+            </svg>
+            <span class="vh">{m.state === 'now' ? 'In progress: ' : m.state === 'done' ? 'Done: ' : 'Next: '}</span><span class="nm">{m.name}</span>
+          </li>
+        ))}
+      </ol>
+    </span>
+  ) : (
+    <span class="art" aria-hidden="true">
+      {p.media ? <Picture src={p.media.src} formats={['avif', 'webp']} widths={[400, 640]} sizes="(max-width: 760px) 100vw, 320px" alt="" loading="lazy" /> : Diagram && <Diagram label="" />}
+    </span>
+  )}
+  <span class="body">
+    <h3>{p.title}</h3>
+    <span class="head">{p.headline}</span>
+    <span class="row"><Pills project={entry} plain hide={['course']} /></span>
+    <span class="sum">{p.summary}</span>
+  </span>
+</a>

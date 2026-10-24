@@ -28,6 +28,7 @@ const projects = defineCollection({
       nowLine: z.string().optional(), // its 3–5 words there (brief: name + 3–5 words)
       group: z.string().optional(),
       fromCourse: reference('courses').optional(), // a project outside courses that grew out of this course
+      next: reference('projects').optional(), // the project that continues this one: What's next shows it as a card
       // page content (Plan 2): all optional, a section with no true content is left out (spec §5.2)
       numbers: z.array(z.object({ value: z.string(), label: z.string() })).max(4).optional(), // the key numbers
       overview: z.string().optional(), // one or two short paragraphs, blank lines between them

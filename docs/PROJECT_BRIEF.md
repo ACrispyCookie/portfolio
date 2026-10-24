@@ -123,6 +123,15 @@ Source: `docs/GRADES.md` ✅ (Jason's file; **never publish the file itself**, i
 - Jason's role: joint co-design and implementation, with extra depth in host ↔ device communication ✅. The report doesn't break down individual roles.
 - Figure candidates (need Jason's approval): the Vivado implemented-device view "Runs on Zedboard!" (p. 5) and the execution-flow diagram (p. 6)
 - Next: graphics, DDR memory, divergence, warp scheduling ✅ (`In progress` pill)
+- **How it works, in detail** (📑 `reports/cleaned/Parallel Computer Architectures - Project/main-GR.tex`, the English report, published as `public/reports/ece338/gpgpu-report.pdf`):
+  - One global program counter and one shared decoder feed all 32 lanes, so they run in strict lockstep; lane 0's branch decision steers the shared fetch and flushes it when taken (§Hardware Architecture).
+  - Each lane has its own register file and its own execute, memory and write-back stages. Its lane number sits in register x31, so the same instruction works on different data (§The Streaming Processor).
+  - Multiplies go through a 3-stage pipeline mapped onto the FPGA's DSP blocks; a forwarding unit bypasses the register file, and a hazard unit stalls on load-use and multiply dependencies (§ALU and Multiplier Pipeline, §Data Hazards).
+  - The block RAM has 2 ports for 32 lanes: a crossbar picks two winners each cycle with a double priority scan, blocks the second write when both target the same address, and stalls the whole pipeline until every lane's request has been served (§Memory Arbitration).
+  - A banked memory with atomic add was written but left out of the final bitstream for lack of time (§Atomic Memory Operations).
+  - A host controller moves between loading, running and dumping; a command processor accepts 7 commands (write and read instruction memory, data memory and registers, and the two phase handshakes), only in the phase that allows them (§Host Controller, §Host Command Processor).
+  - Each C program builds twice: as a bare-metal RISC-V kernel and as a native x86 reference. The runtime gives each lane a 64-byte stack slice from its lane number; kernel arguments sit at a fixed spot in data memory; a Python runner with per-program adapters loads, runs and reads back each kernel (§Software Stack and Runtime).
+  - Verification: a custom assembler and a Python golden model; a program checker that rejects programs running over 10,000 cycles, diverging lanes or two lanes writing one address in the same cycle; a fuzzer that reuses the previous instruction's destination register 50 percent of the time and injects load-use, multiply and store-load sequences; then the same command sequence end to end on the board (§Verification Methodology).
 - **Language: plain Verilog** ✅ (Jason, 2026-10-24), although the files use the `.sv` extension, so GitHub and the evidence scan report SystemVerilog. v2 is SystemVerilog.
 - Repos: https://github.com/ACrispyCookie/GPGPU · team repo above. Pills: `Team project` `Live demo` `In progress`.
 

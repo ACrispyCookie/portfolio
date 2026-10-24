@@ -25,6 +25,9 @@ describe('numbersIn', () => {
   test('finds numbers with their groups and a trailing × or %, and skips bare single digits', () => {
     expect(numbersIn('2,910× faster on 56 threads, 87.7 to 0.02 Mbit/s, 3 people, 3× less, 40%')).toEqual(['2,910×', '56', '87.7', '0.02', '3×', '40%']);
   });
+  test('a dimension is one number: 640×480 is not 640× and 480', () => {
+    expect(numbersIn('a 51×23 logo at 640×480, 2,910× faster')).toEqual(['51×23', '640×480', '2,910×']);
+  });
   test('a sentence ending after a number keeps the number whole', () => {
     expect(numbersIn('It ran in 2019.')).toEqual(['2019']);
   });

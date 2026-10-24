@@ -50,7 +50,7 @@ const ONE_LINE = ['.mail span', '.clink b', '.clink small', '.topbar .name', '.c
 // Phones lay text out differently from desktop browsers at the same width (touch, mobile text sizing), so every
 // sweep runs as both.
 // Every page the sweep covers. Plan 2 adds each new page type here as it lands.
-const PAGES = ['/', '/projects'];
+const PAGES = ['/', '/projects', '/courses/ece338/gpgpu', '/courses/ece455/rambo', '/projects/homelab'];
 
 const MODES = [{ name: 'desktop browser', isMobile: false, hasTouch: false }, { name: 'phone browser', isMobile: true, hasTouch: true }];
 

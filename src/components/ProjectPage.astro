@@ -38,6 +38,10 @@ for (const chunk of (entry.rendered?.html ?? '').split(/(?=<h2 id=")/)) {
 const unknown = [...md.keys()].filter((id) => !ORDER.includes(id));
 if (unknown.length) throw new Error(`${entry.id}: sections outside spec §5.2: ${unknown.join(', ')}`);
 if (p.results && !md.has('results')) md.set('results', { title: 'Results', html: '' });
+// a project in progress: What's next is its milestones still to do, from its data
+const todo = (p.milestones ?? []).filter((m) => m.state !== 'done');
+const esc = (t: string) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+if (todo.length && !md.has('whats-next')) md.set('whats-next', { title: "What's next", html: `<ul>${todo.map((m) => `<li>${m.state === 'now' ? 'Now' : 'Next'}: ${esc(m.name)}</li>`).join('')}</ul>` });
 const sections = ORDER.filter((id) => md.has(id)).map((id) => ({ id, ...md.get(id)! }));
 
 const members = await getEntries([{ collection: 'collaborators' as const, id: 'jason' }, ...p.team.map((t) => ({ collection: 'collaborators' as const, id: t.id }))]);
@@ -101,7 +105,7 @@ const Diagram = diagrams[p.diagram ?? 'runtime'];
           {(p.figures ?? []).filter((f) => f.section === s.id).map((f) => {
             const Drawing = f.diagram && diagrams[f.diagram];
             return (
-              <figure class:list={['pfig', { drawn: Drawing, square: f.src && f.src.height > f.src.width * 0.8 }]}>
+              <figure class:list={['pfig', { drawn: Drawing, square: f.src && f.src.height > f.src.width * 0.8 }]} style={f.src ? `--ar:${(f.src.width / f.src.height).toFixed(3)}` : undefined}>
                 {Drawing ? <Drawing label={f.alt} /> : <Picture src={f.src!} formats={['avif', 'webp']} widths={[480, 720, 1080]} sizes="(max-width: 760px) 100vw, 700px" alt={f.alt} loading="lazy" />}
               </figure>
             );

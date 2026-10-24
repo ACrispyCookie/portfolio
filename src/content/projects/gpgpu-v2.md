@@ -20,4 +20,20 @@ milestones:
 links:
   repo: "https://github.com/ACrispyCookie/GPGPU"
   teamRepo: "https://github.com/PANAGIVTHS/ECE338-Parallel-Computer-Architecture"
+
 ---
+
+## What it is
+
+The next version of our [RISC-V GPGPU](/courses/ece338/gpgpu), with the same team and the same repository. We're adding graphics, DDR memory, branch divergence and warp scheduling.
+
+## Why it's hard
+
+The first version has no hardware support for branch divergence: all its lanes run in lockstep. Version 2 adds it, along with warp scheduling, on top of a new memory system.
+
+## How it works
+
+So far:
+
+- A new host controller, with memory-mapped control and status registers over AXI. It works.
+- A command-line tool in Python that automates testing and synthesis.

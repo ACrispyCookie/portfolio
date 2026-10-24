@@ -176,6 +176,7 @@ Source: `docs/GRADES.md` ✅ (Jason's file; **never publish the file itself**, i
 - Verilog on the Nexys A7: UART pipeline, VGA renderer with BRAM framebuffer, SPI driver for the ADXL362 accelerometer. Capstone: **accelerometer-controlled VGA sprite** (demo video in repo) 📄
 - 📑 Labs 1–3 reports are Jason's alone (`Overleaf Projects/Digital Systems Lab - Lab 1–3/`). Lab 3 (VGA, 25 MHz pixel clock) already includes an **optional DVD-logo bouncing sprite Jason added on his own**, which is where DVD Logo FPGA started. The SPI/accelerometer capstone has no report (📄 only).
 - **Four labs** ✅ (Jason, 2026-10-19): Lab 1 7-segment/LED driver, Lab 2 UART, Lab 3 VGA controller, **Lab 4 SPI driver for the accelerometer**. In Lab 3 both the **DVD-logo sprite and the video shown through the VGA controller were optional**. In Lab 4 Jason brought the Lab 3 DVD logo over and **drove it with the accelerometer**, a Lab 3 → Lab 4 connection that **wasn't even listed as an optional extension**.
+- 📄 `research/DVD-Logo-FPGA/README.md`: a 51×23 logo sprite in BRAM, composited into a 128×96 framebuffer and scaled up 5× to 640×480; accelerometer read over 5 MHz SPI; automatic, tilt and button modes.
 - Mention briefly ✅: Jason **ported the final project to HDMI on the Smart Zynq SL** (https://github.com/ACrispyCookie/DVD-Logo-FPGA). 640×480 via TMDS, sprite bouncing with edge collision and colour change, tilt or button control. This is the second **Live FPGA Lab** demo. Pill: `Self-initiated`.
 
 **ECE436 Wireless Communications: Wi-Fi fairness study** *(outcome level only; see CLAUDE.md)*
@@ -263,6 +264,9 @@ Suggested `projects` collection fields: `title`, `slug`, `tier`, `order`, `summa
 | 11 | Minecraft: clients | ✅ Don't name clients; Colony plugins = own server ColonyMC (20–30 players) | — |
 | 12 | Internship messaging | ✅ None at all; generic project showcase | — |
 | 13 | Photo: yes or no | ✅ GitHub profile picture | — |
+| 14 | TODO(jason): "My part" on the team project pages (N-body, RAMBO, Wi-Fi jammer, 3D house, user-level threads, GPGPU v2): what was yours? The section is left out until then. | — | Plan 2 M7 |
+| 15 | TODO(jason): Homelab "Why it's hard" and "What's next"; 3D house results or anything measured; Live FPGA Lab "What's next". Left out until then. | — | Plan 2 M7 |
+| 16 | TODO(jason): figures for the other project pages, from the reports' best figures (REPORTS_INDEX): N-body throughput chart, RAMBO setup photo (slide p. 9), Wi-Fi throughput chart (slide p. 21), house screenshots. Each needs approval. | — | Plan 2 M7 |
 
 ## Site structure decisions (Jason, 2026-10-19)
 - **Two kinds of page.** Course pages `/courses/<code>` hold every project of that course as a section (flagship first). Personal projects live at `/projects/<name>`.

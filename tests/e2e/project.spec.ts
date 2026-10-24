@@ -190,3 +190,29 @@ test.describe('no JavaScript', () => {
     for (const a of await page.locator('main nav.toc a').all()) expect(await a.getAttribute('href')).toMatch(/^#[a-z-]+$/);
   });
 });
+
+// Plan 2 Task 4: every project page has its copy. Pages without two sourced numbers are listed with the reason, for
+// Jason to confirm at M7 (never invent facts).
+const NO_NUMBERS: Record<string, string> = {
+  '/courses/ece433/house': 'the graphics report has no measurements',
+  '/courses/ece348/runtime': 'Assignment 4 has no benchmarks; the measured numbers belong to Assignments 1–3',
+  '/courses/ece321/threads': 'the concurrency reports have no performance numbers',
+  '/projects/homelab': 'privacy: categories only, nothing measured',
+  '/projects/gpgpu-v2': 'in progress, nothing measured yet',
+};
+for (const url of MAIN) {
+  test(`${url} has its copy: What it is, and two key numbers unless listed`, async ({ page }) => {
+    const res = await page.goto(url);
+    expect(res!.status()).toBe(200);
+    expect(await h2s(page)).toContain('What it is');
+    expect(text(await page.locator('#what-it-is p').first().textContent()).length).toBeGreaterThan(60);
+    const n = await page.locator('main .knum').count();
+    if (NO_NUMBERS[url]) expect(n).toBe(0);
+    else expect(n).toBeGreaterThanOrEqual(2);
+  });
+}
+
+test("GPGPU v2's What's next is its milestones still to do, from its data", async ({ page }) => {
+  await page.goto('/projects/gpgpu-v2');
+  expect((await page.locator('#whats-next li').allTextContents()).map(text)).toEqual(['Now: Memory controller', 'Next: DDR memory and graphics', 'Next: Branch divergence, warp scheduling']);
+});

@@ -1,7 +1,7 @@
 // Numbers in copy, for the fact test (Plan 2 Task 2): every number shown must have a source.
 // A number is digits with optional , or . groups and an optional × or %. Bare single digits ("3 people") are left
 // out as too common to trace; with × or % they are a claim and stay. Digits inside a word (ECE338, H.264) are names.
-const NUMBER = /(?<![\p{L}\d.,])\d+(?:[.,]\d+)*[×%]?/gu;
+const NUMBER = /(?<![\p{L}\d.,])\d+(?:[.,]\d+)*(?:×\d+(?:[.,]\d+)*)?[×%]?/gu; // 640×480 is one number
 
 export const numbersIn = (text: string): string[] => [...text.matchAll(NUMBER)].map((m) => m[0]).filter((n) => !/^\d$/.test(n));
 

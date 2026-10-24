@@ -15,9 +15,9 @@ nowLine: "Web, media, remote access, monitoring"
 
 ## What it is
 
-My own servers at home. They run the services I use every day and the [Live FPGA Lab](/projects/live-fpga-lab).
+My own servers at home. They run the services I use every day, the [Live FPGA Lab](/projects/live-fpga-lab), and this website.
 
-## How it works
+## What runs on it
 
 - Virtual machines and containers for every service.
 - A reverse proxy in front of the web services.
@@ -25,7 +25,3 @@ My own servers at home. They run the services I use every day and the [Live FPGA
 - DNS filtering for the whole network.
 - Home automation.
 - The bench where the Live FPGA Lab's board lives.
-
-## My part
-
-A solo project: I set up and run all of it.

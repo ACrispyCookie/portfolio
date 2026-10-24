@@ -21,20 +21,27 @@ numbers:
 
 A real FPGA board in my homelab that anyone can use from the browser. Pick a demo and press Start, and the board is programmed for your session. If someone else is using it, you join a queue and see your place and an estimated wait.
 
-The board is a Smart Zynq SL. It runs two demos: the n-body simulation on our [RISC-V GPGPU](/courses/ece338/gpgpu), and the [DVD logo](/projects/dvd-logo-fpga) over HDMI.
+The board is a Smart Zynq SL, and it runs two demos, both described below.
 
-## Why it's hard
+## How a turn works
 
-The hardest parts were the Vivado Tcl scripts that program the board's logic and processor automatically, and making the lab recover from faults on its own, without anyone touching it.
+There are no accounts: each visitor gets an anonymous cookie, and the page stays up to date live over a WebSocket. A session moves from queued, to starting while the board is programmed, to active, and then to ended. Only one session can own the board at a time.
 
-## How it works
+Turns have no time limit while nobody is waiting. Once someone queues, the current turn gets 5 minutes plus a minute to hand over, and idle sessions that disconnect are dropped after 90 seconds. Every session ends with a reason you can see: ended by the visitor, time up, programming failed, a board fault, or the board going offline.
 
-- A web app keeps the queue and the sessions, and talks to the browser live over a WebSocket.
-- A hardware agent next to the board finds it, reads its temperature and health, programs it, resets it and catches faults.
-- Turns have no time limit while nobody is waiting. Once someone queues, the current turn gets 5 minutes plus a minute to hand over, and idle sessions that disconnect are dropped after 90 seconds.
-- The n-body demo shows a 3D view in the browser, with the positions computed on the GPGPU.
-- The DVD logo demo streams the board's HDMI output to the browser as video.
+A link can also start a demo directly: the "Run the demo" buttons on this site open the lab and join that demo's queue straight away.
 
-## My part
+## Behind the board
 
-A solo project: I designed and built all of it.
+Two programs share the work. A web app keeps the queue and the sessions, talks to every browser, and passes the running demo through to the page. A hardware agent runs next to the board: it finds it, reads its temperature and health, programs its logic and its processor, resets it and catches faults. The two talk over a local connection, never the network, so the board can only be reached through the web app's own rules.
+
+A small public, read-only status feed is what shows "Running now" and the board's temperature on this site's home page.
+
+## The two demos
+
+- **N-body on our [RISC-V GPGPU](/courses/ece338/gpgpu):** a 3D view in the browser that you can orbit and zoom, with every position computed on the GPGPU on the FPGA.
+- **The [DVD logo](/projects/dvd-logo-fpga):** the board's HDMI output, streamed to the browser as live video.
+
+## What took the most work
+
+The Vivado Tcl scripts that program the board's logic and processor automatically, and making the lab recover from faults on its own, without anyone touching it.

@@ -33,7 +33,7 @@ const projects = defineCollection({
       numbers: z.array(z.object({ value: z.string(), label: z.string() })).max(4).optional(), // the key numbers
       overview: z.string().optional(), // one or two short paragraphs, blank lines between them
       steps: z.array(z.object({ title: z.string(), text: z.string() })).optional(), // How it works
-      results: z.object({ text: z.string(), bars: z.array(z.object({ label: z.string(), value: z.number(), display: z.string() })).optional() }).optional(),
+      results: z.object({ section: z.string().optional(), text: z.string(), bars: z.array(z.object({ label: z.string(), value: z.number(), display: z.string() })).optional() }).optional(),
       // a code excerpt: the file under src/content/code/, and its GitHub blob URL at a pinned commit with line anchors
       code: z.object({ file: z.string(), lang: z.string(), url: z.string().url(), caption: z.string() }).optional(),
       gallery: z.array(z.object({ src: image(), alt: z.string() })).optional(),

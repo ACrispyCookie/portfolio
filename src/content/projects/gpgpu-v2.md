@@ -26,13 +26,13 @@ links:
 
 The next version of our [RISC-V GPGPU](/courses/ece338/gpgpu), with the same team and the same repository. We're adding graphics, DDR memory, branch divergence and warp scheduling.
 
-## Why it's hard
+The first version has no hardware support for branch divergence: all its lanes run in lockstep. Version 2 adds it, with warp scheduling, on top of DDR memory.
 
-The first version has no hardware support for branch divergence: all its lanes run in lockstep. Version 2 adds it, along with warp scheduling, on top of a new memory system.
-
-## How it works
-
-So far:
+## Working so far
 
 - A new host controller, with memory-mapped control and status registers over AXI. It works.
 - A command-line tool in Python that automates testing and synthesis.
+
+## What's next
+
+Each step goes into the same repository as the first version, built by the same team.

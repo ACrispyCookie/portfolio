@@ -2,9 +2,9 @@
 import '../styles/global.css';
 import TopBar from '../components/TopBar.astro';
 import Footer from '../components/Footer.astro';
-// the two fonts' Latin files, fetched with the page instead of after the CSS, so the first paint already uses them and
-// text doesn't rewrap and shift the page when they arrive (Lighthouse, 2026-10-24)
-import displayFont from '@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-wght-normal.woff2?url';
+// the text font's Latin file, fetched with the page instead of after the CSS, so the first paint already uses it and
+// text doesn't rewrap and shift the page when it arrives (Lighthouse, 2026-10-24). Only this one: preloading the
+// larger display font too delayed the home page's first paint (performance 88–89 instead of 92–95).
 import textFont from '@fontsource-variable/hanken-grotesk/files/hanken-grotesk-latin-wght-normal.woff2?url';
 
 interface Props {
@@ -23,7 +23,6 @@ const { title, description, home = false } = Astro.props;
     <meta name="description" content={description} />
     <meta name="theme-color" content="#0b1d21" />
     <link rel="preload" href={textFont} as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href={displayFont} as="font" type="font/woff2" crossorigin />
     {/* iOS turns dates and numbers into white links among grey text (Jason, 2026-10-21) */}
     <meta name="format-detection" content="telephone=no, date=no, address=no, email=no" />
     <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />

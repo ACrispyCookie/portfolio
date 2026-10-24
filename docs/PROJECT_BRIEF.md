@@ -59,6 +59,7 @@ Source of truth for content and priorities. Facts come from Jason's answers, his
   - **DVD Logo:** the FPGA's HDMI output is captured and streamed live to the browser as **MJPEG**.
 - **Stack** 📄: Python **FastAPI** web API with a WebSocket state/command channel, an in-memory queue/session manager and a demo proxy. A separate **FPGA agent** service sits next to the board and handles discovery, telemetry, PL/PS programming, reset and fault latching through Xilinx tooling, connected over a local socket. Frontend: **Vite + React**. Deployed as two Docker containers; tests in pytest.
   - Homelab privacy: on the site, describe the architecture as boxes (browser → web app → hardware agent → board). No hosts, ports or paths.
+- **Sessions** (📄 Live-FPGA-Lab README, §How sessions and queueing work, 2026-10-24): visitors are anonymous (a cookie, no account); a session goes queued → starting → active → ending → ended, and only one active or starting session owns the board; every session ends with a reason (ended by the visitor, expired, programming failed, board fault, board offline). The web app also passes the running demo through to the page. **Direct links** (Jason, 2026-10-24, branch `feature/start-demo-link`, merged): `?start=<demo id>` joins that demo's queue on arrival; the portfolio's Run the demo buttons use it.
 - **Hardest part** ✅: getting the **Vivado Tcl scripts** right (automated programming of PL and PS), and making the lab **recover from faults on its own, without manual intervention**.
 - **Live status on the portfolio** ✅. Checked 2026-10-19:
   - The only public REST endpoint, `GET /api/status`, returns just `{"status":"ok","board":true}`. It sends **no CORS header** and **sets a new anonymous `fpga_user` cookie on every call**.
@@ -144,6 +145,16 @@ Source: `docs/GRADES.md` ✅ (Jason's file; **never publish the file itself**, i
 - **N-body result:** the final multi-GPU version runs **2910× faster than the sequential CPU code** (293.3 s → 0.0997 s; 0.148 → **431 billion interactions/s**), and 40× faster than the OpenMP CPU version (📑 `reports/Overleaf Projects/High Performance Computing - Project 5/main-EN.tex`, §Results and measurements). Steps: OpenMP 72× → naive GPU 197× → tiling 369× → read-only cache/FMA 571× → multi-GPU 2175× → divergence removal 2910×.
 - **Other projects in the progression** (📑 HPC Projects 1–4): Sobel **21.49×** over the original C code on an Intel Core i5-1235U (4096², `-fast`); K-Means OpenMP **17.31×** with 56 threads; CUDA convolution up to **16.97×** over the CPU on a Tesla K80; CUDA CLAHE **1334 MPixel/s**, about 24× the CPU version on a Tesla K80.
 - **Hardware: 4× NVIDIA Tesla K80** ✅ (the multi-GPU step uses all four). The same server ran Projects 3–4.
+- **How each N-body step works** (📑 `reports/cleaned/High Performance Computing - Project 5/main-EN.tex`; Jason to publish as `public/reports/ece415/nbody-report.pdf`):
+  - The workload is many independent systems (galaxies) of bodies. Each time step has two phases: forces and new velocities for every body, then new positions. On the GPU these are two kernels, so all velocities are done before any position moves (§The Algorithm, §Kernel Separation).
+  - OpenMP splits the independent systems across CPU threads (no synchronisation needed) and switches the data to a structure of arrays (§CPU Parallelization).
+  - First GPU version: one thread per body, every thread reading all N positions from global memory (N² reads); `rsqrtf()` runs the inverse square root on the special function units (§Initial GPU Version).
+  - CUDA streams run the independent systems' kernels at the same time: 40.01 billion interactions/s (270×). Structure of arrays lets a warp read neighbouring addresses in one transaction: 40.90 (276×) (§CUDA Streams, §Structure of Arrays).
+  - Tiling: each block loads a tile of bodies into shared memory once, every thread reuses it, and partial forces add up tile by tile (§Applying tiling).
+  - `__ldg()` reads positions through the read-only data cache; `fmaf()` fuses multiply and add (§Read-Only Data Cache).
+  - Coarsening (more bodies per thread) first made it slower: the extra registers spilled to memory. Launch bounds that allow 128 registers per thread instead of 64 removed the spilling; the spilling version ran at about half the speed (§Coarsening, §Launch Bounds).
+  - Four GPUs: one OpenMP thread per GPU, each with an equal share of the systems (§Multiple GPUs). Padding the bodies to a multiple of block size × coarsening factor removes the bounds checks that made warps diverge (§Eliminating divergence).
+  - Every version ran 25 times; the average excludes the highest and lowest run (§Results).
 - The repo chart `research/ECE415-High-Performance-Computing/docs/images/lab5-throughput-comparison.png` matches the report (final ≈ 431 B interactions/s) 📄📑. It's a good candidate for a restyled chart.
 
 ### Tier 2 — Featured (medium cards, short write-up, project page optional)
@@ -157,6 +168,11 @@ Source: `docs/GRADES.md` ✅ (Jason's file; **never publish the file itself**, i
 - Coroutine library (`ucontext`) → user-level thread runtime with round-robin scheduling, **timer-based preemption**, yield/sleep/join and semaphores, then earlier workloads ported onto it 📄
 - Plus pthreads, System V semaphores and monitors (narrow bridge, train ride, readers/writers) 📄
 - Confirmed by 📑 `reports/ECE321 - Project 1–4.pdf`. Project 4 covers the coroutine → `mythreads` runtime and preemption that's safe in critical sections. There are no performance numbers, so lead with the design.
+- **How the thread library works** (📑 `reports/ECE321 - Project 4.pdf`):
+  - Coroutines switch with `swapcontext` (p. 2–6). Threads: the timer is switched off while library code runs and re-armed with the thread's remaining time; before a context switch it is off, and the new thread turns it back on (p. 14). Sleep uses wake-up timestamps; when every thread sleeps, the scheduler sleeps the process until the next wake-up (p. 15).
+  - Threads were first kept in an array, where removing one moved the last thread into its place and changed the order, so priorities shifted (and could be gamed); a linked list fixed it (p. 21).
+  - Time slice: with Project 1's pipe workload the run time grows linearly with the slice, except for very small slices: at 1 µs it took about 70 s, the same as a 40 ms slice, because even the quickest system calls can't finish within a slice (p. 23–25). The first performance number for ECE321.
+  - `scanf` kept returning early when the timer interrupted it, so the library got its own: the scheduler wakes threads waiting for input when standard input changes, and a thread takes the input only if it matches its format (p. 40).
 
 **ECE494 Microprocessor Design: CV32E40P timing optimization** ⬆ raised
 - Small FPGA SoC around the **CV32E40P** RISC-V core on a ZedBoard. Found the critical path in Vivado and compared four variants with forwarding paths removed ✅📄
@@ -174,11 +190,19 @@ Source: `docs/GRADES.md` ✅ (Jason's file; **never publish the file itself**, i
 - **2 m at 128 bps:** Jason says ✅ the team did achieve it, but it **wasn't captured** (no log, not in the report). **Don't use it on the site** ✅. Publish only the measured table (≤ 1 m). The ECE455 README still states it; that's Jason's call, not a site concern.
   - Minor conflict: per-run error rates in the repo logs differ somewhat from the report's table (e.g. 64 bps at 25 cm). The report wins as the higher-trust source.
 - **Defensive takeaway:** physical isolation alone isn't a security guarantee. Distance and ambient noise sharply limit the channel. (📑 report §Conclusion)
+- **Full measurements** (📑 `Overleaf Projects/Hardware Security - Project/conference_101719.tex`, §Results and Analysis), outcome level: the 128-bit message takes 64 s at 2 bps, 32 s at 4, 16 s at 8, 8 s at 16, 4 s at 32, 2 s at 64 and 1 s at 128 bps. Bit errors: 0% at 2–32 bps at 25, 50 and 100 cm; at 64 bps 9.67%, 16.4%, 29.68%; at 128 bps 51.2% at 25 cm, failed at 50 and 100 cm. Errors grow with distance and bitrate because the signal-to-noise ratio falls with distance and each bit gets less time at higher rates. The program needed no administrator rights and no hardware changes (§Conclusion).
 - Media: setup photo + live decoding GIF in the repo 📄. Slide p. 9 photos are clean of names.
 
 **ECE348 Distributed Systems: distributed runtime with live migration**
 - UDP request/reply with at-most-once semantics → causal/total-order group communication (Java) → network file system with an LRU cache → **SimpleScript distributed runtime** 📄
 - The runtime has a distributed tuple space, **live thread migration** across nodes, load balancing, and graceful draining on shutdown 📄📑 (`reports/Distributed Systems - Assignment 4.pdf`, p. 10–17)
+- **How the runtime works** (📑 `reports/Distributed Systems - Assignment 4.pdf`, p. 3–17):
+  - A parser checks the `#SIMPLESCRIPT` header, each instruction's name and argument count, and records labels; an interpreter steps a thread one instruction at a time; a scheduler, on its own thread, keeps three queues: runnable, sleeping, and waiting for a tuple (p. 3–6).
+  - Local tuple space: a read or take that can't be met waits as a request; a new tuple first completes waiting requests (every read, at most one take) and is stored only if no take used it (p. 8).
+  - Distributed: every read or take is broadcast; a node that can meet it sends the tuple back, and for a take it holds the tuple aside until the requester confirms or cancels, so two nodes never take the same tuple (p. 10).
+  - Migration: the thread leaves its queue; a waiting thread's request is cancelled everywhere and its program counter steps back one, so the new node reruns that instruction; a sleeping thread carries its wake-up time (p. 14).
+  - Load balancing: nodes broadcast their thread counts and move a thread to the least loaded node only when the gap is 2 or more, so threads don't bounce back and forth; it reruns periodically (p. 15).
+  - Shutdown: the leaving node stops its scheduler, announces it, waits for every node to acknowledge, then hands all its threads and tuples to another node (p. 17).
 - **Numbers:** the client-side cache raised file-system throughput from **~10.5 MB/s to ~53 MB/s (~5×)** once it held the working set (📑 Assignment 3, p. 21). The request/reply server scaled from **112 to 1413 req/s** going from 1 to 16 worker threads (📑 Assignment 1, p. 25). Total-order multicast measured **64.2 packets per message** in a group of 4, matching the predicted 4N² (📑 Assignment 2, p. 26–27).
 - **Solo project** ✅
 
@@ -187,6 +211,7 @@ Source: `docs/GRADES.md` ✅ (Jason's file; **never publish the file itself**, i
 - 📑 Labs 1–3 reports are Jason's alone (`Overleaf Projects/Digital Systems Lab - Lab 1–3/`). Lab 3 (VGA, 25 MHz pixel clock) already includes an **optional DVD-logo bouncing sprite Jason added on his own**, which is where DVD Logo FPGA started. The SPI/accelerometer capstone has no report (📄 only).
 - **Four labs** ✅ (Jason, 2026-10-19): Lab 1 7-segment/LED driver, Lab 2 UART, Lab 3 VGA controller, **Lab 4 SPI driver for the accelerometer**. In Lab 3 both the **DVD-logo sprite and the video shown through the VGA controller were optional**. In Lab 4 Jason brought the Lab 3 DVD logo over and **drove it with the accelerometer**, a Lab 3 → Lab 4 connection that **wasn't even listed as an optional extension**.
 - 📄 `research/DVD-Logo-FPGA/README.md`: a 51×23 logo sprite in BRAM, composited into a 128×96 framebuffer and scaled up 5× to 640×480; accelerometer read over 5 MHz SPI; automatic, tilt and button modes.
+- **More from the README** (📄 `research/DVD-Logo-FPGA/README.md`, 2026-10-24): every logical pixel is shown as a 5×5 block; HDMI through an RGB-to-DVI encoder, with a 25.175 MHz pixel clock and a serial clock 5× faster; position updates on a tick at the end of each frame, so the logo never moves mid-frame; edges clamp the position so the whole logo stays on screen and change its colour on impact; mode priority accelerometer → automatic → manual (buttons move one logical pixel); buttons and switches are synchronised and debounced; X, Y, Z and temperature readings are averaged and sent as text over UART at 57,600 baud; focused testbenches for the SPI, UART and sprite logic.
 - Mention briefly ✅: Jason **ported the final project to HDMI on the Smart Zynq SL** (https://github.com/ACrispyCookie/DVD-Logo-FPGA). 640×480 via TMDS, sprite bouncing with edge collision and colour change, tilt or button control. This is the second **Live FPGA Lab** demo. Pill: `Self-initiated`.
 
 **ECE436 Wireless Communications: Wi-Fi fairness study** *(outcome level only; see CLAUDE.md)*
@@ -200,10 +225,17 @@ Source: `docs/GRADES.md` ✅ (Jason's file; **never publish the file itself**, i
 - First-person explorable house in C++/OpenGL: day/night cycle, dynamic lighting with a flashlight, transparency sorting, OBJ model loading, NURBS terrain, hot-reloadable assets 📄
 - Media: several screenshots in the repo 📄
 - 📑 `Overleaf Projects/Computer Graphics - Homework 3/` confirms the engine (object tree, managers, OBJ loader, **NURBS mountain range**). Team: Jason + Tsogkas.
+- **How the engine works** (📑 `reports/cleaned/Computer Graphics - Homework 3/ece433_template.tex`, §Assignment; Greek):
+  - Every scene item is an Object with its own transforms, colour, material, texture, gravity and visibility, in a parent–child tree; subclasses only add their own drawing. Static objects are compiled into OpenGL display lists on their first draw; see-through objects are kept apart and sorted by distance from the camera before drawing.
+  - Static manager classes instead of globals: the game loop scales every movement by the frame time (frame-rate independent); input; window (windowed and full screen); lighting (a light can belong to an object and follows its transforms and visibility); textures (with masks for transparency); materials.
+  - First-person camera from yaw and pitch, gravity at 9.81 m/s², eye height held at 1.7 units above the ground, a fly toggle, and a flashlight that follows the camera.
+  - Furniture is read from text scene files with nested BEGIN/END blocks, and can be reloaded with a key while the program runs; the car and the TV are OBJ models.
+  - Rooms: garage, family room, dining room and kitchen, two bedrooms, bathroom, hallway and porch, built from reusable pieces (ridged walls, framed glass windows, lanterns with their own light, prism roofs).
+  - The world: a sun and a moon whose height blends the sky from night to sunset to day, a 100 × 100 m grass ground, a ring of mountains made from NURBS surfaces, and a Minecraft Nether portal with its own purple light.
 
 ### Self-initiated band: "Built because I wanted to"
 A visual band of its own (the passion proof). Live FPGA Lab and DVD Logo FPGA link back to their cards.
-- **Homelab** ✅: self-hosted infrastructure for services, automation and networking experiments. Hosts the Live FPGA Lab.
+- **Homelab** ✅: self-hosted infrastructure for services, automation and networking experiments. Hosts the Live FPGA Lab. It also serves this portfolio, njason.dev, behind its reverse proxy (📄 `scripts/deploy.sh`, 2026-10-24).
   - Show only a **privacy-safe diagram**: service categories (Virtualization, Containers, Reverse proxy, VPN access, DNS filtering, Home automation, FPGA bench), with no IPs, hostnames, VLANs, ports, versions or topology.
   - ❓ Jason is making a diagram; until then use a stylized category diagram.
 - **GoWin IDE Docker image**: runs the GoWin FPGA IDE in a container with GUI and USB forwarding 📄

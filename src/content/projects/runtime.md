@@ -18,17 +18,34 @@ A runtime that runs small programs across several machines. The programs share d
 
 The programs are written in SimpleScript, a small scripting language, which the runtime parses and interprets itself.
 
-## Why it's hard
+## Inside the runtime
 
-Moving a thread while it runs means packing up its state, sending it and resuming it on another machine, while the other threads keep reading and writing the shared tuple space.
+### Running a script
 
-## How it works
+A parser checks the script's header, every instruction's name and arguments, and where each label points. An interpreter then steps a thread forward one instruction at a time. On each machine a scheduler, on its own thread, keeps three queues: threads ready to run, threads asleep, and threads waiting for a tuple.
 
-- Each machine parses, interprets and schedules its own threads.
-- A distributed tuple space that every thread can read and write.
-- Load balancing: when one machine runs at least two more threads than another, a thread moves over.
-- Graceful shutdown: a machine that leaves hands its threads to the others first.
+### A tuple space every machine shares
 
-## My part
+Threads share data as tuples: they put one in, read one, or take one out. A read or take that can't be met yet waits. When a new tuple arrives, it first completes the waiting reads and at most one take, and is kept only if no take used it.
 
-A solo project, like the course's three assignments before it: a request/reply library, group communication with total-order multicast, and a network file system with a cache.
+Across machines, every read or take is broadcast. A machine that can meet it sends the tuple back. For a take, it holds the tuple aside until the asker confirms or cancels, so two machines can never take the same tuple.
+
+### Moving a running thread
+
+To move a thread, the scheduler takes it out of its queue and sends its state to another machine. A thread waiting for a tuple has its request cancelled everywhere and steps back one instruction, so the new machine asks again. A sleeping thread carries its wake-up time, so it sleeps only as long as it has left.
+
+### Load balancing
+
+Machines regularly share how many threads they run. A machine moves a thread to the least busy one only when the gap is 2 or more, so threads don't bounce back and forth.
+
+### Leaving gracefully
+
+A machine that shuts down stops its scheduler and tells the others. It waits until every one of them has acknowledged, then hands all its threads and tuples to another machine, so nothing is lost.
+
+## Built on three earlier assignments
+
+The course built up to this runtime one layer at a time:
+
+- A request/reply library over UDP that runs each request at most once. Going from 1 to 16 worker threads raised the server from 112 to 1413 requests per second.
+- Group communication with total-order multicast, so every member sees messages in the same order. A group of 4 used 64.2 packets per message, as the 4N² estimate predicted.
+- A network file system with a client cache. Once the cache held the working set, throughput went from about 10.5 to about 53 MB/s.

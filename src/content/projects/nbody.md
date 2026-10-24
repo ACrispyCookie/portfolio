@@ -23,6 +23,7 @@ results:
     - { label: "Single-core C", value: 0.148, display: "0.148" }
     - { label: "OpenMP", value: 10.65, display: "10.65" }
     - { label: "First GPU version", value: 29.24, display: "29.24" }
+    - { label: "Streams, structure of arrays", value: 40.90, display: "40.90" }
     - { label: "Shared-memory tiling", value: 54.68, display: "54.68" }
     - { label: "Read-only cache, FMA", value: 84.68, display: "84.68" }
     - { label: "Four GPUs", value: 322.27, display: "322.27" }
@@ -35,22 +36,40 @@ A galaxy simulation: every body pulls on every other body, every step. We starte
 
 It was the last of five projects in the course, after a Sobel filter, K-means with OpenMP, and image convolution and contrast enhancement (CLAHE) in CUDA.
 
-## Why it's hard
+## One change at a time
 
-Every body interacts with every other one, so the work grows with the square of the number of bodies. On a GPU, speed depends on where the data sits in memory, how threads share it, and how often threads in the same group take different branches.
+The simulation runs many independent galaxies. Each time step has two phases: work out the force on every body and its new velocity, then move every body. Every change below was measured against the one before it, so each had to earn its place.
 
-## How it works
+### On the CPU first
 
-- CUDA streams, and the data laid out as a structure of arrays so neighbouring threads read neighbouring memory.
-- Shared-memory tiling: a block of threads loads bodies once and every thread reuses them.
-- The read-only cache and fused multiply-add for the force maths.
-- Four GPUs at once, with one OpenMP thread driving each.
-- Padding the data so threads in a warp never take different paths.
+OpenMP gives each CPU thread its own galaxies, so the threads never have to wait for each other. The data also changed shape: instead of one record per body, all the x positions sit together, then all the y positions, and so on (a structure of arrays). Reading one coordinate for many bodies then reads memory in order.
+
+### A first GPU version
+
+One GPU thread per body. Each thread reads the position of every other body and adds up the forces, so a galaxy of N bodies means N² reads from the GPU's slow global memory. The forces and the positions are two separate kernels, so every velocity is ready before any body moves. The inverse square root runs on the GPU's special function units (`rsqrtf`).
+
+### Keeping the GPU busy
+
+Galaxies don't depend on each other, so CUDA streams run their kernels at the same time. With the structure of arrays, the 32 threads of a warp read neighbouring addresses, which the GPU serves in one memory transaction.
+
+### Sharing data inside a block
+
+Tiling: a block of threads loads a tile of bodies into fast shared memory once, and every thread in the block reuses it. The forces add up tile by tile and go back to global memory only at the end.
+
+### Faster reads and faster maths
+
+Positions are only ever read, so they go through the read-only data cache (`__ldg`). The force maths uses fused multiply-add (`fmaf`), one instruction for a multiply and an add.
+
+### More work per thread, and its cost
+
+Giving each thread several bodies (coarsening) first made it slower: the extra values didn't fit in the thread's registers and spilled to memory. Launch bounds that let each thread use 128 registers instead of 64 removed the spilling. The version that spilled ran at about half the speed.
+
+### Four GPUs, no divergence
+
+One OpenMP thread drives each of the four GPUs, each with an equal share of the galaxies. Finally, padding the number of bodies to a multiple of the block size removed the bounds checks, so the threads of a warp never take different paths.
 
 ## Results
 
-Thread coarsening was the one step that made it slower (487× against 571× before it).
+Coarsening on its own was the one step that made it slower (487× against 571× before it), until launch bounds fixed it.
 
-## How we tested it
-
-Each version ran 25 times. We dropped the fastest and slowest runs and averaged the rest.
+Each version ran 25 times. The average leaves out the fastest and the slowest run.

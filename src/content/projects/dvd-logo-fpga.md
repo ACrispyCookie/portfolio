@@ -22,18 +22,26 @@ numbers:
 
 ## What it is
 
-The DVD logo bouncing around a screen, built in hardware. It bounces off the edges and changes colour, or you tilt the board and it slides that way. It is the second demo in my [Live FPGA Lab](/projects/live-fpga-lab).
+The DVD logo bouncing around a screen, built in hardware, and the second demo in my [Live FPGA Lab](/projects/live-fpga-lab). It bounces off the edges and changes colour, or you tilt the board and it slides that way.
+
+## Where it came from
 
 It started in a course lab. In ECE333's VGA lab I added the bouncing logo as an optional extra. In the next lab I drove it with the board's accelerometer, which the lab never asked for. Later I ported it to HDMI on the Smart Zynq SL.
 
 ## How it works
 
-- The accelerometer is read over SPI, and its X and Y tilt move the logo.
-- In automatic mode the logo bounces off every edge and changes colour on each hit.
-- The logo sits in block RAM and is drawn into a 128×96 frame, and every pixel is scaled up five times to fill 640×480.
-- The position updates between frames.
-- The board's buttons can also place the logo directly.
+### Drawing the logo
 
-## My part
+The 51×23 logo sits in block RAM. It is drawn into a small 128×96 frame, and every pixel of that frame is shown as a 5×5 block to fill the 640×480 screen. An encoder turns the picture into HDMI, with a 25.175 MHz pixel clock and a serial clock five times faster. The logo's position changes only at the end of a frame, so it never moves halfway down the screen.
 
-A solo project: I designed and built all of it.
+### Three ways to move it
+
+- **Bouncing:** the logo reflects off every edge and changes colour each time it hits one.
+- **Tilting:** the board's accelerometer is read over SPI at 5 MHz, and its X and Y tilt push the logo, held inside the screen at the edges.
+- **Buttons:** with the other modes off, the board's buttons move it one step at a time.
+
+The accelerometer wins over bouncing, and bouncing over the buttons. Every button and switch is synchronised and debounced before the logic sees it.
+
+### Sensor readings on the side
+
+The X, Y and Z readings and the temperature are averaged and sent as text over UART at 57,600 baud, so a serial terminal can watch the sensor live. The SPI, UART and sprite logic each have their own testbench.

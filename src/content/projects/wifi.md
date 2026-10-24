@@ -17,6 +17,7 @@ numbers:
   - { value: "96.0", label: "Mbit/s taken by the modified station" }
   - { value: "4.16", label: "Mbit/s for the fair link, even after it changed channel" }
 results:
+  section: "what-we-measured"
   text: "Average throughput on one access point."
   bars:
     - { label: "Fair station, alone", value: 87.7, display: "87.7 Mbit/s" }
@@ -24,16 +25,26 @@ results:
     - { label: "Fair, sharing", value: 0.02, display: "0.02 Mbit/s" }
 ---
 
-## What it is
+## What we showed
 
-We showed that one Wi-Fi station with a modified Linux driver (ath9k) can ignore 802.11's rules for sharing the channel and starve a well-behaved neighbour.
+One Wi-Fi station with a modified Linux driver (ath9k) can ignore 802.11's rules for sharing the channel and take almost all of it from a well-behaved neighbour.
 
-## How it works
+## The setup
 
-We ran automated, scripted experiments on NITLab, the university's wireless testbed, with a fair station and a modified one on the same network.
+Automated, scripted experiments on NITLab, the university's wireless testbed. A fair station and a modified one each tried to send 150 Mbit/s of UDP traffic with iperf for 60 seconds, first alone, then together.
 
-## Results
+## What we measured
 
-With both drivers unmodified, the two shared the channel roughly evenly (38.5 and 48.2 Mbit/s). On separate access points the result was the same: 92.9 against 0.12 Mbit/s.
+| Case | Fair station | Modified station |
+|---|---|---|
+| Each alone | 87.7 Mbit/s | 96.5 Mbit/s |
+| Both unmodified, sharing | 38.5 Mbit/s | 48.2 Mbit/s |
+| One modified, same access point | 0.02 Mbit/s | 96.0 Mbit/s |
+| One modified, separate access points | 0.12 Mbit/s | 92.9 Mbit/s |
+| The fair link changes channel | 4.16 Mbit/s | followed it |
 
-Wi-Fi fairness depends on every device behaving. One misbehaving device on ordinary hardware can take over a network, and changing channel does not escape it.
+With normal drivers the two stations split the channel roughly evenly. With one modified, the fair station was left with almost nothing, on the same access point or on separate ones, and even after it moved to another channel.
+
+## What it means for defenders
+
+Wi-Fi fairness depends on every device following the rules. One misbehaving device on ordinary hardware can take over a network, and changing channel does not escape it.

@@ -64,14 +64,12 @@
 .psec > p { color: var(--color-silk); }
 .psec .lead { color: var(--color-silk); margin-bottom: 4px; }
 
-.toc ol { list-style: none; margin: 0; padding: 0; display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+/* the links wrap onto rows wherever the list sits above the text: a sideways strip hid links past its edge (inspector,
+   2026-10-24) */
+.toc ol { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px; }
 .toc a { display: block; padding: 8px 12px; border-radius: 10px; color: var(--color-dim); text-decoration: none; white-space: nowrap; font-size: var(--text-small); }
 .toc a:hover { color: var(--color-silk); background: var(--color-panel); }
 .toc a[aria-current] { color: var(--color-silk); background: var(--color-panel); }
-/* a tablet-wide body has room for the links on two rows: they wrap instead of sliding under the strip's edge */
-@container pbody (min-width: 600px) and (max-width: 859.98px) {
-  .toc ol { flex-wrap: wrap; overflow: visible; }
-}
 @container pbody (min-width: 860px) {
   .pgrid { grid-template-columns: 180px minmax(0, 1fr); column-gap: 48px; }
   .toc { position: sticky; top: 92px; align-self: start; }
@@ -164,3 +162,15 @@
 .road li[data-state="next"] { color: var(--color-dim); }
 /* the video caption at the top on a project page: at the foot it read as a label above the key numbers below it */
 .hero-media .onfpga { top: 8px; bottom: auto; }
+
+/* a table in the copy (RAMBO's measurements): flat panel rows, no rules; it scrolls inside itself on a narrow phone */
+.psec > table { display: block; max-width: 100%; overflow-x: auto; border-collapse: separate; border-spacing: 0 4px; font-size: var(--text-small); font-variant-numeric: tabular-nums; margin: 4px 0 12px; }
+.psec > table th { color: var(--color-dim); font-weight: 600; text-align: left; padding: 6px 14px; white-space: nowrap; }
+.psec > table td { background: var(--color-panel); color: var(--color-silk); padding: 10px 14px; white-space: nowrap; }
+.psec > table td:first-child { border-radius: 10px 0 0 10px; font-weight: 600; }
+.psec > table td:last-child { border-radius: 0 10px 10px 0; }
+/* on a phone the table fits the column instead of scrolling: tighter cells, headers may wrap */
+@media (max-width: 760px) {
+  .psec > table th { white-space: normal; padding: 6px 8px; vertical-align: bottom; }
+  .psec > table td { padding: 10px 8px; }
+}

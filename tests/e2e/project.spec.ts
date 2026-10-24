@@ -11,7 +11,8 @@ const GPGPU_DOCS = docsFor({ id: 'gpgpu', course: 'ece338' }, existsSync);
 const DOCS_TITLE = GPGPU_DOCS.map((d) => d.label).join(' and ');
 // Verification before Results, and named for what it is (Jason, 2026-10-24)
 const GPGPU_SECTIONS = ['What it is', 'Inside the GPGPU', 'From C code to the board', 'Verification', 'Results', "What's next", ...(GPGPU_DOCS.length ? [DOCS_TITLE] : []), 'Team', 'Tools'];
-const framed = (hs: string[]) => hs[0] === 'What it is' && hs.at(-2) === 'Team' && hs.at(-1) === 'Tools';
+// a security project opens with What we showed (approved draft, 2026-10-24)
+const framed = (hs: string[]) => ['What it is', 'What we showed'].includes(hs[0]) && hs.at(-2) === 'Team' && hs.at(-1) === 'Tools';
 const MAIN = ['/courses/ece338/gpgpu', '/courses/ece415/nbody', '/courses/ece455/rambo', '/courses/ece436/wifi', '/courses/ece433/house', '/courses/ece348/runtime', '/courses/ece321/threads', '/projects/gpgpu-v2', '/projects/homelab', '/projects/live-fpga-lab', '/projects/dvd-logo-fpga'];
 const text = (s: string | null) => (s ?? '').replace(/\s+/g, ' ').replace(/’/g, "'").trim(); // headings set curly apostrophes
 const h2s = async (page: Page) => (await page.locator('main h2').allTextContents()).map(text);
@@ -179,7 +180,7 @@ test("GPGPU's What's next is a card for GPGPU v2: its roadmap, title, headline a
 });
 
 test('a link inside the copy is underlined, unlike the text around it (Jason, 2026-10-24)', async ({ page }) => {
-  await page.goto('/projects/live-fpga-lab');
+  await page.goto('/projects/dvd-logo-fpga');
   const a = page.locator('#what-it-is p a').first();
   expect(await a.evaluate((el) => getComputedStyle(el).textDecorationLine)).toBe('underline');
   // buttons are not text links: no underline
@@ -261,20 +262,20 @@ test('keyboard: every contents link is reachable, its focus is visible, and Ente
   expect(await page.locator('#results h2').evaluate((h) => h.getBoundingClientRect().top)).toBeGreaterThanOrEqual(bar);
 });
 
-test('phone: the contents list is a strip that scrolls inside itself, and the page never scrolls sideways', async ({ page }) => {
+test('phone: the contents links wrap onto rows, none hidden past an edge, and the page never scrolls sideways (inspector, 2026-10-24)', async ({ page }) => {
   test.skip(page.viewportSize()!.width > 760, 'phones');
   await page.goto(GPGPU);
   const toc = page.locator('main nav.toc');
-  expect(await toc.evaluate((t) => { const s = getComputedStyle(t.querySelector('ol, ul')!); return s.overflowX; })).toMatch(/auto|scroll/);
+  const [sw, cw] = await toc.locator('ol').evaluate((o) => [o.scrollWidth, o.clientWidth]);
+  expect(sw).toBeLessThanOrEqual(cw + 1);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   // a too-wide element makes a phone lay the whole page out wider and zoom it out, which the check above can't see
   expect(await page.evaluate(() => innerWidth)).toBe(page.viewportSize()!.width);
-  // reading the first section, the strip shows its link whole
-  await page.locator('#what-it-is h2').evaluate((h) => h.scrollIntoView());
-  await expect(toc.locator('a').first()).toHaveAttribute('aria-current', 'true');
-  await page.waitForTimeout(600); // the strip's own smooth scroll
-  const [l, a] = await toc.evaluate((t) => [t.querySelector('ol')!.getBoundingClientRect().left, t.querySelector('a')!.getBoundingClientRect().left]);
-  expect(a).toBeGreaterThanOrEqual(l - 1);
+  // deep in the page, every link is still inside the list's box
+  await page.locator('#results h2').evaluate((h) => h.scrollIntoView());
+  await page.waitForTimeout(600);
+  const out = await toc.evaluate((t) => { const b = t.getBoundingClientRect(); return [...t.querySelectorAll('a')].filter((a) => { const r = a.getBoundingClientRect(); return r.left < b.left - 1 || r.right > b.right + 1; }).length; });
+  expect(out).toBe(0);
   // the team cards line up with the text, not indented like a bulleted list
   const [h, m] = await page.locator('#team').evaluate((s) => [s.querySelector('h2')!.getBoundingClientRect().left, s.querySelector('.members')!.getBoundingClientRect().left]);
   expect(Math.abs(m - h)).toBeLessThanOrEqual(1);
@@ -305,8 +306,9 @@ for (const url of MAIN) {
   test(`${url} has its copy: What it is, and two key numbers unless listed`, async ({ page }) => {
     const res = await page.goto(url);
     expect(res!.status()).toBe(200);
-    expect(await h2s(page)).toContain('What it is');
-    expect(text(await page.locator('#what-it-is p').first().textContent()).length).toBeGreaterThan(60);
+    const open = (await page.locator('main section h2').first().textContent())!;
+    expect(['What it is', 'What we showed']).toContain(text(open));
+    expect(text(await page.locator('main .psec').first().locator('p').first().textContent()).length).toBeGreaterThan(60);
     const n = await page.locator('main .knum').count();
     if (NO_NUMBERS[url]) expect(n).toBe(0);
     else expect(n).toBeGreaterThanOrEqual(2);
@@ -441,4 +443,48 @@ test('tablet width: the contents list follows the numbers at a short gap', async
     const t = (await page.locator('main nav.toc').boundingBox())!;
     expect(t.y - (k.y + k.height), `${w}×${h}`).toBeLessThanOrEqual(36);
   }
+});
+
+// Plan 2 content: each page has its own sections (Jason, 2026-10-24); a security page stays at outcome level
+test('RAMBO: its own sections, its bars under What we measured, and the full error table', async ({ page }) => {
+  await page.goto('/courses/ece455/rambo');
+  const hs = await h2s(page);
+  expect(hs.slice(0, 4)).toEqual(['What we showed', 'The setup', 'What we measured', 'What it means for defenders']);
+  expect(hs.slice(-2)).toEqual(['Team', 'Tools']);
+  await expect(page.locator('#what-we-measured .bars .bar')).toHaveCount(3);
+  const table = page.locator('#what-we-measured table');
+  await expect(table).toHaveCount(1);
+  expect(await table.locator('tbody tr').count()).toBe(7); // 2 to 128 bps
+  for (const cell of [table, table.locator('td').first()]) expect(await cell.evaluate((t) => getComputedStyle(t).borderTopWidth)).toBe('0px'); // flat rows, no rules (spec §11)
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
+test('Wi-Fi jammer: its own sections, bars and the table of measured cases under What we measured', async ({ page }) => {
+  await page.goto('/courses/ece436/wifi');
+  expect((await h2s(page)).slice(0, 4)).toEqual(['What we showed', 'The setup', 'What we measured', 'What it means for defenders']);
+  await expect(page.locator('#what-we-measured .bars .bar')).toHaveCount(3);
+  expect(await page.locator('#what-we-measured table tbody tr').count()).toBe(5);
+});
+
+// Jason, 2026-10-24: "Why it's hard" and "My part" weren't useful; each page has its own sections instead
+test('no project page keeps the old shared headings', async ({ page }) => {
+  for (const url of MAIN) {
+    await page.goto(url);
+    const hs = await h2s(page);
+    for (const old of ["Why it's hard", 'My part', 'How we tested it']) expect(hs, url).not.toContain(old);
+  }
+});
+
+// taste inspector, 2026-10-24: a short line right above a heading reads as a label; GPGPU v2's milestones end on a sentence
+test("GPGPU v2's What's next: its milestones, then a sentence", async ({ page }) => {
+  await page.goto('/projects/gpgpu-v2');
+  const last = page.locator('#whats-next > *').last();
+  expect(await last.evaluate((e) => e.tagName)).toBe('P');
+});
+
+test('phone: the RAMBO table fits the column without scrolling', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/courses/ece455/rambo');
+  const [sw, cw] = await page.locator('#what-we-measured table').evaluate((t) => [t.scrollWidth, t.clientWidth]);
+  expect(sw).toBeLessThanOrEqual(cw + 1);
 });

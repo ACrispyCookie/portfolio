@@ -68,6 +68,7 @@ body {
 }
 h1, h2, h3 { font-family: var(--font-display); color: var(--color-silk); margin: 0; text-wrap: balance; }
 p { margin: 0; max-width: 65ch; text-wrap: pretty; }
+li { text-wrap: pretty; } /* list items too: no one-word last line (Impeccable, 2026-10-24) */
 a { color: inherit; text-underline-offset: 3px; }
 ::selection { background: var(--color-cyan); color: var(--color-ink); }
 :focus-visible { outline: 2px solid var(--color-cyan); outline-offset: 3px; border-radius: 6px; }

@@ -38,13 +38,17 @@ for (const chunk of (entry.rendered?.html ?? '').split(/(?=<h2 id=")/)) {
   const m = H2.exec(chunk);
   if (m) md.set(m[1], { title: strip(m[2]), html: chunk.slice(m[0].length) });
 }
-if ([...md.keys()][0] !== 'what-it-is') throw new Error(`${entry.id}: the first section must be "What it is"`);
+// a page opens with What it is, or What we showed on a security project (approved draft, 2026-10-24)
+if (!['what-it-is', 'what-we-showed'].includes([...md.keys()][0])) throw new Error(`${entry.id}: the first section must be "What it is" or "What we showed"`);
 for (const id of ['team', 'tools', 'docs']) if (md.has(id)) throw new Error(`${entry.id}: "${id}" is the page's own section`);
-if (p.results && !md.has('results')) md.set('results', { title: 'Results', html: '' });
+// the result bars sit under Results, or under the section the data names (RAMBO: What we measured)
+const resultsAt = p.results?.section ?? 'results';
+if (p.results && !md.has(resultsAt)) md.set(resultsAt, { title: 'Results', html: '' });
 // a project in progress: What's next is its milestones still to do, from its data
 const todo = (p.milestones ?? []).filter((m) => m.state !== 'done');
 const esc = (t: string) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;');
-if (todo.length && !md.has('whats-next')) md.set('whats-next', { title: "What's next", html: `<ul>${todo.map((m) => `<li>${m.state === 'now' ? 'Now' : 'Next'}: ${esc(m.name)}</li>`).join('')}</ul>` });
+// (the Markdown's own What's next text, if any, follows the list)
+if (todo.length) md.set('whats-next', { title: "What's next", html: `<ul>${todo.map((m) => `<li>${m.state === 'now' ? 'Now' : 'Next'}: ${esc(m.name)}</li>`).join('')}</ul>${md.get('whats-next')?.html ?? ''}` });
 if (p.next && !md.has('whats-next')) md.set('whats-next', { title: "What's next", html: '' });
 const sections = [...md].map(([id, s]) => ({ id, ...s }));
 const lost = (p.figures ?? []).filter((f) => !md.has(f.section));
@@ -106,7 +110,7 @@ const Diagram = diagrams[p.diagram ?? 'runtime'];
       {sections.map((s) => (
         <section id={s.id} class="sec psec" aria-labelledby={`${s.id}-h`}>
           <h2 id={`${s.id}-h`} data-pad>{s.title}</h2>
-          {s.id === 'results' && p.results && (
+          {s.id === resultsAt && p.results && (
             <>
               <p>{p.results.text}</p>
               {p.results.bars && <ResultBars bars={p.results.bars} />}

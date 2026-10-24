@@ -19,7 +19,6 @@ milestones:
   - { name: "Branch divergence, warp scheduling", state: "next" }
 links:
   repo: "https://github.com/ACrispyCookie/GPGPU"
-  teamRepo: "https://github.com/PANAGIVTHS/ECE338-Parallel-Computer-Architecture"
 
 ---
 

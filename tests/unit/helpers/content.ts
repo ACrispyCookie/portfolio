@@ -21,7 +21,7 @@ export interface ProjectData {
   status?: 'in-progress';
   nowLine?: string;
   milestones?: { name: string; state: 'done' | 'now' | 'next' }[];
-  links?: { repo?: string; teamRepo?: string; demo?: string; site?: string };
+  links?: { repo?: string; demo?: string; site?: string };
   numbers?: { value: string; label: string }[];
   overview?: string;
   steps?: { title: string; text: string }[];

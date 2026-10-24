@@ -22,7 +22,7 @@ const projects = defineCollection({
       // a project still being built: where it stands, drawn by the roadmap diagram
       milestones: z.array(z.object({ name: z.string(), state: z.enum(['done', 'now', 'next']) })).optional(),
       // site: deployed and public; its Live pill is the only way there (Jason, 2026-10-23)
-      links: z.object({ repo: z.string().url().optional(), teamRepo: z.string().url().optional(), demo: z.string().url().optional(), site: z.string().url().optional() }).default({}),
+      links: z.object({ repo: z.string().url().optional(), demo: z.string().url().optional(), site: z.string().url().optional() }).default({}),
       report: z.string().optional(),
       status: z.enum(['in-progress']).optional(), // in progress: listed under "Currently working on"
       nowLine: z.string().optional(), // its 3–5 words there (brief: name + 3–5 words)

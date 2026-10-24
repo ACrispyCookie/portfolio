@@ -67,11 +67,10 @@ const Diagram = diagrams[p.diagram ?? 'runtime'];
     <h1>{p.title}</h1>
     <p class="lead">{p.headline}</p>
     <div class="pills"><Pills project={entry} /></div>
-    {(p.links.demo || p.links.repo || p.links.teamRepo) && (
+    {(p.links.demo || p.links.repo) && (
       <div class="btns">
         {p.links.demo && <a class="btn btn-live" href={p.links.demo}>Run the demo</a>}
         {p.links.repo && <a class="btn btn-secondary" href={p.links.repo}>Code</a>}
-        {p.links.teamRepo && <a class="btn btn-secondary" href={p.links.teamRepo}>Team repo</a>}
       </div>
     )}
   </header>

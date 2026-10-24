@@ -8,16 +8,21 @@
 .phead .pills:empty { display: none; }
 .phead .btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
 
-/* the one picture or video: 16:9 like the footage, never taller than two thirds of the screen */
-.hero-media { position: relative; margin: 0; border-radius: var(--radius-panel); overflow: hidden; background: var(--color-panel); aspect-ratio: 16 / 9; width: min(100%, 104svh); max-width: 100%; } /* at most 58.5% of the screen tall (sweep: 60%) */
+/* how tall a picture may be: 58% of the screen (sweep: 60%), or 84% on a short landscape screen such as a phone on its
+   side, where 58% shrank every picture into a corner (Jason, 2026-10-24; sweep: 86%) */
+:root { --pic-h: 58svh; }
+@media (orientation: landscape) and (max-height: 599px) { :root { --pic-h: 84svh; } }
+/* the one picture or video: spans the column like the key numbers under it; on a short screen it crops top and bottom
+   instead of shrinking sideways, down to 2.35:1 at most */
+.hero-media { position: relative; margin: 0; border-radius: var(--radius-panel); overflow: hidden; background: var(--color-panel); aspect-ratio: 16 / 9; width: min(100%, calc(var(--pic-h) * 2.35)); max-height: var(--pic-h); }
 .hero-media > video, .hero-media > img, .hero-media > picture img, .hero-media > svg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
 .hero-media picture { display: contents; }
 .pfig { margin: 20px 0 0; border-radius: var(--radius-inner); overflow: hidden; background: var(--color-panel); }
 .pfig img { display: block; width: 100%; height: auto; }
-/* every figure at most 58% of the screen tall, whatever its shape (sweep: 60%); --ar is its width over its height */
-.psec > .pfig { max-width: min(65ch, calc(58svh * var(--ar, 1.78))); }
-.pfig.drawn { --ar: 1.6; background: var(--color-raised); }
-.psec > .pfig.drawn, .psec > .pfig.square { max-width: min(520px, calc(58svh * var(--ar))); } /* a drawing at about the size of its words; a near-square picture not a whole screen */
+/* every figure at most --pic-h tall, whatever its shape; --ar is its width over its height */
+.psec > .pfig { max-width: min(65ch, calc(var(--pic-h) * var(--ar, 1.78))); }
+.pfig.drawn { --ar: 1.73; background: var(--color-raised); }
+.psec > .pfig.drawn, .psec > .pfig.square { max-width: min(520px, calc(var(--pic-h) * var(--ar))); } /* a drawing at about the size of its words; a near-square picture not a whole screen */
 .pfig.drawn svg { display: block; width: 100%; height: auto; }
 .hero-media.paper img { object-fit: contain; background: var(--color-paper); padding: 12px; box-sizing: border-box; }
 

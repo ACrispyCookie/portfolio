@@ -69,6 +69,28 @@ test('check.js: no errors or overflow, one edge for traced sections, trace clear
   expect(jumps).toBeLessThanOrEqual(2);
 });
 
+test('a pulse never runs past the end of the drawn copper; it shrinks into it (Jason, 2026-10-24)', async ({ page }) => {
+  await serveStream(page, event()); // pulses run only while the lab reports online
+  await page.goto('/projects/homelab');
+  await expect(page.locator('.t-pulses')).toHaveCSS('opacity', '1');
+  await page.waitForTimeout(600); // at the top the drawn copper ends a short way down, where pulses arrive within a second
+  const over = await page.evaluate(() => new Promise<number[]>((done) => {
+    const out: number[] = [];
+    const d = document.querySelector<SVGPathElement>('.t-drawn')!;
+    let n = 0;
+    (function f() {
+      const end = d.getTotalLength() - parseFloat(d.style.strokeDashoffset || '0');
+      for (const pu of document.querySelectorAll<SVGPathElement>('.t-pulse')) {
+        const dash = parseFloat(pu.style.strokeDasharray);
+        const head = -parseFloat(pu.style.strokeDashoffset) + dash; // where the visible dash ends along the path
+        if (dash > 0 && head > end + 1) out.push(head - end);
+      }
+      if (++n < 240) requestAnimationFrame(f); else done(out);
+    })();
+  }));
+  expect(over).toEqual([]);
+});
+
 test('pads, vias and stubs are SVG; each pad lights when the copper reaches it', async ({ page }) => {
   await page.goto('/');
   const n = await page.locator('main section[id] h2[data-pad]').count();

@@ -139,8 +139,9 @@ test(`${path}, ${mode.name}, every window shape, portrait and landscape: the pag
       const tall = [...document.querySelectorAll('main img, main video, main svg.diagram, main .origin svg')].flatMap((m) => {
         const r = m.getBoundingClientRect();
         if (!r.height) return [];
-        // the hero photo may fill up to 80% of the screen; every other picture up to 60%
-        const limit = m.closest('.cover') ? 0.8 : 0.6;
+        // the hero photo may fill up to 80% of the screen; every other picture up to 60%, except a project page's
+        // pictures on a short landscape screen, which may use 86% so they aren't shrunk to a corner (Jason, 2026-10-24)
+        const limit = m.closest('.cover') ? 0.8 : m.closest('.hero-media, .pfig') && innerWidth > innerHeight && innerHeight < 600 ? 0.86 : 0.6;
         const what = m.closest('.cover') ? 'hero photo' : m.closest('[data-id]')?.getAttribute('data-id') ?? m.tagName.toLowerCase();
         return r.height > innerHeight * limit ? [`${what} ${Math.round((r.height / innerHeight) * 100)}%`] : [];
       });
@@ -159,11 +160,24 @@ test(`${path}, ${mode.name}, every window shape, portrait and landscape: the pag
         const what = m.closest('[data-id]')?.getAttribute('data-id') ?? m.closest('.course')?.querySelector('.cn b')?.textContent ?? m.className;
         return r.height && r.width / r.height > 2 ? [`${what} ${Math.round(r.width)}×${Math.round(r.height)}`] : [];
       });
+      // project pages (Jason, 2026-10-24: pictures scaled badly in landscape): the top picture spans the column like the
+      // key numbers under it, and is never cropped to a strip
+      const hero = document.querySelector('.hero-media')?.getBoundingClientRect();
+      const col = (document.querySelector('.knums') ?? document.querySelector('.phead'))?.getBoundingClientRect();
+      if (hero && col && hero.width < Math.min(col.width, hero.height * 2.35) - 2) narrow.push(`top picture ${Math.round(hero.width)}px in a ${Math.round(col.width)}px column`);
+      if (hero && hero.width / hero.height > 2.4) strips.push(`top picture ${Math.round(hero.width)}×${Math.round(hero.height)}`);
+      // on a short landscape screen a section picture either fills the text's width or most of the screen's height
+      const textW = document.querySelector('.psec > p')?.getBoundingClientRect().width ?? 0;
+      if (innerWidth > innerHeight && innerHeight < 600) for (const f of document.querySelectorAll('.psec > .pfig')) {
+        const r = f.getBoundingClientRect();
+        const full = f.matches('.drawn, .square') ? Math.min(textW, 520) : textW;
+        if (r.width < full - 2 && r.height < innerHeight * 0.8 - 2) narrow.push(`section picture ${Math.round(r.width)}×${Math.round(r.height)}, small for the screen`);
+      }
       return { nameBottom: Math.round(name.bottom), tall, narrow, strips };
     });
     if (f.nameBottom > h) failures.push(`${w}×${h}: the page's h1 is below the first screen (bottom at ${f.nameBottom}px)`);
     for (const t of f.tall) failures.push(`${w}×${h}: picture taller than allowed: ${t}`);
-    for (const n of f.narrow) failures.push(`${w}×${h}: picture doesn't fill its card: ${n}`);
+    for (const n of f.narrow) failures.push(`${w}×${h}: picture doesn't fill its place: ${n}`);
     for (const n of f.strips) failures.push(`${w}×${h}: picture cropped to a strip: ${n}`);
   }
   await ctx.close();

@@ -101,9 +101,10 @@ describe('content matches the evidence scan', () => {
   test('each project lists its tools by what defines it, Git last', async () => {
     const { projects } = await loadContent();
     for (const p of projects) if (p.tools.includes('Git')) expect(p.tools.at(-1), p.id).toBe('Git');
-    for (const id of ['gpgpu', 'gpgpu-v2']) {
+    // GPGPU v1 is plain Verilog in .sv files (Jason, 2026-10-24); v2 is SystemVerilog
+    for (const [id, hdl] of [['gpgpu', 'Verilog'], ['gpgpu-v2', 'SystemVerilog']]) {
       const t = projects.find((p) => p.id === id)!.tools;
-      expect(t[0]).toBe('SystemVerilog');
+      expect(t[0]).toBe(hdl);
       expect(t.slice(0, 5)).toContain('RISC-V'); // shown on the card, not behind "+N"
     }
     const first = Object.fromEntries(projects.map((p) => [p.id, p.tools[0]]));

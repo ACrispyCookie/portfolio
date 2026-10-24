@@ -17,7 +17,8 @@ test('GPGPU header: breadcrumb to the course, title, its headline, its pills, an
   await expect(page.locator('main .phead .lead')).toHaveText('Our 32-core RISC-V GPGPU, running on a real FPGA');
   expect(await page.locator('main .phead .tag').evaluateAll((ts) => ts.map((t) => (t as HTMLElement).innerText.replace(/\s+/g, ' ').trim()))).toEqual(['ECE338 Grade 9']);
   const btn = page.locator('main .phead .btns a');
-  expect((await btn.allTextContents()).map(text)).toEqual(['Run the demo', 'Code', 'Team repo']);
+  expect((await btn.allTextContents()).map(text)).toEqual(['Run the demo', 'Code']); // only my own repo (Jason, 2026-10-24)
+  await expect(btn.nth(1)).toHaveAttribute('href', 'https://github.com/ACrispyCookie/GPGPU');
   await expect(btn.first()).toHaveAttribute('href', 'https://fpga.njason.dev');
 });
 
@@ -97,7 +98,7 @@ test("GPGPU's What's next links to GPGPU v2's page", async ({ page }) => {
 test('Tools: only the project\'s own tools; a tool says where else it was used', async ({ page }) => {
   await page.goto(GPGPU);
   const chips = (await page.locator('#tools .chip').evaluateAll((cs) => cs.map((c) => (c as HTMLElement).dataset.tool))).sort();
-  expect(chips).toEqual(['ARM/Zynq', 'Bash', 'C', 'Git', 'HTML/CSS', 'JavaScript', 'Python', 'RISC-V', 'SystemVerilog', 'Tcl', 'Vivado/Vitis']);
+  expect(chips).toEqual(['ARM/Zynq', 'Bash', 'C', 'Git', 'HTML/CSS', 'JavaScript', 'Python', 'RISC-V', 'Tcl', 'Verilog', 'Vivado/Vitis']);
   const more = page.locator('#tools .more');
   if (await more.isVisible()) await more.click();
   await page.locator('#tools .chip[data-tool="RISC-V"]').click();

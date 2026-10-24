@@ -150,8 +150,13 @@ export function initTrace(host: HTMLElement): void {
       for (const x of pulses) {
         if (!x.live) continue;
         x.pos += dt * PULSE_SPEED;
-        if (x.pos > shown + PULSE) x.live = false; // it reached the end of the drawn copper
-        x.el.style.strokeDashoffset = String(x.live ? PULSE - x.pos : PULSE);
+        // the head stops at the end of the drawn copper and the tail catches up, so a pulse shrinks into the end
+        // instead of running on over the bare groove (Jason, 2026-10-24)
+        const tail = Math.max(0, x.pos - PULSE), len = Math.min(x.pos, shown) - tail;
+        if (len < 0.5) x.live = false;
+        x.el.style.visibility = x.live ? '' : 'hidden'; // a zero-length dash would still draw its round cap as a dot
+        x.el.style.strokeDasharray = `${x.live ? len : 0} ${total + PULSE}`;
+        x.el.style.strokeDashoffset = String(x.live ? -tail : 0);
       }
     }
     if (run !== pulseOn) { pulseOn = run; pulseGroup.style.opacity = run ? '1' : '0'; }

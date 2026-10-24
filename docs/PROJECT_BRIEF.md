@@ -123,6 +123,7 @@ Source: `docs/GRADES.md` ✅ (Jason's file; **never publish the file itself**, i
 - Jason's role: joint co-design and implementation, with extra depth in host ↔ device communication ✅. The report doesn't break down individual roles.
 - Figure candidates (need Jason's approval): the Vivado implemented-device view "Runs on Zedboard!" (p. 5) and the execution-flow diagram (p. 6)
 - Next: graphics, DDR memory, divergence, warp scheduling ✅ (`In progress` pill)
+- **Language: plain Verilog** ✅ (Jason, 2026-10-24), although the files use the `.sv` extension, so GitHub and the evidence scan report SystemVerilog. v2 is SystemVerilog.
 - Repos: https://github.com/ACrispyCookie/GPGPU · team repo above. Pills: `Team project` `Live demo` `In progress`.
 
 **2. Live FPGA Lab** — self-initiated (see the section above). Pills: `Self-initiated` `Live demo`.

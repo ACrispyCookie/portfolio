@@ -21,6 +21,8 @@ describe('buildSkillIndex', () => {
 
   test('Traefik is the homelab only (Jason, 2026-10-21)', async () => {
     expect((await entry('Traefik')).usedIn).toEqual([{ title: 'Homelab', href: '/projects/homelab' }]);
+    // a main course project links to its own page (Jason, 2026-10-24)
+    expect((await entry('CUDA')).usedIn.find((u) => u.title === 'N-body on GPUs')?.href).toBe('/courses/ece415/nbody');
   });
 
   test('MySQL: the homelab and the Minecraft plugins, plus ECE311 named as coursework', async () => {

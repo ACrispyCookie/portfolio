@@ -8,7 +8,7 @@ import type { CollectionEntry } from 'astro:content';
 import Avatars from './Avatars.astro';
 import { diagrams } from './diagrams';
 import OnFpga from './OnFpga.astro';
-import { projectHref } from '../lib/links';
+import { pageHref } from '../lib/links';
 import Pills from './Pills.astro';
 import { toolTags } from '../lib/tools';
 
@@ -17,7 +17,7 @@ interface Props { project: CollectionEntry<'projects'>; size: 'wide' | 'large' |
 const { project, size } = Astro.props;
 const t = Astro.props.tools ? toolTags(project.data.tools) : null;
 const p = project.data;
-const href = projectHref({ id: project.id, kind: p.kind, course: p.course?.id });
+const href = pageHref({ id: project.id, kind: p.kind, course: p.course?.id, main: p.main });
 const team = p.team.map((t) => t.id);
 const Diagram = diagrams[p.diagram ?? 'runtime'];
 const sizes = { wide: '(max-width: 760px) 100vw, 640px', large: '(max-width: 760px) 100vw, 560px', compact: '(max-width: 760px) 120px, 220px', personal: '(max-width: 760px) 100vw, 380px' }[size];

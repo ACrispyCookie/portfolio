@@ -1,5 +1,5 @@
 // Skills explorer data (spec §7.4): "used in" comes from each project's tools list; nothing is hand-mapped.
-import { projectHref } from './links';
+import { pageHref } from './links';
 
 export interface SkillProject { slug: string; title: string; tools: string[]; courseCode?: string; href: string }
 export interface SkillUse { title: string; courseCode?: string; href: string }
@@ -8,7 +8,7 @@ export interface SkillEntry { tool: string; count: number; usedIn: SkillUse[]; a
 
 /** Projects in site order, then the Minecraft origin entry, as the explorer's input. */
 export function toSkillProjects(
-  projects: { id: string; title: string; kind: 'course' | 'personal'; course?: string; order: number; tools: string[] }[],
+  projects: { id: string; title: string; kind: 'course' | 'personal'; course?: string; main: boolean; order: number; tools: string[] }[],
   courseCodes: Record<string, string>,
   origin: SkillProject,
 ): SkillProject[] {
@@ -17,7 +17,7 @@ export function toSkillProjects(
     title: p.title,
     tools: p.tools,
     courseCode: p.course ? courseCodes[p.course] : undefined,
-    href: projectHref(p),
+    href: pageHref(p),
   }));
   return [...list, origin];
 }

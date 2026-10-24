@@ -14,7 +14,7 @@ import Team from './Team.astro';
 import PrevNext from './PrevNext.astro';
 import Skills from './Skills.astro';
 import { diagrams } from './diagrams';
-import { courseHref, projectHref } from '../lib/links';
+import { courseHref, pageHref } from '../lib/links';
 import { buildSkillIndex, toSkillProjects } from '../lib/skills';
 import skills from '../data/skills.json';
 import evidence from '../data/skills-evidence.json';
@@ -52,7 +52,7 @@ const courses = await getCollection('courses');
 const codes = Object.fromEntries(courses.map((c) => [c.id, c.data.code]));
 const index = buildSkillIndex(toSkillProjects(projects.map((x) => ({ ...x.data, id: x.id, course: x.data.course?.id })), codes, skills.origin), { coursework: evidence.coursework });
 const tools = p.tools.map((t) => index.find((e) => e.tool === t)!).filter(Boolean);
-const self = projectHref({ id: entry.id, kind: p.kind, course: p.course?.id });
+const self = pageHref({ id: entry.id, kind: p.kind, course: p.course?.id, main: p.main });
 
 const toc = [...sections.map(({ id, title }) => ({ id, title })), { id: 'team', title: 'Team' }, { id: 'tools', title: 'Tools' }];
 const Diagram = diagrams[p.diagram ?? 'runtime'];

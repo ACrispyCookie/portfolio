@@ -1,18 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { courseHref, pageHref, projectHref } from '../../src/lib/links';
-
-describe('projectHref (plan Task 10 card rule)', () => {
-  test('course projects go to their section on the course page', () => {
-    expect(projectHref({ id: 'nbody', kind: 'course', course: 'ece415' })).toBe('/courses/ece415#nbody');
-  });
-  test('personal projects have their own page', () => {
-    expect(projectHref({ id: 'homelab', kind: 'personal' })).toBe('/projects/homelab');
-  });
-  // Jason, 2026-10-23: a deployed project's site is its Live pill; the card goes to the project's page
-  test('the Live FPGA Lab card goes to its project page, not the lab', () => {
-    expect(projectHref({ id: 'live-fpga-lab', kind: 'personal' })).toBe('/projects/live-fpga-lab');
-  });
-});
+import { courseHref, pageHref } from '../../src/lib/links';
 
 describe('pageHref and courseHref (Plan 2)', () => {
   test('personal projects have their own page, the lab included', () => {
@@ -21,6 +8,10 @@ describe('pageHref and courseHref (Plan 2)', () => {
   test('main course projects have a page under their course; the rest are course sections', () => {
     expect(pageHref({ id: 'nbody', kind: 'course', course: 'ece415', main: true })).toBe('/courses/ece415/nbody');
     expect(pageHref({ id: 'sobel', kind: 'course', course: 'ece415', main: false })).toBe('/courses/ece415#sobel');
+  });
+  // Jason, 2026-10-24: a main project's card, grade row or skill link opens its own page, never its course section
+  test('every link to a main course project is its own page', () => {
+    for (const id of ['gpgpu', 'nbody', 'rambo', 'wifi', 'house', 'runtime', 'threads']) expect(pageHref({ id, kind: 'course', course: 'ecex', main: true })).toBe(`/courses/ecex/${id}`);
   });
   test('courseHref', () => {
     expect(courseHref('ece333')).toBe('/courses/ece333');

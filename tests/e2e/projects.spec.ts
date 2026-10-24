@@ -16,12 +16,12 @@ test('cards follow spec §5.1 items 3–4 in order and size, then the Minecraft 
   await expect(origin.locator('h3')).toHaveText('Where I started: Minecraft plugins');
 });
 
-test('each card is one stretched link to its section or page (the lab\'s site is its Live pill)', async ({ page }) => {
+test("each card is one stretched link to the project's own page (Jason, 2026-10-24; the lab's site is its Live pill)", async ({ page }) => {
   await page.goto('/');
   const hrefs = await page.locator('#projects .card a.hit').evaluateAll((as) => as.map((a) => a.getAttribute('href')));
   expect(hrefs).toEqual([
-    '/courses/ece338#gpgpu', '/courses/ece415#nbody', '/courses/ece455#rambo', '/courses/ece436#wifi', '/courses/ece433#house',
-    '/courses/ece348#runtime', '/courses/ece321#threads',
+    '/courses/ece338/gpgpu', '/courses/ece415/nbody', '/courses/ece455/rambo', '/courses/ece436/wifi', '/courses/ece433/house',
+    '/courses/ece348/runtime', '/courses/ece321/threads',
     '/projects/gpgpu-v2', '/projects/homelab', '/projects/live-fpga-lab', '/projects/dvd-logo-fpga',
   ]);
   // clicking the card body (not a nested link) follows the title link
@@ -30,7 +30,7 @@ test('each card is one stretched link to its section or page (the lab\'s site is
   await expect(page.locator('#projects')).toHaveClass(/lit/);
   const box = (await card.locator('p.head').boundingBox())!;
   await page.mouse.click(box.x + 4, box.y + box.height / 2);
-  await expect(page).toHaveURL(/\/courses\/ece433#house$/);
+  await expect(page).toHaveURL(/\/courses\/ece433\/house$/);
 });
 
 test('GPGPU card: Run the demo goes to the lab', async ({ page }) => {

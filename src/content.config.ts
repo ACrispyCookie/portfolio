@@ -36,9 +36,10 @@ const projects = defineCollection({
       // a code excerpt: the file under src/content/code/, and its GitHub blob URL at a pinned commit with line anchors
       code: z.object({ file: z.string(), lang: z.string(), url: z.string().url(), caption: z.string() }).optional(),
       gallery: z.array(z.object({ src: image(), alt: z.string() })).optional(),
-      // pictures inside the sections, only ones Jason approved (spec §5.2, §11): a picture or one of the drawings
+      // pictures inside the sections, only ones Jason approved (spec §5.2, §11): a picture or one of the drawings;
+      // `section` is the id of one of the project's own headings (the build fails if it has no such heading)
       figures: z.array(z.object({
-        section: z.enum(['what-it-is', 'why-its-hard', 'how-it-works', 'results', 'how-we-tested-it', 'my-part', 'whats-next']),
+        section: z.string(),
         alt: z.string(),
         src: image().optional(),
         diagram: z.enum(['runtime', 'threads', 'homelab', 'dedup', 'alignment', 'roadmap', 'flow']).optional(),

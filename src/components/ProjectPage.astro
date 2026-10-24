@@ -1,7 +1,9 @@
 ---
 // A project's own page (spec §5.2). Everything comes from the project's entry: the header pills and buttons from its
-// data (the same pills as its card), the sections from its Markdown `##` headings, the key numbers and result bars
-// from its frontmatter. A section with no true content is simply absent, and the contents list follows what is there.
+// data, the sections from its Markdown `##` headings in their own order (each project has its own: Jason, 2026-10-24),
+// the key numbers and result bars from its frontmatter. A section with no true content is simply absent, and the
+// contents list follows what is there.
+import { existsSync } from 'node:fs';
 import { Picture } from 'astro:assets';
 import { getCollection, getEntries, getEntry, type CollectionEntry } from 'astro:content';
 import Base from '../layouts/Base.astro';
@@ -15,6 +17,7 @@ import PrevNext from './PrevNext.astro';
 import Skills from './Skills.astro';
 import { diagrams } from './diagrams';
 import { courseHref, pageHref } from '../lib/links';
+import { docsFor } from '../lib/docs';
 import { buildSkillIndex, toSkillProjects } from '../lib/skills';
 import skills from '../data/skills.json';
 import evidence from '../data/skills-evidence.json';
@@ -26,8 +29,7 @@ const { entry } = Astro.props;
 const p = entry.data;
 const course = p.course ? await getEntry('courses', p.course.id) : undefined;
 
-// the page's sections, in the order spec §5.2 gives them; the Markdown supplies their text
-const ORDER = ['what-it-is', 'why-its-hard', 'how-it-works', 'results', 'how-we-tested-it', 'my-part', 'whats-next'];
+// the page's sections, in the Markdown's own order: What it is first; Team, Tools and the report after them
 const strip = (s: string) => s.replace(/<[^>]+>/g, '').replace(/&#39;|&#x27;/g, "'").replace(/&amp;/g, '&').trim();
 const H2 = /^<h2 id="([^"]+)">([\s\S]*?)<\/h2>/;
 const md = new Map<string, { title: string; html: string }>();
@@ -35,14 +37,17 @@ for (const chunk of (entry.rendered?.html ?? '').split(/(?=<h2 id=")/)) {
   const m = H2.exec(chunk);
   if (m) md.set(m[1], { title: strip(m[2]), html: chunk.slice(m[0].length) });
 }
-const unknown = [...md.keys()].filter((id) => !ORDER.includes(id));
-if (unknown.length) throw new Error(`${entry.id}: sections outside spec §5.2: ${unknown.join(', ')}`);
+if ([...md.keys()][0] !== 'what-it-is') throw new Error(`${entry.id}: the first section must be "What it is"`);
+for (const id of ['team', 'tools', 'docs']) if (md.has(id)) throw new Error(`${entry.id}: "${id}" is the page's own section`);
 if (p.results && !md.has('results')) md.set('results', { title: 'Results', html: '' });
 // a project in progress: What's next is its milestones still to do, from its data
 const todo = (p.milestones ?? []).filter((m) => m.state !== 'done');
 const esc = (t: string) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;');
 if (todo.length && !md.has('whats-next')) md.set('whats-next', { title: "What's next", html: `<ul>${todo.map((m) => `<li>${m.state === 'now' ? 'Now' : 'Next'}: ${esc(m.name)}</li>`).join('')}</ul>` });
-const sections = ORDER.filter((id) => md.has(id)).map((id) => ({ id, ...md.get(id)! }));
+const sections = [...md].map(([id, s]) => ({ id, ...s }));
+const lost = (p.figures ?? []).filter((f) => !md.has(f.section));
+if (lost.length) throw new Error(`${entry.id}: figures for missing sections: ${lost.map((f) => f.section).join(', ')}`);
+const docs = docsFor({ id: entry.id, course: p.course?.id }, existsSync);
 
 const members = await getEntries([{ collection: 'collaborators' as const, id: 'jason' }, ...p.team.map((t) => ({ collection: 'collaborators' as const, id: t.id }))]);
 
@@ -54,7 +59,8 @@ const index = buildSkillIndex(toSkillProjects(projects.map((x) => ({ ...x.data, 
 const tools = p.tools.map((t) => index.find((e) => e.tool === t)!).filter(Boolean);
 const self = pageHref({ id: entry.id, kind: p.kind, course: p.course?.id, main: p.main });
 
-const toc = [...sections.map(({ id, title }) => ({ id, title })), { id: 'team', title: 'Team' }, { id: 'tools', title: 'Tools' }];
+const docsTitle = docs.map((d) => d.label).join(' and ');
+const toc = [...sections.map(({ id, title }) => ({ id, title })), ...(docs.length ? [{ id: 'docs', title: docsTitle }] : []), { id: 'team', title: 'Team' }, { id: 'tools', title: 'Tools' }];
 const Diagram = diagrams[p.diagram ?? 'runtime'];
 ---
 <Base title={`${p.title} | Jason Nikas`} description={p.headline}>
@@ -66,11 +72,12 @@ const Diagram = diagrams[p.diagram ?? 'runtime'];
     )}
     <h1>{p.title}</h1>
     <p class="lead">{p.headline}</p>
-    <div class="pills"><Pills project={entry} /></div>
-    {(p.links.demo || p.links.repo) && (
+    <div class="pills"><Pills project={entry} hide={['course']} /></div>
+    {(p.links.demo || p.links.repo || docs.length > 0) && (
       <div class="btns">
         {p.links.demo && <a class="btn btn-live" href={p.links.demo}>Run the demo</a>}
         {p.links.repo && <a class="btn btn-secondary" href={p.links.repo}>Code</a>}
+        {docs.map((d) => <a class="btn btn-secondary" href={d.href}>{d.label}</a>)}
       </div>
     )}
   </header>
@@ -104,22 +111,51 @@ const Diagram = diagrams[p.diagram ?? 'runtime'];
           {(p.figures ?? []).filter((f) => f.section === s.id).map((f) => {
             const Drawing = f.diagram && diagrams[f.diagram];
             return (
-              <figure class:list={['pfig', { drawn: Drawing, square: f.src && f.src.height > f.src.width * 0.8 }]} style={f.src ? `--ar:${(f.src.width / f.src.height).toFixed(3)}` : undefined}>
-                {Drawing ? <Drawing label={f.alt} /> : <Picture src={f.src!} formats={['avif', 'webp']} widths={[480, 720, 1080]} sizes="(max-width: 760px) 100vw, 700px" alt={f.alt} loading="lazy" />}
+              <figure class:list={['pfig', { drawn: Drawing }]} style={f.src ? `--ar:${(f.src.width / f.src.height).toFixed(3)}` : undefined}>
+                {Drawing ? <Drawing label={f.alt} /> : (
+                  // a picture opens full screen at its full size (Jason, 2026-10-24: hard to see on every device);
+                  // without JavaScript the link is the full-size file itself
+                  <a class="zoom" href={f.src!.src} aria-label={`Enlarge: ${f.alt}`}>
+                    <Picture src={f.src!} formats={['avif', 'webp']} widths={[480, 720, 1080, f.src!.width]} sizes="(max-width: 760px) 100vw, 840px" alt={f.alt} loading="lazy" />
+                    <span class="zoom-hint" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M10 2h4v4M14 2 9 7M6 14H2v-4M2 14l5-5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg></span>
+                  </a>
+                )}
               </figure>
             );
           })}
         </section>
       ))}
+      {docs.length > 0 && (
+        <section id="docs" class="sec psec" aria-labelledby="docs-h">
+          <h2 id="docs-h" data-pad>{docsTitle}</h2>
+          <ul class="docs">
+            {docs.map((d) => (
+              <li class="doc panel">
+                <span class="sheet" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+                <span class="what"><b>{d.label}</b><span>PDF, opens in the browser</span></span>
+                <span class="acts">
+                  <a class="btn btn-secondary" href={d.href}>Read</a>
+                  <a class="btn btn-secondary" href={d.href} download={`${p.title} - ${d.label}.pdf`}>Download</a>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
       <Team members={members} />
       <Skills entries={tools} self={self} id="tools" heading="Tools" intro="What this project was built with. Pick one to see where else I used it." />
     </div>
   </div></div>
 
   <PrevNext current={entry.id} />
+  <dialog class="viewer" aria-label="Picture, full size">
+    <button class="btn btn-secondary close" type="button">Close</button>
+    <p class="hint" aria-live="polite">Tap the picture to see it at full size</p>
+  </dialog>
 </Base>
 <script>
   import '../scripts/skills';
   import '../scripts/videos';
   import '../scripts/toc';
+  import '../scripts/zoom';
 </script>

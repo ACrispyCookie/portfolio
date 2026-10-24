@@ -22,15 +22,15 @@ numbers:
   - { value: "1/17", label: "of the ARM core's clock speed" }
   - { value: "88%", label: "of the FPGA's logic (LUTs) in use" }
 figures:
-  - section: "why-its-hard"
+  - section: "inside-the-gpgpu"
     src: "../../assets/projects/gpgpu-device.jpg"
     alt: "The GPGPU placed on the ZedBoard's FPGA in Vivado: its logic, in cyan, fills most of the chip"
-  - section: "how-it-works"
-    diagram: "flow"
-    alt: "How a program reaches the GPGPU: C code, compiled by the RISC-V gcc into assembly, sent over UART to the Zynq's ARM core, which writes it over AXI into the GPGPU's instruction memory"
-  - section: "how-it-works"
+  - section: "inside-the-gpgpu"
     src: "../../assets/projects/gpgpu-block.jpg"
     alt: "The GPGPU wired to the Zynq's ARM core, in Vivado's block design"
+  - section: "from-c-code-to-the-board"
+    diagram: "flow"
+    alt: "How a program reaches the GPGPU: C code, compiled by the RISC-V gcc into assembly, sent over UART to the Zynq's ARM core, which writes it over AXI into the GPGPU's instruction memory"
 results:
   text: "One step of a 32-body n-body simulation, GPGPU at about 38.5 MHz against the ZedBoard's ARM Cortex-A9 at about 667 MHz."
   bars:
@@ -45,16 +45,16 @@ A small processor for parallel work, built from 32 RISC-V cores that all run the
 
 We first ran it on a ZedBoard. It now also runs on the Smart Zynq SL, where my colleagues use it, and it is one of the two demos in my live FPGA lab.
 
-## Why it's hard
-
-Every core has to stay in step with the others, every result has to match a reference model, and the whole design has to fit on one FPGA and still meet timing. It uses 88% of the chip's logic.
-
-## How it works
+## Inside the GPGPU
 
 - One shared fetch and decode stage feeds 32 lanes running in lockstep.
 - Each lane has a 5-stage pipeline with hazard detection and forwarding, plus a pipelined multiplier.
 - A crossbar connects the lanes to dual-port block RAM.
-- The ARM core talks to the GPGPU over AXI GPIO, after a UART inside the FPGA logic proved unreliable.
+- It uses 88% of the FPGA's logic.
+
+## From C code to the board
+
+The ARM core sends programs and data to the GPGPU over AXI GPIO, after a UART inside the FPGA logic proved unreliable.
 
 ## Results
 
@@ -65,10 +65,6 @@ That is 2.38× faster at about a seventeenth of the clock. Peak throughput is ab
 - A Python golden model that every result is checked against.
 - Constrained-random tests and an instruction fuzzer.
 - End-to-end tests running real programs on the board.
-
-## My part
-
-We designed and built it together. I went deeper on the communication between the host and the GPGPU.
 
 ## What's next
 

@@ -4,8 +4,9 @@ import { getEntry, type CollectionEntry } from 'astro:content';
 import { pillsFor } from '../lib/pills';
 
 // `plain`: inside a row that is itself one link (a link can't hold a link), the pills are labels, not links.
-// `hide`: marks a place already says in words ("Currently working on" needs no "In progress")
-interface Props { project: CollectionEntry<'projects'>; plain?: boolean; hide?: ('progress' | 'live')[] }
+// `hide`: marks a place already says in words ("Currently working on" needs no "In progress"; a project page's
+// breadcrumb names the course, so its header has no course pill: Jason, 2026-10-24)
+interface Props { project: CollectionEntry<'projects'>; plain?: boolean; hide?: ('progress' | 'live' | 'course')[] }
 const p = Astro.props.project;
 const plain = Astro.props.plain ?? false;
 const hide = Astro.props.hide ?? [];
@@ -15,7 +16,7 @@ const ref = async (r?: { id: string }) => {
 };
 const pills = pillsFor({ status: p.data.status, site: p.data.links.site }, await ref(p.data.course), await ref(p.data.fromCourse));
 ---
-{pills.filter((x) => !x.mark || !hide.includes(x.mark)).map((x) => {
+{pills.filter((x) => (x.mark ? !hide.includes(x.mark) : !(x.code && hide.includes('course')))).map((x) => {
   const inner = <>{x.mark === 'live' && <i class="sdot" aria-hidden="true"></i>}{x.mark === 'progress' && <svg class="prog" viewBox="0 0 10 10" aria-hidden="true"><circle cx="5" cy="5" r="4" fill="none" stroke="currentColor" stroke-width="1.6" /><path d="M5 1 A4 4 0 0 0 5 9 Z" fill="currentColor" /></svg>}{x.code && <b>{x.code}</b>}{x.text}</>;
   return x.href && !plain ? <a class="tag" href={x.href}>{inner}</a> : <span class="tag">{inner}</span>;
 })}

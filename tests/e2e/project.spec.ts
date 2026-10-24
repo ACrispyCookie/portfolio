@@ -1,9 +1,16 @@
+import { existsSync } from 'node:fs';
 import { expect, test, type Page } from '@playwright/test';
+import { docsFor } from '../../src/lib/docs';
 
 // Project pages (spec §5.2, Plan 2 Task 3). Header pills and buttons come from the project's data, the same pills as
 // its card (Jason, 2026-10-23): no hand-set "Team of 3" or "Live demo" tags.
 const GPGPU = '/courses/ece338/gpgpu';
-const ORDER = ['What it is', "Why it's hard", 'How it works', 'Results', 'How we tested it', 'My part', "What's next", 'Team', 'Tools'];
+// each project has its own sections (Jason, 2026-10-24): What it is first, then its own, then Team and Tools last
+// the report and presentation show once Jason has put their PDFs in public/reports
+const GPGPU_DOCS = docsFor({ id: 'gpgpu', course: 'ece338' }, existsSync);
+const DOCS_TITLE = GPGPU_DOCS.map((d) => d.label).join(' and ');
+const GPGPU_SECTIONS = ['What it is', 'Inside the GPGPU', 'From C code to the board', 'Results', 'How we tested it', "What's next", ...(GPGPU_DOCS.length ? [DOCS_TITLE] : []), 'Team', 'Tools'];
+const framed = (hs: string[]) => hs[0] === 'What it is' && hs.at(-2) === 'Team' && hs.at(-1) === 'Tools';
 const MAIN = ['/courses/ece338/gpgpu', '/courses/ece415/nbody', '/courses/ece455/rambo', '/courses/ece436/wifi', '/courses/ece433/house', '/courses/ece348/runtime', '/courses/ece321/threads', '/projects/gpgpu-v2', '/projects/homelab', '/projects/live-fpga-lab', '/projects/dvd-logo-fpga'];
 const text = (s: string | null) => (s ?? '').replace(/\s+/g, ' ').replace(/’/g, "'").trim(); // headings set curly apostrophes
 const h2s = async (page: Page) => (await page.locator('main h2').allTextContents()).map(text);
@@ -15,9 +22,10 @@ test('GPGPU header: breadcrumb to the course, title, its headline, its pills, an
   await expect(crumb.locator('a').first()).toHaveAttribute('href', '/courses/ece338');
   await expect(page.locator('main h1')).toHaveText('RISC-V GPGPU');
   await expect(page.locator('main .phead .lead')).toHaveText('Our 32-core RISC-V GPGPU, running on a real FPGA');
-  expect(await page.locator('main .phead .tag').evaluateAll((ts) => ts.map((t) => (t as HTMLElement).innerText.replace(/\s+/g, ' ').trim()))).toEqual(['ECE338 Grade 9']);
+  await expect(page.locator('main .phead .tag')).toHaveCount(0); // the breadcrumb names the course; its pill is for cards (Jason, 2026-10-24)
   const btn = page.locator('main .phead .btns a');
-  expect((await btn.allTextContents()).map(text)).toEqual(['Run the demo', 'Code']); // only my own repo (Jason, 2026-10-24)
+  expect((await btn.allTextContents()).map(text)).toEqual(['Run the demo', 'Code', ...GPGPU_DOCS.map((d) => d.label)]); // only my own repo (Jason, 2026-10-24)
+  for (const [i, d] of GPGPU_DOCS.entries()) await expect(btn.nth(2 + i)).toHaveAttribute('href', d.href);
   await expect(btn.nth(1)).toHaveAttribute('href', 'https://github.com/ACrispyCookie/GPGPU');
   await expect(btn.first()).toHaveAttribute('href', 'https://fpga.njason.dev');
 });
@@ -40,8 +48,7 @@ test('GPGPU body: four key numbers with their conditions, sections in order, a m
     expect(text(await n.locator('span').textContent()).length).toBeGreaterThan(8); // the condition, in words
   }
   const hs = await h2s(page);
-  expect(hs).toEqual(ORDER.filter((h) => hs.includes(h)));
-  expect(hs).toEqual(ORDER); // GPGPU has every section
+  expect(hs).toEqual(GPGPU_SECTIONS);
   expect((await page.locator('main nav.toc a').allTextContents()).map(text)).toEqual(hs);
   const bars = page.locator('#results .bars .bar');
   await expect(bars).toHaveCount(2);
@@ -49,35 +56,85 @@ test('GPGPU body: four key numbers with their conditions, sections in order, a m
   for (const f of await page.locator('#results .bars .fill').all()) expect(await f.evaluate((e) => getComputedStyle(e).backgroundImage)).toBe('none');
 });
 
-test('GPGPU How it works shows the block design, the figure approved in the mock (spec §5.2)', async ({ page }) => {
+test('GPGPU Inside the GPGPU shows the design filling the chip, then the block design (Jason, 2026-10-23/24)', async ({ page }) => {
   await page.goto(GPGPU);
-  const img = page.locator('#how-it-works figure img');
-  await expect(img).toHaveCount(1);
-  expect((await img.getAttribute('alt'))!.length).toBeGreaterThan(10);
+  const imgs = page.locator('#inside-the-gpgpu figure img');
+  await expect(imgs).toHaveCount(2);
+  for (const img of await imgs.all()) {
+    expect((await img.getAttribute('alt'))!.length).toBeGreaterThan(10);
+    await img.scrollIntoViewIfNeeded(); // it loads lazily
+    await expect.poll(() => img.evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth > 0)).toBe(true);
+  }
 });
 
-test("GPGPU Why it's hard shows the design filling the chip, from the final presentation (Jason, 2026-10-23)", async ({ page }) => {
+test('GPGPU From C code to the board draws the execution flow (Jason, 2026-10-23)', async ({ page }) => {
   await page.goto(GPGPU);
-  const img = page.locator('#why-its-hard figure img');
-  await expect(img).toHaveCount(1);
-  await img.scrollIntoViewIfNeeded(); // it loads lazily
-  await expect.poll(() => img.evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth > 0)).toBe(true);
-});
-
-test('GPGPU How it works draws the execution flow, then the block design (Jason, 2026-10-23)', async ({ page }) => {
-  await page.goto(GPGPU);
-  const figs = page.locator('#how-it-works figure');
-  await expect(figs).toHaveCount(2);
+  const figs = page.locator('#from-c-code-to-the-board figure');
+  await expect(figs).toHaveCount(1);
   const flow = figs.first().locator('svg[role="img"]');
   await expect(flow).toHaveCount(1);
   const label = (await flow.getAttribute('aria-label'))!;
   for (const step of ['C', 'RISC-V', 'UART', 'ARM', 'AXI', 'instruction memory', 'GPGPU']) expect(label).toContain(step);
-  await expect(figs.nth(1).locator('img')).toHaveCount(1);
+});
+
+// Jason, 2026-10-24: the GPGPU pictures were hard to see on every device
+test('a section picture uses the column\'s width while the screen is tall enough', async ({ page }) => {
+  await page.goto(GPGPU);
+  const fig = page.locator('#inside-the-gpgpu figure').nth(1); // the block design, wider than tall
+  const [w, col, h] = await fig.evaluate((f) => [f.getBoundingClientRect().width, f.parentElement!.getBoundingClientRect().width, f.getBoundingClientRect().height]);
+  if (h < page.viewportSize()!.height * 0.55) expect(w).toBeGreaterThanOrEqual(col - 2);
+});
+
+test('tap a picture to see it full screen at full size, then close it', async ({ page }) => {
+  await page.goto(GPGPU);
+  const open = page.locator('#inside-the-gpgpu figure a.zoom').nth(1);
+  await open.scrollIntoViewIfNeeded();
+  await open.click();
+  const viewer = page.locator('dialog.viewer');
+  await expect(viewer).toBeVisible();
+  const big = viewer.locator('img');
+  await expect.poll(() => big.evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth)).toBeGreaterThanOrEqual(1200); // the original, not a resized copy
+  const vw = page.viewportSize()!;
+  const box = (await big.boundingBox())!;
+  expect(Math.max(box.width / vw.width, box.height / vw.height)).toBeGreaterThan(0.9); // fills the screen one way
+  // a picture bigger than the screen: a tap on its right edge shows that part at full size
+  if (await big.evaluate((i: HTMLImageElement) => i.naturalWidth > innerWidth)) {
+    await expect(viewer.locator('.hint')).toBeVisible();
+    await big.click({ position: { x: box.width - 4, y: box.height / 2 } });
+    await expect(viewer).toHaveClass(/actual/);
+    expect(await viewer.evaluate((v) => v.scrollLeft)).toBeGreaterThan(0);
+  }
+  await page.keyboard.press('Escape');
+  await expect(viewer).toBeHidden();
+  await expect(open).toBeFocused();
+});
+
+test('report and presentation: each has Read in the browser and Download, and the file is served as a PDF', async ({ page, request }) => {
+  test.skip(!GPGPU_DOCS.length, 'no cleaned PDF in public/reports yet');
+  await page.goto(GPGPU);
+  const sec = page.locator('#docs');
+  await expect(sec.locator('h2')).toHaveText(DOCS_TITLE);
+  for (const d of GPGPU_DOCS) {
+    const card = sec.locator('.doc', { hasText: d.label });
+    await expect(card.locator('a', { hasText: 'Read' })).toHaveAttribute('href', d.href);
+    await expect(card.locator('a', { hasText: 'Download' })).toHaveAttribute('download', /\.pdf$/);
+    const res = await request.get(d.href);
+    expect(res.status()).toBe(200);
+    expect(res.headers()['content-type']).toContain('pdf');
+  }
+});
+
+test('a project with no cleaned PDF shows no report section or button', async ({ page }) => {
+  const homelab = docsFor({ id: 'homelab' }, existsSync);
+  test.skip(homelab.length > 0, 'homelab has a PDF');
+  await page.goto('/projects/homelab');
+  await expect(page.locator('#docs')).toHaveCount(0);
+  await expect(page.locator('main .phead .btns a', { hasText: /Report|Presentation/ })).toHaveCount(0);
 });
 
 test('the execution flow stays readable on a phone: its words at least 13px on screen', async ({ page }) => {
   await page.goto(GPGPU);
-  const sizes = await page.locator('#how-it-works svg[role="img"] text').evaluateAll((ts) => ts.map((t) => t.getBoundingClientRect().height));
+  const sizes = await page.locator('#from-c-code-to-the-board svg[role="img"] text').evaluateAll((ts) => ts.map((t) => t.getBoundingClientRect().height));
   expect(sizes.length).toBeGreaterThan(5);
   for (const h of sizes) expect(h).toBeGreaterThanOrEqual(13);
 });
@@ -135,7 +192,7 @@ test('every project page: the contents list matches its sections, and no section
     const res = await page.goto(url);
     expect(res!.status(), url).toBe(200);
     const hs = await h2s(page);
-    expect(hs, url).toEqual(ORDER.filter((h) => hs.includes(h)));
+    expect(framed(hs), `${url}: ${hs.join(', ')}`).toBe(true);
     expect((await page.locator('main nav.toc a').allTextContents()).map(text), url).toEqual(hs);
     const empty = await page.locator('main h2').evaluateAll((list) => list.filter((h) => { const n = h.nextElementSibling; return !n || n.tagName === 'H2'; }).map((h) => h.textContent));
     expect(empty, url).toEqual([]);
@@ -186,9 +243,11 @@ test.describe('no JavaScript', () => {
   test.use({ javaScriptEnabled: false });
   test('every section is visible and the contents links are anchors', async ({ page }) => {
     await page.goto(GPGPU);
-    expect(await page.locator('main section h2').count()).toBe(ORDER.length);
+    expect(await page.locator('main section h2').count()).toBe(GPGPU_SECTIONS.length);
     for (const s of await page.locator('main section').all()) await expect(s).toBeVisible();
     for (const a of await page.locator('main nav.toc a').all()) expect(await a.getAttribute('href')).toMatch(/^#[a-z-]+$/);
+    // a picture is still a link to its full-size file
+    for (const z of await page.locator('main figure a.zoom').all()) expect(await z.getAttribute('href')).toMatch(/\.(jpe?g|png|webp)$/);
   });
 });
 
@@ -216,4 +275,11 @@ for (const url of MAIN) {
 test("GPGPU v2's What's next is its milestones still to do, from its data", async ({ page }) => {
   await page.goto('/projects/gpgpu-v2');
   expect((await page.locator('#whats-next li').allTextContents()).map(text)).toEqual(['Now: Memory controller', 'Next: DDR memory and graphics', 'Next: Branch divergence, warp scheduling']);
+});
+
+test('tablet width: the contents links wrap onto rows, none cut under the strip\'s edge (taste inspector, 2026-10-24)', async ({ page }) => {
+  await page.setViewportSize({ width: 1024, height: 768 });
+  await page.goto(GPGPU);
+  const [sw, cw] = await page.locator('main nav.toc ol').evaluate((o) => [o.scrollWidth, o.clientWidth]);
+  expect(sw).toBeLessThanOrEqual(cw + 1);
 });

@@ -20,9 +20,10 @@
 .pfig { margin: 20px 0 0; border-radius: var(--radius-inner); overflow: hidden; background: var(--color-panel); }
 .pfig img { display: block; width: 100%; height: auto; }
 /* every figure at most --pic-h tall, whatever its shape; --ar is its width over its height */
-.psec > .pfig { max-width: min(65ch, calc(var(--pic-h) * var(--ar, 1.78))); }
+/* a picture may use the column's whole width, not just the text's (Jason, 2026-10-24: hard to see) */
+.psec > .pfig { max-width: min(100%, calc(var(--pic-h) * var(--ar, 1.78))); }
 .pfig.drawn { --ar: 1.73; background: var(--color-raised); }
-.psec > .pfig.drawn, .psec > .pfig.square { max-width: min(520px, calc(var(--pic-h) * var(--ar))); } /* a drawing at about the size of its words; a near-square picture not a whole screen */
+.psec > .pfig.drawn { max-width: min(520px, calc(var(--pic-h) * var(--ar))); } /* a drawing at about the size of its words */
 .pfig.drawn svg { display: block; width: 100%; height: auto; }
 .hero-media.paper img { object-fit: contain; background: var(--color-paper); padding: 12px; box-sizing: border-box; }
 
@@ -39,7 +40,7 @@
 .pgrid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 28px; }
 .pgrid > * { min-width: 0; } /* the contents strip scrolls inside itself instead of widening the page */
 .psecs { display: grid; grid-template-columns: minmax(0, 1fr); gap: 64px; min-width: 0; }
-.psec > :not(h2) { max-width: 65ch; }
+.psec > :not(h2, .pfig, .docs) { max-width: 65ch; }
 .psec p + p { margin-top: 14px; }
 .psec > ul:not([class]) { margin: 0; padding-left: 20px; display: grid; gap: 8px; list-style: disc; } /* the Markdown's lists */
 .psec > ul:not([class]) li::marker { color: var(--color-gold); }
@@ -51,6 +52,10 @@
 .toc a { display: block; padding: 8px 12px; border-radius: 10px; color: var(--color-dim); text-decoration: none; white-space: nowrap; font-size: var(--text-small); }
 .toc a:hover { color: var(--color-silk); background: var(--color-panel); }
 .toc a[aria-current] { color: var(--color-silk); background: var(--color-panel); }
+/* a tablet-wide body has room for the links on two rows: they wrap instead of sliding under the strip's edge */
+@container pbody (min-width: 600px) and (max-width: 859.98px) {
+  .toc ol { flex-wrap: wrap; overflow: visible; }
+}
 @container pbody (min-width: 860px) {
   .pgrid { grid-template-columns: 180px minmax(0, 1fr); column-gap: 48px; }
   .toc { position: sticky; top: 92px; align-self: start; }
@@ -83,3 +88,31 @@
 .prevnext b { color: var(--color-silk); font: 700 var(--text-body) / 1.3 var(--font-display); }
 .prevnext .next { text-align: right; }
 @media (max-width: 560px) { .prevnext { grid-template-columns: 1fr; } .prevnext .next { text-align: left; } }
+
+/* a section picture is a link that opens it full size (src/scripts/zoom.ts); the corner mark says so */
+.pfig .zoom { position: relative; display: block; color: var(--color-silk); }
+.pfig .zoom:focus-visible { outline-offset: -3px; }
+.zoom-hint { position: absolute; right: 10px; top: 10px; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: color-mix(in srgb, var(--color-mask) 82%, transparent); transition: background-color .2s; }
+.zoom-hint svg { width: 16px; height: 16px; }
+.pfig .zoom:hover .zoom-hint { background: var(--color-hover); }
+.viewer { width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: var(--color-mask); color: var(--color-silk); overflow: auto; overscroll-behavior: contain; }
+.viewer::backdrop { background: var(--color-mask); }
+.viewer[open] { display: grid; place-items: center; }
+.viewer img { display: block; width: 100%; height: 100%; object-fit: contain; cursor: zoom-in; }
+.viewer:has(.hint[hidden]) img { cursor: default; }
+.viewer.actual { place-items: start; }
+.viewer.actual img { width: auto; height: auto; max-width: none; cursor: zoom-out; }
+.viewer .close { position: fixed; top: max(14px, env(safe-area-inset-top, 0px)); right: max(14px, env(safe-area-inset-right, 0px)); }
+
+/* the report and the presentation: a drawn page, what it is, and Read or Download */
+.docs { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.doc { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 18px; padding: 16px 20px; }
+.doc .sheet { width: 44px; aspect-ratio: 3 / 4; border-radius: 6px; background: var(--color-raised); display: grid; align-content: start; gap: 4px; padding: 8px 7px; }
+.doc .sheet i { display: block; height: 3px; border-radius: 2px; background: var(--color-copper); }
+.doc .sheet i:nth-child(3n) { width: 60%; }
+.doc .what { display: grid; gap: 2px; }
+.doc .what b { color: var(--color-silk); font: 700 var(--text-body) / 1.3 var(--font-display); }
+.doc .what span { color: var(--color-dim); font-size: var(--text-small); }
+.doc .acts { display: flex; flex-wrap: wrap; gap: 8px; }
+@media (max-width: 560px) { .doc { grid-template-columns: auto minmax(0, 1fr); } .doc .acts { grid-column: 1 / -1; } }
+.viewer .hint { position: fixed; left: 50%; bottom: max(14px, env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); margin: 0; padding: 8px 14px; border-radius: 999px; background: var(--color-panel); color: var(--color-silk); font-size: var(--text-small); white-space: nowrap; pointer-events: none; }

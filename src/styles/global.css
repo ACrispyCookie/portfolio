@@ -46,7 +46,7 @@
 }
 @media (max-width: 760px) {
   :root {
-    --rail: 42px;
+    --rail: clamp(30px, 13vw, 42px); /* narrower on the narrowest windows (a split screen), so the text keeps its room */
     --rail-r: 0px;
     --trace-x: 11px;
     --side-l: max(16px, env(safe-area-inset-left, 0px));
@@ -65,6 +65,7 @@ body {
   font-variant-numeric: tabular-nums;
   padding-inline: var(--side-l) var(--side-r);
   -webkit-text-size-adjust: 100%;
+  overflow-wrap: break-word; /* a word longer than its whole line breaks, last resort on the narrowest windows */
 }
 h1, h2, h3 { font-family: var(--font-display); color: var(--color-silk); margin: 0; text-wrap: balance; }
 p { margin: 0; max-width: 65ch; text-wrap: pretty; }
@@ -75,12 +76,15 @@ a { color: inherit; text-underline-offset: 3px; }
 
 /* frame: one left content edge; the trace lives in the gutter left of it */
 .wrap { max-width: calc(1200px + var(--rail-r)); margin-inline: auto; position: relative; }
+.wrap > main > * { min-width: 0; } /* sections may be narrower than their longest word, so it can break */
 .wrap > main { padding-inline: var(--rail) var(--rail-r); display: grid; gap: var(--gap); position: relative; z-index: 1; }
 
 /* controls */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   border-radius: 999px; padding: 11px 20px; min-height: 44px; box-sizing: border-box;
+  /* never wider than its row: in a row narrower than its words it wraps evenly (any-shape sweep, 2026-10-25) */
+  max-width: 100%; text-align: center; text-wrap: balance; overflow-wrap: break-word; /* a word wider than the row itself breaks, last resort */
   font: 600 var(--text-body) var(--font-text); text-decoration: none; border: 0; cursor: pointer;
   transition: background-color .2s, transform .2s cubic-bezier(.16, 1, .3, 1);
 }
@@ -93,10 +97,14 @@ a { color: inherit; text-underline-offset: 3px; }
 .btn-secondary:hover { background: var(--color-hover); }
 .tag {
   display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 4px 11px;
-  background: var(--color-raised); color: var(--color-dim); font-size: var(--text-small); white-space: nowrap; text-decoration: none;
+  background: var(--color-raised); color: var(--color-dim); font-size: var(--text-small); text-decoration: none;
+  /* one line whenever its row has room (rows wrap, so it moves down first); never wider than a row narrower than its
+     words, where it wraps evenly (any-shape sweep, 2026-10-25) */
+  max-width: 100%; box-sizing: border-box;
 }
+@supports (text-wrap: balance) { .tag { text-wrap: balance; } }
 /* section headings, on every page */
-.sec > h2 { font: 700 var(--text-title) / 1.1 var(--font-display); letter-spacing: -.02em; margin-bottom: 20px; }
+.sec > h2 { font: 700 min(var(--text-title), 10vw) / 1.1 var(--font-display); /* scales down only on the narrowest windows */ letter-spacing: -.02em; margin-bottom: 20px; }
 .panel { background: var(--color-panel); color: var(--color-silk); border-radius: var(--radius-panel); }
 /* "See all 28 projects and 11 courses": the section's closing link, at its content edge */
 .seeall { display: inline-flex; margin-top: 22px; }
@@ -120,6 +128,21 @@ html[data-lab="fault"] .sdot { background: var(--color-fault); }
 }
 @keyframes sdot-ripple { from { transform: scale(1); opacity: .55; } to { transform: scale(2.8); opacity: 0; } }
 
+/* a drawing fits whole in its box (meet) and the box shows the board colour around it, never a cut word; painted here,
+   not by an oversized rectangle, which widened narrow pages (any-shape sweep, 2026-10-25) */
+svg.diagram { background: #183539; }
+/* a drawing always shows its words, at every size (Jason, 2026-10-25: text missing on some sizes); in a small
+   thumbnail they are part of the picture. The containers below only decide whether a caption fits over a picture. */
+:is(.card .media, .thumb, .w .t) { container: pic / size; }
+.hero-media { container: hero / size; }
+/* a caption over a picture only where the picture has room for it; the card's own text says the same */
+@container pic (max-width: 259px) { .onfpga { display: none; } }
+@container hero (max-width: 259px) { .onfpga { display: none; } }
+/* a drawing in a page section never shrinks below the width where its words read at 13px; a narrower column scrolls it
+   sideways inside its own frame, as tables do */
+.psec > .pfig.drawn { overflow-x: auto; overscroll-behavior-x: contain; }
+.psec > .pfig.drawn svg { min-width: 340px; }
+
 /* top bar: solid, sticky */
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--color-mask); }
 .topbar {
@@ -141,6 +164,13 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .topbar nav a:hover, .topbar nav a[aria-current] { background: var(--color-raised); color: var(--color-silk); }
 .labpill { display: inline-flex; align-items: center; gap: 9px; background: var(--color-raised); color: var(--color-silk); border-radius: 999px; padding: 8px 15px; text-decoration: none; }
 .labpill:hover { background: var(--color-hover); }
+/* a very narrow window (a split screen): the bar measures itself; the lab pill drops "Live" and the gaps tighten, so
+   the name, the pill and Menu still fit one line (any-shape sweep, 2026-10-25) */
+.topbar { container: bar / inline-size; }
+@container bar (max-width: 340px) { .topbar .in { gap: 8px; } .labpill { padding-inline: 11px; gap: 7px; } .labpill .lw { display: none; } }
+/* narrower still: the pill keeps just its dot (its link keeps the name), and as a last resort the row wraps, so Menu
+   moves under the name instead of off the screen */
+@container bar (max-width: 230px) { .labpill > span { display: none; } .topbar .in { flex-wrap: wrap; row-gap: 8px; gap: 6px; } .topbar .name { font-size: clamp(13px, 6.4cqi, var(--text-body)); } .labpill { padding-inline: 10px; } .menu summary { padding-inline: 11px; } }
 /* off: transparent but keeping its place, so nothing in the bar moves. Opacity only, on its own compositing layer, so the
    pill fades as one piece in every browser; a visibility switch let Chrome and Safari leave its background behind when a
    fade was reversed mid-way. pill.ts also makes it inert, so it can't be clicked or tabbed to while off. */

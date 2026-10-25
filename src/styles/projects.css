@@ -50,11 +50,17 @@
 .mine { margin-top: 44px; display: grid; }
 .sub-h { font: 700 var(--text-lead) var(--font-display); margin-bottom: 14px; }
 .mine > .lead { color: var(--color-dim); margin: -8px 0 20px; }
-.origin { margin-top: 18px; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 22px; align-items: center; padding: 16px 22px 16px 16px; border-radius: var(--radius-panel); background: var(--color-panel); color: var(--color-silk); text-decoration: none; transition: background-color .25s; }
+/* the picture as big as the cards' above it (Jason, 2026-10-25: smaller than the others): one of three columns on wide
+   screens, the text and its button in the other two */
+.origin { margin-top: 18px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 18px; align-items: center; padding: 16px 22px 16px 16px; border-radius: var(--radius-panel); background: var(--color-panel); color: var(--color-silk); text-decoration: none; transition: background-color .25s; }
 .origin:hover { background: var(--color-hover); }
 .origin:hover .btn-secondary { background: var(--color-lift); }
-.origin .blk { width: min(200px, 96vh); width: min(200px, 96svh); aspect-ratio: 16 / 10; border-radius: var(--radius-inner); overflow: hidden; background: var(--color-raised); }
+.origin .blk { grid-row: span 2; width: 100%; max-height: 60svh; aspect-ratio: 16 / 10; border-radius: var(--radius-inner); overflow: hidden; background: var(--color-raised); }
 .origin .blk svg { display: block; width: 100%; height: 100%; }
+.origin > * { min-width: 0; } /* its parts may be narrower than their longest word on the narrowest windows */
+.origin > div:not(.blk), .origin .btn { grid-column: 2 / -1; }
+.origin > div:not(.blk) { align-self: end; }
+.origin .btn { justify-self: start; align-self: start; }
 .origin h3 { font: 700 var(--text-lead) / 1.25 var(--font-display); }
 .origin p { color: var(--color-dim); margin-top: 4px; }
 
@@ -99,8 +105,10 @@
   .grid.feat, .grid.compact, .grid.three { grid-template-columns: 1fr; }
   .card.wide { grid-template-columns: 1fr; padding: 14px 14px 18px; gap: 14px; }
   .card.wide .body { padding: 0 6px; }
-  .origin { grid-template-columns: auto minmax(0, 1fr); }
-  .origin .btn { grid-column: 2; justify-self: start; }
+  .origin { grid-template-columns: minmax(0, .9fr) minmax(0, 1fr); } /* the picture beside the text, as the sideways cards */
+  .origin .blk { grid-row: auto; }
+  .origin > div:not(.blk) { grid-column: 2; align-self: center; }
+  .origin .btn { grid-column: 1 / -1; } /* its own row: its label is wider than the text column */
 }
 @media (max-width: 760px) {
   .card, .card.wide { padding: 12px 12px 16px; }
@@ -109,29 +117,32 @@
   .card.wide .head { font-size: var(--text-lead); line-height: 1.25; }
   .card.wide h3 { font-size: var(--text-body); }
   /* the demo button leads, full width; the course tag and team share the row under it */
-  .card.wide .meta { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px 10px; }
+  /* a wrapping row, not a fixed grid: whatever doesn't fit moves to the next line instead of being crushed beside it
+     (any-shape sweep, 2026-10-25: two pills overlapped at 280px) */
+  .card.wide .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 10px; }
   .card.wide .meta .row { display: contents; }
-  .card.wide .meta .btn-live { grid-column: 1 / -1; order: -1; width: 100%; }
-  .card.wide .meta .tag { justify-self: start; }
+  .card.wide .meta .btn-live { flex: 1 1 100%; order: -1; }
+  .card.wide .meta .row > :last-child { margin-left: auto; } /* the team, at the far end */
 }
 /* phones in portrait: the origin card stacks, its picture filling the card (narrowed only if the screen is short) */
 @media (max-width: 559px) {
   .origin { grid-template-columns: 1fr; }
-  .origin .blk { width: min(100%, 96vh); width: min(100%, 96svh); }
-  .origin .btn { grid-column: auto; font-size: var(--text-small); white-space: nowrap; }
+  .origin .blk { grid-row: auto; } /* full width, stacked like the cards above */
+  .origin > div:not(.blk), .origin .btn { grid-column: 1; }
+  .origin .btn { grid-column: auto; font-size: var(--text-small); }
 }
 /* on the narrowest cards (small phones) headlines drop to the body size so they still fit two lines */
 .card { container: card / inline-size; }
 @container card (max-width: 310px) { .head { font-size: var(--text-body); } }
-@media (max-width: 400px) {
-  .origin .btn { white-space: normal; } /* its nowrap label is wider than a 320px column */
-}
 
-/* a phone held sideways: every card puts its whole picture beside its text, one card a row, instead of a full-width
-   picture cut to a strip by the screen's height (Jason, 2026-10-25). Last, so it wins over the narrower layouts above. */
-@media (max-width: 1100px) and (orientation: landscape) and (max-height: 599px) {
+/* a short window: where the cards have room (520px and up), each puts its whole picture beside its text, one card a
+   row, instead of a full-width picture cut to a strip by the window's height (Jason, 2026-10-25). It depends on the
+   cards' own width, not the device, so a small split-screen window keeps the stacked cards. Last, so it wins. */
+.cards { container: cards / inline-size; }
+@media (max-height: 599px) { @container cards (min-width: 520px) {
   .grid.feat, .grid.compact, .grid.three { grid-template-columns: 1fr; }
   /* the picture's column: at most 45% of the card, and no wider than a 16:10 picture 56% of the screen's height */
   .card, .card.wide, .grid.compact .card, .grid.three .card { grid-template-columns: min(45%, calc(56svh * 1.6)) minmax(0, 1fr); align-items: center; column-gap: 20px; }
   .card .media, .grid.compact .card .media, .grid.feat .card .media, .card.wide .media { aspect-ratio: 16 / 10; max-height: none; }
+}
 }

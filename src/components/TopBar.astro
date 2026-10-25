@@ -20,7 +20,7 @@ const items = [
     </nav>
     {/* on home it starts off (invisible, keeping its place), so a slow script can never show it fading away; pill.ts
         takes over once it knows where the widget is. Without JS the noscript rule, later in the page, shows it. */}
-    <a class={home ? 'labpill off' : 'labpill'} href="https://fpga.njason.dev"><i class="sdot" aria-hidden="true"></i><span>Live <span class="lg">FPGA </span>Lab</span></a>
+    <a class={home ? 'labpill off' : 'labpill'} href="https://fpga.njason.dev" aria-label="Live FPGA Lab"><i class="sdot" aria-hidden="true"></i><span><span class="lw">Live </span><span class="lg">FPGA </span>Lab</span></a>
     {home && <noscript><style set:html=".topbar .labpill.off { opacity: 1; pointer-events: auto; display: inline-flex; }" /></noscript>}
     <details class="menu">
       <summary>Menu</summary>

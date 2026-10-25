@@ -7,7 +7,7 @@
 .mail { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; font: 700 var(--text-title) / 1.2 var(--font-display); letter-spacing: -.015em; color: var(--color-silk); }
 .mail span { white-space: nowrap; } /* an address never breaks; the size steps down instead */
 .mail .copy { font: 600 var(--text-small) var(--font-text); letter-spacing: 0; }
-.ccard .cr { display: grid; gap: 10px; }
+.ccard .cr { display: grid; gap: 10px; min-width: 0; container: links / inline-size; }
 /* label and note share a line; when they don't fit, the note moves under the label instead of the label breaking */
 .clink { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; column-gap: 12px; row-gap: 2px; background: var(--color-raised); border-radius: var(--radius-inner); padding: 14px 18px; text-decoration: none; color: var(--color-silk); transition: background .2s; }
 .clink b { white-space: nowrap; }
@@ -19,4 +19,10 @@
 @media (max-width: 760px) { .ccard { padding: 20px 16px; } }
 /* the address steps down the scale with its column: title, then lead, then body */
 @container mail (max-width: 440px) { .mail { font-size: var(--text-lead); } }
-@container mail (max-width: 290px) { .mail { font-size: var(--text-body); } }
+@container mail (max-width: 290px) { .mail { font-size: clamp(12.5px, 8cqi, var(--text-body)); } } /* and on, with the box, down to 12.5px on the narrowest windows */
+/* the link labels, like the address, scale with their column on the narrowest windows instead of breaking */
+@container links (max-width: 240px) { .clink { padding-inline: 12px; } .clink b { font-size: clamp(12.5px, 8.5cqi, var(--text-body)); } }
+/* narrower than any phone (a split-screen sliver): even at 12.5px the address can't fit, so it wraps, last resort */
+@container mail (max-width: 150px) { .mail span { white-space: normal; overflow-wrap: anywhere; } }
+/* a narrow column: every link puts its note under its label, the same way, instead of only the longest one */
+@container links (max-width: 260px) { .clink { flex-direction: column; align-items: flex-start; } }

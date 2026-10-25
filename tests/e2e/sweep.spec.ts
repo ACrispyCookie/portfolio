@@ -145,9 +145,12 @@ test(`${path}, ${mode.name}, every window shape, portrait and landscape: the pag
         const short = innerWidth > innerHeight && innerHeight < 600;
         // a phone held sideways: the top picture spans the column, whole, taller than the screen (Jason, 2026-10-25)
         if (m.closest('.hero-media') && short && innerWidth <= 1100 && matchMedia('(pointer: coarse)').matches) return [];
+        // a drawing at the smallest size its words stay readable at (340px) may be taller than a tiny window: it scrolls
+        if (m.matches('svg.diagram') && m.closest('.psec') && m.getBoundingClientRect().width <= 341) return [];
         // the home photo on a phone held sideways: as tall as the name and text beside it (Jason, 2026-10-25)
         if (m.closest('.cover') && short && innerWidth <= 1100) return [];
-        const limit = m.closest('.cover') ? 0.8 : m.closest('.hero-media, .pfig') && short ? 0.86 : m.closest('.hero-media') ? 0.68 : 0.6;
+        // the home photo may nearly fill a short window rather than be cut to a strip (any-shape sweep, 2026-10-25)
+        const limit = m.closest('.cover') ? 0.95 : m.closest('.hero-media, .pfig') && short ? 0.86 : m.closest('.hero-media') ? 0.68 : 0.6;
         const what = m.closest('.cover') ? 'hero photo' : m.closest('[data-id]')?.getAttribute('data-id') ?? m.tagName.toLowerCase();
         return r.height > innerHeight * limit ? [`${what} ${Math.round((r.height / innerHeight) * 100)}%`] : [];
       });

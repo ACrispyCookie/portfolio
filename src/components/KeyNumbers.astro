@@ -3,6 +3,9 @@
 interface Props { numbers: { value: string; label: string }[] }
 const { numbers } = Astro.props;
 ---
-<ul class="knums" aria-label="Key numbers">
-  {numbers.map((n) => <li class="knum"><b>{n.value}</b><span>{n.label}</span></li>)}
-</ul>
+<!-- the wrapper is what the numbers measure, to choose one row, two columns or one (project.css) -->
+<div class="knwrap">
+  <ul class="knums" aria-label="Key numbers" style={`--n:${numbers.length}`}>
+    {numbers.map((n) => <li class="knum"><b>{n.value}</b><span>{n.label}</span></li>)}
+  </ul>
+</div>

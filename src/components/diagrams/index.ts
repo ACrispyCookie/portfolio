@@ -1,6 +1,6 @@
 // Every drawn project picture, by the `diagram` name in a project's front matter; cards and thumbnails both use it.
 // Each takes `label` and the project's `milestones` (only Roadmap draws them). A card or hero drawing fits whole in its
-// box (meet) and paints its background past its frame, so a box of another shape shows margin, never a cut word
+// box (meet) on the board colour (global.css: svg.diagram), so a box of another shape shows margin, never a cut word
 // (Jason, 2026-10-25: padding on every drawing).
 import Runtime from './Runtime.astro';
 import Threads from './Threads.astro';

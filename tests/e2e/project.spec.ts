@@ -548,7 +548,9 @@ test('every drawing keeps its words and shapes clear of its edges, wherever it i
       const k = box.width / vb.width; // screen px per drawing unit
       return [...svg.querySelectorAll<SVGGraphicsElement>('text, rect, circle')].flatMap((el) => {
         const r = el.getBoundingClientRect();
-        if (el.tagName === 'rect' && r.width >= box.width - 1 && r.height >= box.height - 1) return []; // the background
+        if (!r.width && !r.height) return []; // hidden: a small thumbnail shows just the shapes
+        const bb = el.getBBox();
+        if (el.tagName === 'rect' && bb.width >= vb.width - 1 && bb.height >= vb.height - 1) return []; // the background, frame-sized
         const m = Math.min(r.left - box.left, r.top - box.top, box.right - r.right, box.bottom - r.bottom);
         const text = el.tagName === 'text';
         const need = section ? (text ? 16 : 12) * k : text ? 10 : 6;

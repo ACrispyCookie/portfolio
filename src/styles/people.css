@@ -41,3 +41,14 @@
   #people .big .count { grid-column: 2; text-align: left; display: flex; align-items: baseline; gap: 6px; }
   #people .big .count b { font-size: var(--text-lead); }
 }
+
+/* a narrow card (a small phone or split screen): a long name steps down to body size instead of one word a line; last,
+   so it wins over the name's own size (any-shape sweep, 2026-10-25) */
+.person { container: person / inline-size; }
+@container person (max-width: 400px) { .person .name { font-size: var(--text-body); } }
+@container person (max-width: 340px) { #people .big .person .head { grid-template-columns: minmax(0, 1fr); } #people .big .person .head > :is(img, .ini) { width: 48px; height: 48px; grid-row: auto; } #people .big .person .count { grid-column: 1; } } /* the big cards only */ /* the avatar above the name: the name gets the card's width */
+/* the one-course rows on the narrowest windows: the count goes under the name, so the row needs no more than the name */
+#people .small { container: smallp / inline-size; }
+@container smallp (max-width: 300px) { #people .small .person { grid-template-columns: auto minmax(0, 1fr); } #people .small .head > :is(img, .ini) { grid-row: span 2; } #people .small .count { grid-column: 2; min-width: 0; text-align: left; display: flex; align-items: baseline; gap: 6px; } }
+@container smallp (max-width: 220px) { #people .small .person { grid-template-columns: minmax(0, 1fr); } #people .small .head > :is(img, .ini) { grid-row: auto; } #people .small .count { grid-column: 1; } } /* the avatar above the name */
+@container person (max-width: 200px) { #people .person .name { font-size: var(--text-small); } } /* the narrowest cards */

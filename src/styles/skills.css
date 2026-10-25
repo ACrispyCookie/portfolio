@@ -1,7 +1,7 @@
 /* Skills explorer (spec §7.4). Flat fills; the line is set apart by space, not a border. */
 .skx { padding: 20px 22px; display: grid; gap: 14px; }
 .skx .chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.chip { appearance: none; border: 0; font: 500 var(--text-small) var(--font-text); background: var(--color-raised); color: var(--color-silk); border-radius: 999px; padding: 7px 14px; min-height: 36px; cursor: pointer; white-space: nowrap; display: inline-flex; align-items: center; gap: 8px; transition: background .2s, color .2s; }
+.chip { appearance: none; border: 0; font: 500 var(--text-small) var(--font-text); background: var(--color-raised); color: var(--color-silk); border-radius: 999px; padding: 7px 14px; min-height: 36px; cursor: pointer; flex-wrap: wrap; max-width: 100%; text-align: start; overflow-wrap: break-word; /* one line when its row has room; a word wider than the row breaks, last resort */ display: inline-flex; align-items: center; gap: 8px; transition: background .2s, color .2s; }
 .chip:hover { background: var(--color-hover); }
 .chip[aria-pressed="true"] { background: var(--color-cyan); color: var(--color-ink); }
 .chip[hidden] { display: none; }

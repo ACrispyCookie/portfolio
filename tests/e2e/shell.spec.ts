@@ -21,7 +21,8 @@ test('home has doctype, title and its content edges', async ({ page, request }) 
       centred: centred.map((e) => Math.round(box(e).left)),
       traced: traced.map((e) => Math.round(box(e).left)),
       heroRight: Math.round(innerWidth - hero.right),
-      rail: parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--rail')),
+      // the rail is fluid on the narrowest windows (clamp), so measure it rather than read the variable
+      rail: (() => { const d = document.createElement('div'); d.style.width = 'var(--rail)'; document.body.append(d); const w = d.getBoundingClientRect().width; d.remove(); return w; })(),
     };
   });
   for (const x of r.centred) expect(Math.abs(x - r.centred[0]), 'centred blocks share an edge').toBeLessThanOrEqual(1);

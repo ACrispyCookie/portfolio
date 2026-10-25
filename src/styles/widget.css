@@ -1,6 +1,6 @@
 /* Live lab widget (spec §7.2): flat cyan band, no ring or shadow. */
 .board { border-radius: var(--radius-panel); background: var(--color-panel); color: var(--color-silk); overflow: hidden; }
-.board .band { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 20px; background: var(--color-cyan); color: var(--color-ink); }
+.board .band { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; /* the lights move under the title on the narrowest windows */ padding: 12px 20px; background: var(--color-cyan); color: var(--color-ink); }
 .board .title { display: flex; align-items: center; gap: 10px; font-weight: 700; }
 /* on the cyan band the status dot sits in a dark socket, so every status colour shows */
 .board .socket { width: 17px; height: 17px; border-radius: 50%; background: var(--color-ink); display: inline-grid; place-items: center; flex: none; }
@@ -31,3 +31,4 @@
   .runrow { grid-template-columns: 1fr; }
   .actions { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
 }
+.side, .board { min-width: 0; }

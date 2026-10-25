@@ -126,3 +126,12 @@
 @media (max-width: 400px) {
   .origin .btn { white-space: normal; } /* its nowrap label is wider than a 320px column */
 }
+
+/* a phone held sideways: every card puts its whole picture beside its text, one card a row, instead of a full-width
+   picture cut to a strip by the screen's height (Jason, 2026-10-25). Last, so it wins over the narrower layouts above. */
+@media (max-width: 1100px) and (orientation: landscape) and (max-height: 599px) {
+  .grid.feat, .grid.compact, .grid.three { grid-template-columns: 1fr; }
+  /* the picture's column: at most 45% of the card, and no wider than a 16:10 picture 56% of the screen's height */
+  .card, .card.wide, .grid.compact .card, .grid.three .card { grid-template-columns: min(45%, calc(56svh * 1.6)) minmax(0, 1fr); align-items: center; column-gap: 20px; }
+  .card .media, .grid.compact .card .media, .grid.feat .card .media, .card.wide .media { aspect-ratio: 16 / 10; max-height: none; }
+}

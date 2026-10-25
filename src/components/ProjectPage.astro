@@ -63,7 +63,7 @@ const docs = docsFor({ id: entry.id, course: p.course?.id }, existsSync);
 // a video's shape is its poster's, which is cut from the video at full size. A very tall or very wide picture
 // gets a box at the nearest usable shape and is shown whole inside it.
 const own = p.media?.video ? await sharp(`public${p.media.video.replace(/\.mp4$/, '.jpg')}`).metadata() : p.media?.src;
-const ownAr = own ? own.width! / own.height! : 16 / 9;
+const ownAr = own ? own.width! / own.height! : 320 / 200; // a drawn hero: the drawings' own 16:10 frame
 const heroAr = Math.min(2.4, Math.max(4 / 3, ownAr));
 const heroFit = Math.abs(heroAr / ownAr - 1) > 0.01;
 

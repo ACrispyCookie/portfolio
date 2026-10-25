@@ -150,3 +150,19 @@ test('a card video\'s still loads only as the card nears the screen, at full qua
   await page.locator('#projects .card[data-id="nbody"]').scrollIntoViewIfNeeded();
   await expect.poll(() => page.locator('#projects .card[data-id="nbody"] img.still').evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth > 0)).toBe(true);
 });
+
+for (const [w, h, phone] of [[734, 343, 'iPhone 15'], [932, 400, 'iPhone 15 Pro Max']] as const) {
+  test(`phone held sideways (${phone}): every card picture is whole, beside its text, never a cropped strip (Jason, 2026-10-25)`, async ({ page }) => {
+    await page.setViewportSize({ width: w, height: h });
+    await page.goto('/');
+    const cards = await page.locator('#projects .card').evaluateAll((cs) => cs.map((c) => {
+      const m = c.querySelector('.media')!.getBoundingClientRect(), t = c.querySelector('.body')!.getBoundingClientRect();
+      return { id: (c as HTMLElement).dataset.id, ratio: m.width / m.height, h: m.height, beside: t.left >= m.right - 1 };
+    }));
+    for (const c of cards) {
+      expect(Math.abs(c.ratio - 1.6), c.id).toBeLessThan(0.05);
+      expect(c.h, c.id).toBeLessThanOrEqual(h);
+      expect(c.beside, c.id).toBe(true);
+    }
+  });
+}

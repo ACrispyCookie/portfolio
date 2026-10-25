@@ -6,14 +6,17 @@ interface Step { lines: string[]; end?: boolean }
 interface Props { label: string; steps: Step[]; tags?: (string | undefined)[]; notes?: string[]; both?: boolean }
 const { label, steps, tags = [], notes = [], both = false } = Astro.props;
 const F = 'Hanken Grotesk Variable, Hanken Grotesk, sans-serif';
-const n = steps.length, M = 4, GAP = 18, BY = 36, BH = 58;
-const W = (340 - 2 * M - (n - 1) * GAP) / n;
+// every word and box at least 16 units inside the frame (Jason, 2026-10-25: too little padding); 372 wide so four
+// boxes still hold their words, and a phone still shows them at 13px
+const VW = 372, M = 16, GAP = 16, BH = 58;
+const n = steps.length, BY = tags.some(Boolean) ? 44 : M;
+const W = (VW - 2 * M - (n - 1) * GAP) / n;
 const bx = (i: number) => M + i * (W + GAP);
-const H = BY + BH + (notes.length ? 18 + notes.length * 19 : 8);
+const H = BY + BH + (notes.length ? 26 + (notes.length - 1) * 19 + 20 : M);
 const ay = BY + BH / 2;
 ---
-<svg class="diagram" data-kind="chain" viewBox={`0 0 340 ${H}`} role="img" aria-label={label}>
-  <rect width="340" height={H} fill="#183539" />
+<svg class="diagram" data-kind="chain" viewBox={`0 0 ${VW} ${H}`} role="img" aria-label={label}>
+  <rect width={VW} height={H} fill="#183539" />
   <g fill="none" stroke="#3b7a82" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     {steps.slice(1).map((_, i) => {
       const a = bx(i) + W + 2, b = bx(i + 1) - 2;
@@ -39,6 +42,6 @@ const ay = BY + BH / 2;
         <text x={bx(i) + W + GAP / 2} y={BY - 12} fill="#d8b46a" font-weight="700">{t}</text>
       </g>
     ))}
-    {notes.map((t, i) => <text x="170" y={BY + BH + 26 + i * 19} fill="#9db6b8">{t}</text>)}
+    {notes.map((t, i) => <text x={VW / 2} y={BY + BH + 26 + i * 19} fill="#9db6b8">{t}</text>)}
   </g>
 </svg>

@@ -4,7 +4,7 @@
 // into the GPGPU's instruction memory. Two rows of three so the words stay readable on a phone.
 interface Props { label?: string }
 const { label = 'Diagram: C code, compiled to RISC-V assembly, sent over UART to the ARM core, then over AXI into the instruction memory of the GPGPU' } = Astro.props;
-const W = 84, H = 44, X = [8, 128, 248];
+const W = 84, H = 44, X = [16, 128, 240]; // 16 units clear of the frame (Jason, 2026-10-25)
 const rows = [
   { y: 20, steps: [['C code'], ['RISC-V gcc'], ['assembly']] },
   { y: 132, steps: [['Zynq', 'ARM core'], ['instruction', 'memory'], ['GPGPU']] },

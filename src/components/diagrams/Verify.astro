@@ -6,7 +6,7 @@
 // comparator checks the dump against it. Three columns, so the words stay readable on a phone.
 interface Props { label?: string }
 const { label = 'Diagram: a test program in assembly goes to a binary generator, whose machine code is sent over UART to the ARM core (PS), which runs the kernel on the FPGA logic (PL) and returns a memory dump; the same program goes to the expected generator, and a comparator checks the memory dump against the expected output and gives pass or fail' } = Astro.props;
-const W = 84, H = 44, X = [8, 128, 248];
+const W = 84, H = 44, X = [16, 128, 240]; // 16 units clear of the frame (Jason, 2026-10-25)
 const box = (x: number, y: number, lines: string[], tone: 'plain' | 'file' | 'end' = 'plain') => ({ x, y, lines, tone });
 const boxes = [
   box(X[1], 12, ['assembly'], 'file'),
@@ -24,13 +24,15 @@ const right = (x: number, y: number) => `M${x - 7} ${y - 5} L${x} ${y} L${x - 7}
 const cx = (x: number) => x + W / 2;
 // a small gold label on a trace, like the flow drawing's UART
 const tags = [
-  { x: 50, y: 150, t: 'UART', w: 48 },
+  { x: X[0] + W / 2, y: 150, t: 'UART', w: 48 },
   { x: 118, y: 221, t: 'kernel', w: 52 },
   { x: 212, y: 221, t: 'dump', w: 44 },
 ];
 ---
-<svg class="diagram" data-kind="verify" viewBox="0 0 340 300" role="img" aria-label={label}>
-  <rect width="340" height="300" fill="#183539" />
+<svg class="diagram" data-kind="verify" viewBox="0 0 340 308" role="img" aria-label={label}>
+  <rect width="340" height="308" fill="#183539" />
+  {/* everything 4 units lower, so the top and bottom boxes are 16 units clear of the frame too */}
+  <g transform="translate(0 4)">
   <g fill="none" stroke="#3b7a82" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     {/* assembly splits to the two generators */}
     <path d={`M${cx(X[1])} 56 V70 H${cx(X[0])} V82 M${cx(X[1])} 70 H${cx(X[2])} V82`} />
@@ -67,5 +69,6 @@ const tags = [
         <text x={g.x} y={g.y + 4.5} fill="#d8b46a" font-weight="700">{g.t}</text>
       </g>
     ))}
+  </g>
   </g>
 </svg>

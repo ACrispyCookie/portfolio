@@ -1,5 +1,7 @@
 // Every drawn project picture, by the `diagram` name in a project's front matter; cards and thumbnails both use it.
-// Each takes `label` and the project's `milestones` (only Roadmap draws them).
+// Each takes `label` and the project's `milestones` (only Roadmap draws them). A card or hero drawing fits whole in its
+// box (meet) and paints its background past its frame, so a box of another shape shows margin, never a cut word
+// (Jason, 2026-10-25: padding on every drawing).
 import Runtime from './Runtime.astro';
 import Threads from './Threads.astro';
 import Homelab from './Homelab.astro';
@@ -17,4 +19,4 @@ import DvdPipe from './DvdPipe.astro';
 
 export const diagrams = { runtime: Runtime, threads: Threads, homelab: Homelab, dedup: Dedup, alignment: Alignment, roadmap: Roadmap, flow: Flow, verify: Verify, timeslice: TimeSlice, tupletake: TupleTake, migrate: Migrate, session: Session, labwiring: LabWiring, dvdpipe: DvdPipe };
 /** A drawing's shape (width over height, from its viewBox), so a page can size it to fit the screen. */
-export const shapes: Partial<Record<keyof typeof diagrams, number>> = { flow: 340 / 196, verify: 340 / 300, timeslice: 340 / 256, tupletake: 340 / 131, migrate: 340 / 150, session: 340 / 150, labwiring: 340 / 131, dvdpipe: 340 / 131 };
+export const shapes: Partial<Record<keyof typeof diagrams, number>> = { flow: 340 / 196, verify: 340 / 308, timeslice: 340 / 256, tupletake: 372 / 120, migrate: 372 / 139, session: 372 / 139, labwiring: 372 / 148, dvdpipe: 372 / 120 };

@@ -4,8 +4,8 @@ interface Props { label?: string }
 const { label = 'Service categories running on the homelab' } = Astro.props;
 const cells = ['FPGA lab', 'Web services', 'Media and files', 'Remote access', 'Automation', 'Monitoring'];
 ---
-<svg class="diagram" data-kind="homelab" viewBox="0 0 320 200" role="img" aria-label={label} preserveAspectRatio="xMidYMid slice">
-  <rect width="320" height="200" fill="#183539" />
+<svg class="diagram" data-kind="homelab" viewBox="0 0 320 200" role="img" aria-label={label} preserveAspectRatio="xMidYMid meet">
+  <rect x="-400" y="-400" width="1120" height="1000" fill="#183539" />
   <g font-family="Hanken Grotesk Variable, Hanken Grotesk, sans-serif" font-size="13" fill="#eaf2f1" text-anchor="middle">
     {cells.map((c, i) => {
       const x = i % 2 ? 166 : 22;

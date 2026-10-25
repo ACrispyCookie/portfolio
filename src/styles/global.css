@@ -128,6 +128,12 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   padding: 14px var(--side-r) 14px var(--side-l);
   background: var(--color-mask); color: var(--color-silk);
 }
+/* a phone held sideways: the bar slides up out of the way while scrolling down and back on the way up (TopBar's
+   script sets .away), so a picture can use the short screen's height (Jason, 2026-10-25) */
+@media (orientation: landscape) and (max-height: 599px) {
+  .topbar.away { transform: translateY(calc(-100% - env(safe-area-inset-top, 0px))); }
+  @media (prefers-reduced-motion: no-preference) { .topbar { transition: transform .25s cubic-bezier(.2, .8, .2, 1); } }
+}
 .topbar .in { max-width: calc(1200px + var(--rail-r)); margin: 0 auto; padding-inline: var(--rail) var(--rail-r); box-sizing: border-box; display: flex; align-items: center; gap: 16px; position: relative; }
 .topbar .name { font: 700 var(--text-body) var(--font-display); text-decoration: none; letter-spacing: -.01em; margin-right: auto; white-space: nowrap; }
 .topbar nav { display: flex; gap: 2px; }

@@ -534,3 +534,72 @@ test('the time-slice chart keeps every word and mark at least 16 units inside it
   });
   expect(tight).toEqual([]);
 });
+
+test('every drawing keeps its words and shapes clear of its edges, wherever it is shown (Jason, 2026-10-25)', async ({ page }) => {
+  const urls = ['/', '/projects', '/courses/ece338/gpgpu', '/courses/ece348/runtime', '/courses/ece321/threads', '/projects/live-fpga-lab', '/projects/dvd-logo-fpga', '/projects/homelab', '/projects/gpgpu-v2'];
+  const bad: string[] = [];
+  for (const url of urls) {
+    await page.goto(url);
+    bad.push(...await page.evaluate((url) => [...document.querySelectorAll<SVGSVGElement>('main svg.diagram')].flatMap((svg) => {
+      const box = svg.getBoundingClientRect();
+      if (!box.width) return [];
+      const vb = svg.viewBox.baseVal;
+      const section = !!svg.closest('.psec');
+      const k = box.width / vb.width; // screen px per drawing unit
+      return [...svg.querySelectorAll<SVGGraphicsElement>('text, rect, circle')].flatMap((el) => {
+        const r = el.getBoundingClientRect();
+        if (el.tagName === 'rect' && r.width >= box.width - 1 && r.height >= box.height - 1) return []; // the background
+        const m = Math.min(r.left - box.left, r.top - box.top, box.right - r.right, box.bottom - r.bottom);
+        const text = el.tagName === 'text';
+        const need = section ? (text ? 16 : 12) * k : text ? 10 : 6;
+        return m < need - 0.5 ? [`${url} ${svg.dataset.kind} ${text ? `"${el.textContent}"` : el.tagName} ${m.toFixed(1)}px < ${need.toFixed(1)}px`] : [];
+      });
+    }), url));
+  }
+  expect([...new Set(bad)]).toEqual([]);
+});
+
+test('a top picture narrower than the column is centred in it, with its numbers (Jason, 2026-10-25: left-aligned on a phone held sideways)', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 700 }); // a short desktop window caps the picture's height
+  await page.goto('/courses/ece415/nbody');
+  const r = await page.evaluate(() => {
+    const b = (s: string) => document.querySelector(s)!.getBoundingClientRect();
+    return { col: b('.phead'), hero: b('.hero-media'), nums: b('.knums') };
+  });
+  expect(r.hero.width).toBeLessThan(r.col.width - 20); // this screen caps the picture's height
+  expect(Math.abs((r.hero.left - r.col.left) - (r.col.right - r.hero.right))).toBeLessThan(2);
+  expect(Math.abs(r.nums.left - r.hero.left)).toBeLessThan(2);
+  expect(Math.abs(r.nums.right - r.hero.right)).toBeLessThan(2);
+});
+
+test('phone held sideways (iPhone 15): the top bar slides away while scrolling down and back on the way up, and the top picture spans the column (Jason, 2026-10-25)', async ({ page }) => {
+  await page.setViewportSize({ width: 734, height: 343 });
+  await page.goto('/courses/ece415/nbody');
+  test.skip(!(await page.evaluate(() => matchMedia('(pointer: coarse)').matches)), 'touch screens: a short desktop window keeps the height cap');
+  const r = await page.evaluate(() => ({ col: document.querySelector('.phead')!.getBoundingClientRect().width, hero: document.querySelector('.hero-media')!.getBoundingClientRect() }));
+  // the picture spans the column, whole, a little taller than the screen (Jason, 2026-10-25: still small at its height)
+  expect(Math.abs(r.hero.width - r.col)).toBeLessThan(2);
+  const barBottom = () => page.locator('.topbar').evaluate((b) => b.getBoundingClientRect().bottom);
+  await page.evaluate(() => scrollBy(0, 400));
+  await expect.poll(barBottom).toBeLessThanOrEqual(0);
+  await page.evaluate(() => scrollBy(0, -120));
+  await expect.poll(barBottom).toBeGreaterThan(40);
+});
+
+test('an upright phone keeps its top bar while scrolling down', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/courses/ece415/nbody');
+  await page.evaluate(() => scrollBy(0, 600));
+  await page.waitForTimeout(500);
+  expect(await page.locator('.topbar').evaluate((b) => b.getBoundingClientRect().top)).toBeGreaterThanOrEqual(0);
+});
+
+test('the page starts close under the top bar: 16px on a phone, growing to 32px on a large screen (Jason, 2026-10-25: too much space)', async ({ page }) => {
+  for (const url of ['/courses/ece415/nbody', '/projects']) {
+    await page.goto(url);
+    const gap = await page.evaluate(() => document.querySelector('.crumb, main h1')!.getBoundingClientRect().top - document.querySelector('.topbar')!.getBoundingClientRect().bottom);
+    const w = page.viewportSize()!.width;
+    expect(gap, url).toBeGreaterThanOrEqual(15);
+    expect(gap, url).toBeLessThanOrEqual(w <= 430 ? 17 : 33);
+  }
+});

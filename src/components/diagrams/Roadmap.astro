@@ -7,11 +7,11 @@ const { label = `Progress: ${milestones.map((m) => `${m.name} (${m.state === 'no
 const step = Math.min(34, 150 / Math.max(1, milestones.length - 1));
 const top = 100 - (step * (milestones.length - 1)) / 2;
 const y = (i: number) => top + i * step;
-const cx = (i: number) => 70 + (i * 180) / Math.max(1, milestones.length - 1); // inside the crop of a near-square box
+const cx = (i: number) => 70 + (i * 180) / Math.max(1, milestones.length - 1); // spaced across the middle, so a near-square box still shows them large
 ---
 {compact ? (
-<svg class="diagram" data-kind="roadmap" viewBox="0 0 320 200" role="img" aria-label={label} preserveAspectRatio="xMidYMid slice">
-  <rect width="320" height="200" fill="#183539" />
+<svg class="diagram" data-kind="roadmap" viewBox="0 0 320 200" role="img" aria-label={label} preserveAspectRatio="xMidYMid meet">
+  <rect x="-400" y="-400" width="1120" height="1000" fill="#183539" />
   <path d={`M${cx(0)} 100 H${cx(milestones.length - 1)}`} stroke="#3b7a82" stroke-width="8" />
   {milestones.map((m, i) => (
     <g data-state={m.state}>
@@ -22,8 +22,8 @@ const cx = (i: number) => 70 + (i * 180) / Math.max(1, milestones.length - 1); /
   ))}
 </svg>
 ) : (
-<svg class="diagram" data-kind="roadmap" viewBox="0 0 320 200" role="img" aria-label={label} preserveAspectRatio="xMidYMid slice">
-  <rect width="320" height="200" fill="#183539" />
+<svg class="diagram" data-kind="roadmap" viewBox="0 0 320 200" role="img" aria-label={label} preserveAspectRatio="xMidYMid meet">
+  <rect x="-400" y="-400" width="1120" height="1000" fill="#183539" />
   {milestones.length > 1 && <path d={`M48 ${y(0)} V${y(milestones.length - 1)}`} stroke="#3b7a82" stroke-width="2" />}
   <g font-family="Hanken Grotesk Variable, Hanken Grotesk, sans-serif" font-size="13">
     {milestones.map((m, i) => (

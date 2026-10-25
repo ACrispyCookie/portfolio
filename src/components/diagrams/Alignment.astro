@@ -8,8 +8,8 @@ const x = (c: number) => 74 + c * 22, y = (r: number) => 38 + r * 22;
 // the match ATTAC runs down the diagonal one column left of centre (rows 2–6, columns 1–5), rising as it goes
 const score = (r: number, c: number) => (r >= 2 && c === r - 1 ? 0.35 + (r - 2) * 0.15 : ((r * 7 + c * 3) % 5) * 0.025);
 ---
-<svg class="diagram" data-kind="alignment" viewBox="0 0 320 200" role="img" aria-label={label} preserveAspectRatio="xMidYMid slice">
-  <rect width="320" height="200" fill="#183539" />
+<svg class="diagram" data-kind="alignment" viewBox="0 0 320 200" role="img" aria-label={label} preserveAspectRatio="xMidYMid meet">
+  <rect x="-400" y="-400" width="1120" height="1000" fill="#183539" />
   <g font-family="Hanken Grotesk Variable, Hanken Grotesk, sans-serif" font-size="11" fill="#9db6b8" text-anchor="middle">
     {top.map((l, c) => <text x={x(c) + 10} y="30">{l}</text>)}
     {side.map((l, r) => <text x="60" y={y(r) + 14}>{l}</text>)}

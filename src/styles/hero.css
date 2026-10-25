@@ -6,7 +6,7 @@
 
 .cover { flex: 1 1 auto; min-height: min(380px, 60vh); max-height: 80vh; max-height: 80svh; position: relative; border-radius: var(--radius-panel); overflow: hidden; background: var(--color-panel); }
 /* framed for more sky than shirt (Jason, 2026-10-23) */
-.cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 48%; display: block; }
+.cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; display: block; } /* a trimmed photo keeps the summit (~14% down) and the sky over it (Jason, 2026-10-25) */
 
 .who { display: grid; gap: 16px; }
 .who h1 { font: 800 var(--text-display) / .95 var(--font-display); letter-spacing: -.035em; }
@@ -52,8 +52,10 @@
 }
 @media (max-width: 760px) {
   .top { grid-template-columns: 1fr; grid-template-areas: "cover" "who" "side" "now"; row-gap: 28px; }
-  /* on short screens the photo yields so the name still makes the first screen */
-  .cover { aspect-ratio: 5 / 4; max-height: 35vh; max-height: 35svh; }
+  /* as big as it can be with the name still on the first screen: a square the column's width, never taller than the
+     screen less the room above it and the name under it (86px + 28px + 94px + 16px), so it yields only on short
+     phones (Jason, 2026-10-25: fluid instead of a 35% cap); the full width always, a capped height trims it */
+  .cover { aspect-ratio: 1 / 1; max-height: calc(100vh - 224px); max-height: calc(100svh - 224px); width: 100%; }
   .now { grid-template-columns: 1fr; }
   .cta .btn-primary { flex: 1 1 100%; }
   .cta .btn-secondary { flex: 1 1 150px; } /* side by side when both fit, stacked on the narrowest phones */
@@ -63,4 +65,13 @@
   .top { grid-template-columns: minmax(0, 40%) minmax(0, 1fr); grid-template-areas: "cover who" "side side" "now now"; column-gap: 24px; }
   .cover { aspect-ratio: 1 / 1; max-height: 80vh; max-height: 80svh; align-self: start; }
   .now { grid-template-columns: 1fr 1fr; }
+}
+/* any phone held sideways (a short screen, also the wider ones that get the tablet layout): the photo takes half the
+   width and the screen's height, less a small margin, now that the top bar slides away there (Jason, 2026-10-25) */
+@media (max-width: 1100px) and (orientation: landscape) and (max-height: 599px) {
+  /* the photo takes a little more than half: wider than tall where the height runs out, trimmed from the top area so
+     the summit stays (Jason, 2026-10-25: could be bigger) */
+  .top { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); column-gap: 28px; }
+  /* as tall as the name and text beside it: no strip of empty space under either, the summit on the first screen */
+  .cover { aspect-ratio: auto; max-height: none; min-height: 0; width: 100%; align-self: stretch; }
 }

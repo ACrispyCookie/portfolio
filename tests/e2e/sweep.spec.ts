@@ -143,6 +143,10 @@ test(`${path}, ${mode.name}, every window shape, portrait and landscape: the pag
         // pictures on a short landscape screen, which may use 86% so they aren't shrunk to a corner (Jason, 2026-10-24)
         // a project page's top video may use 68% (Jason, 2026-10-24: make it bigger; 2026-10-25: never crop it)
         const short = innerWidth > innerHeight && innerHeight < 600;
+        // a phone held sideways: the top picture spans the column, whole, taller than the screen (Jason, 2026-10-25)
+        if (m.closest('.hero-media') && short && innerWidth <= 1100 && matchMedia('(pointer: coarse)').matches) return [];
+        // the home photo on a phone held sideways: as tall as the name and text beside it (Jason, 2026-10-25)
+        if (m.closest('.cover') && short && innerWidth <= 1100) return [];
         const limit = m.closest('.cover') ? 0.8 : m.closest('.hero-media, .pfig') && short ? 0.86 : m.closest('.hero-media') ? 0.68 : 0.6;
         const what = m.closest('.cover') ? 'hero photo' : m.closest('[data-id]')?.getAttribute('data-id') ?? m.tagName.toLowerCase();
         return r.height > innerHeight * limit ? [`${what} ${Math.round((r.height / innerHeight) * 100)}%`] : [];
@@ -166,7 +170,7 @@ test(`${path}, ${mode.name}, every window shape, portrait and landscape: the pag
       // the top picture keeps its own shape and is as big as it can be: the column's width, or its height cap
       const hero = document.querySelector('.hero-media')?.getBoundingClientRect();
       const col = document.querySelector('.phead')?.getBoundingClientRect();
-      const cap = innerHeight * (innerWidth > innerHeight && innerHeight < 600 ? 0.84 : 0.58 * 1.14);
+      const cap = innerHeight * (innerWidth > innerHeight && innerHeight < 600 ? 0.84 : 0.58 * 1.14); // its height cap off phones
       if (hero && col && hero.width < col.width - 2 && hero.height < cap - 2) narrow.push(`top picture ${Math.round(hero.width)}×${Math.round(hero.height)} in a ${Math.round(col.width)}px column`);
       if (hero && hero.width / hero.height > 2.4) strips.push(`top picture ${Math.round(hero.width)}×${Math.round(hero.height)}`);
       // the key numbers belong to the video: always its width, also where a short screen caps the video (Jason,

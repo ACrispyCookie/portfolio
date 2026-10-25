@@ -33,4 +33,19 @@ const items = [
 <script>
   // Picking a section closes the sheet so the glide to it is visible.
   for (const a of document.querySelectorAll<HTMLAnchorElement>('.menu-sheet a')) a.addEventListener('click', () => a.closest('details')!.removeAttribute('open'));
+
+  // A phone held sideways: the bar slides away while scrolling down and comes back on the way up, so a picture can
+  // use the short screen's height (Jason, 2026-10-25). It stays while its menu is open or it holds the focus.
+  const bar = document.querySelector<HTMLElement>('.topbar')!;
+  const short = matchMedia('(orientation: landscape) and (max-height: 599px)');
+  let last = scrollY;
+  addEventListener('scroll', () => {
+    const y = scrollY, down = y > last;
+    if (Math.abs(y - last) < 4) return;
+    last = y;
+    const keep = !short.matches || y < bar.offsetHeight || bar.querySelector('details[open]') || bar.contains(document.activeElement);
+    bar.classList.toggle('away', !keep && down);
+  }, { passive: true });
+  short.addEventListener('change', () => bar.classList.remove('away'));
+  bar.addEventListener('focusin', () => bar.classList.remove('away'));
 </script>

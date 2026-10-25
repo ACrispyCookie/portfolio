@@ -1,5 +1,6 @@
 /* Project page (spec §5.2, the approved mock's layout). Text lines stay under 65ch; surfaces are flat tone steps. */
-.phead { padding: 40px 0 18px; display: grid; gap: 14px; justify-items: start; } /* room under it for the trace's start pad */
+/* the gap under the top bar grows with the screen: 16px on a phone, 32px on a large one (Jason, 2026-10-25: too much space) */
+.phead { padding: clamp(16px, 2.2vw, 32px) 0 18px; display: grid; gap: 14px; justify-items: start; } /* room under it for the trace's start pad */
 .phead .crumb { color: var(--color-dim); font-size: var(--text-small); }
 .phead .crumb a { color: var(--color-silk); text-underline-offset: 3px; }
 .phead h1 { font: 800 var(--text-display) / 1 var(--font-display); letter-spacing: -.035em; }
@@ -15,7 +16,10 @@
 /* the hero has its picture's own shape (--har, set by the page), so nothing is cut off; its width is capped so its
    height stays under --hero-h, a little taller than a section picture's so the video stays big (Jason, 2026-10-24/25) */
 .ptop { --hero-h: calc(var(--pic-h) * 1.14); }
-@media (orientation: landscape) and (max-height: 599px) { .ptop { --hero-h: var(--pic-h); } }
+/* a phone held sideways: the picture spans the column, whole, a little taller than the screen; the top bar slides away
+   while scrolling down (TopBar). At the screen's height it was too small (Jason, 2026-10-25) */
+@media (orientation: landscape) and (max-height: 599px) { .ptop { --hero-h: var(--pic-h); } } /* any short screen: the section pictures' cap */
+@media (orientation: landscape) and (max-height: 599px) and (max-width: 1100px) and (pointer: coarse) { .ptop { --hero-h: 100vw; } }
 .hero-media { position: relative; margin: 0; border-radius: var(--radius-panel); overflow: hidden; background: var(--color-panel); aspect-ratio: var(--har, 16 / 9); width: min(100%, calc(var(--hero-h) * var(--har, 1.78))); }
 .hero-media.whole img { object-fit: contain; }
 .hero-media > video, .hero-media > img, .hero-media > picture img, .hero-media > svg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -37,7 +41,7 @@
 .knum span { color: var(--color-dim); font-size: var(--text-small); line-height: 1.45; }
 @media (max-width: 900px) { .knums { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 /* the numbers belong to the video above them: one block, close together, not a whole section gap apart (Jason, 2026-10-24) */
-.ptop { display: grid; gap: 20px; min-width: 0; justify-items: start; }
+.ptop { display: grid; gap: 20px; min-width: 0; justify-items: center; } /* a picture narrower than the column (a short screen caps its height) sits centred, its numbers under it (Jason, 2026-10-25) */
 /* the numbers take the video's width, also where a short screen caps it (on a real phone or tablet held sideways the
    toolbars shorten the screen, so svh is smaller than in an emulator: Jason, 2026-10-24) */
 .ptop > .knums { width: min(100%, calc(var(--hero-h) * var(--har, 1.78))); }

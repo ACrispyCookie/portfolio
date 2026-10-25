@@ -17,4 +17,4 @@ import DvdPipe from './DvdPipe.astro';
 
 export const diagrams = { runtime: Runtime, threads: Threads, homelab: Homelab, dedup: Dedup, alignment: Alignment, roadmap: Roadmap, flow: Flow, verify: Verify, timeslice: TimeSlice, tupletake: TupleTake, migrate: Migrate, session: Session, labwiring: LabWiring, dvdpipe: DvdPipe };
 /** A drawing's shape (width over height, from its viewBox), so a page can size it to fit the screen. */
-export const shapes: Partial<Record<keyof typeof diagrams, number>> = { flow: 340 / 196, verify: 340 / 300, timeslice: 340 / 226, tupletake: 340 / 131, migrate: 340 / 150, session: 340 / 150, labwiring: 340 / 131, dvdpipe: 340 / 131 };
+export const shapes: Partial<Record<keyof typeof diagrams, number>> = { flow: 340 / 196, verify: 340 / 300, timeslice: 340 / 256, tupletake: 340 / 131, migrate: 340 / 150, session: 340 / 150, labwiring: 340 / 131, dvdpipe: 340 / 131 };

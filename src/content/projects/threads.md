@@ -12,7 +12,7 @@ diagram: "threads"
 figures:
   - section: "choosing-the-time-slice"
     diagram: "timeslice"
-    alt: "Chart: the run time rises in a straight line with the time slice, from about 0.04 s at 4 µs to 1.65 s at 1000 µs"
+    alt: "Chart: the run time rises in a straight line with the time slice, from about 0.04 s at 4 µs to 1.65 s at 1000 µs"
 
 ---
 
@@ -42,7 +42,7 @@ The timer also broke `scanf`, which kept returning early when interrupted. So th
 
 ### Choosing the time slice
 
-We timed our earlier pipe program, three runs at every time slice from 4 µs to 1 ms. The run time grows in a straight line with the slice, from about 0.04 s to 1.65 s, so a shorter slice is faster, down to a point. At 1 µs it took about 70 seconds, the same as a 40 ms slice, because even the quickest system calls can't finish inside one slice.
+We timed our earlier pipe program, three runs at every time slice from 4 µs to 1 ms. The run time grows in a straight line with the slice, from about 0.04 s to 1.65 s, so a shorter slice is faster, down to a point. At 1 µs it took about 70 seconds, the same as a 40 ms slice, because even the quickest system calls can't finish inside one slice.
 
 ## Tested on our earlier work
 

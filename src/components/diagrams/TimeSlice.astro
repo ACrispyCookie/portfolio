@@ -1,33 +1,35 @@
 ---
 // ECE321 user-level threads: run time of the Project 1 pipe program against the time slice, drawn from the repo's
 // measurements (the median of 3 runs per slice, 4–1000 µs), the data behind slide 24 of the Project 4 deck.
+// Every word and mark keeps at least 16 units from the frame (Jason, 2026-10-25: too little padding on a phone).
 import data from '../../data/threads-timeslice.json';
 interface Props { label?: string }
 const { label = 'Chart: the run time rises in a straight line with the time slice, from about 0.04 s at 4 µs to 1.65 s at 1000 µs' } = Astro.props;
 const F = 'Hanken Grotesk Variable, Hanken Grotesk, sans-serif';
-// plot area and scales: 0–1000 µs across, 0–1.8 s up
-const L = 50, R = 326, T = 24, B = 186;
+// the frame, then the plot inside it: 0–1000 µs across, 0–1.8 s up; the axis titles carry the units
+const VW = 340, VH = 256;
+const L = 58, R = 304, T = 52, B = 182;
 const x = (us: number) => L + (us / 1000) * (R - L);
 const y = (s: number) => B - (s / 1.8) * (B - T);
 const line = data.points.map(([us, s], i) => `${i ? 'L' : 'M'}${x(us).toFixed(1)} ${y(s).toFixed(1)}`).join(' ');
 const last = data.points[data.points.length - 1];
 ---
-<svg class="diagram" data-kind="timeslice" viewBox="0 0 340 226" role="img" aria-label={label}>
-  <rect width="340" height="226" fill="#183539" />
+<svg class="diagram" data-kind="timeslice" viewBox={`0 0 ${VW} ${VH}`} role="img" aria-label={label}>
+  <rect width={VW} height={VH} fill="#183539" />
   <g font-family={F} font-size="13" fill="#9db6b8">
+    <text x="24" y="30">run time (s)</text>
     {[0, 0.5, 1, 1.5].map((s) => (
       <g>
         <path d={`M${L} ${y(s)} H${R}`} stroke="#24494e" stroke-width="1" />
-        <text x={L - 8} y={y(s) + 4.5} text-anchor="end">{s === 0 ? '0' : `${s} s`}</text>
+        <text x={L - 10} y={y(s) + 4.5} text-anchor="end">{s}</text>
       </g>
     ))}
-    {[0, 250, 500, 750, 1000].map((us) => <text x={x(us)} y={B + 18} text-anchor={us === 0 ? 'start' : us === 1000 ? 'end' : 'middle'}>{us}</text>)}
-    <text x={R} y={B + 36} text-anchor="end">time slice (µs)</text>
-    <text x={L} y="14">run time</text>
+    {[0, 250, 500, 750, 1000].map((us) => <text x={x(us)} y={B + 22} text-anchor="middle">{us}</text>)}
+    <text x={(L + R) / 2} y={B + 50} text-anchor="middle">time slice (µs)</text>
   </g>
   <path d={line} fill="none" stroke="#d8b46a" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" />
   <circle cx={x(last[0])} cy={y(last[1])} r="4" fill="#d8b46a" />
   {/* the end value, read across from the left where the plot is empty */}
-  <path d={`M${L + 104} ${y(last[1])} H${x(last[0]) - 8}`} stroke="#d8b46a" stroke-width="1" stroke-dasharray="3 4" />
+  <path d={`M${L + 112} ${y(last[1])} H${x(last[0]) - 8}`} stroke="#d8b46a" stroke-width="1" stroke-dasharray="3 4" />
   <text x={L + 8} y={y(last[1]) + 4.5} font-family={F} font-size="13" font-weight="700" fill="#eaf2f1">1.65 s at 1 ms</text>
 </svg>

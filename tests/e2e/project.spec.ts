@@ -521,3 +521,16 @@ test('the hero picture or video is never cropped: its box has the picture\'s own
     if (r.fit !== 'contain') expect(Math.abs(r.box / r.own - 1), url).toBeLessThan(0.02);
   }
 });
+
+test('the time-slice chart keeps every word and mark at least 16 units inside its frame (Jason, 2026-10-25: too little padding)', async ({ page }) => {
+  await page.goto('/courses/ece321/threads');
+  const tight = await page.locator('svg[data-kind="timeslice"]').evaluate((svg: SVGSVGElement) => {
+    const vb = svg.viewBox.baseVal;
+    return [...svg.querySelectorAll('text, circle')].flatMap((el) => {
+      const b = (el as SVGGraphicsElement).getBBox();
+      const m = Math.min(b.x - vb.x, b.y - vb.y, vb.width - (b.x + b.width), vb.height - (b.y + b.height));
+      return m < 16 ? [`${el.textContent || el.tagName} ${m.toFixed(1)}`] : [];
+    });
+  });
+  expect(tight).toEqual([]);
+});

@@ -1,0 +1,8 @@
+---
+// ECE348 runtime: moving a running thread (brief, 📑 Assignment 4 p. 14): it leaves its queue, a waiting thread's
+// request is cancelled everywhere and it steps back one instruction, and it resumes on the new machine.
+import Chain from './Chain.astro';
+interface Props { label?: string }
+const { label = 'Diagram: moving a thread: it leaves its queue, its waiting request is cancelled, it steps back one instruction, and it resumes on the new machine' } = Astro.props;
+---
+<Chain label={label} steps={[{ lines: ['out of', 'its queue'] }, { lines: ['request', 'cancelled'] }, { lines: ['back one', 'step'] }, { lines: ['resumes', 'elsewhere'], end: true }]} notes={['a waiting thread asks again there;', 'a sleeping one keeps its wake-up time']} />

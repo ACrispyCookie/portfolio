@@ -43,7 +43,7 @@ const projects = defineCollection({
         section: z.string(),
         alt: z.string(),
         src: image().optional(),
-        diagram: z.enum(['runtime', 'threads', 'homelab', 'dedup', 'alignment', 'roadmap', 'flow', 'verify']).optional(),
+        diagram: z.enum(['runtime', 'threads', 'homelab', 'dedup', 'alignment', 'roadmap', 'flow', 'verify', 'timeslice', 'tupletake', 'migrate', 'session', 'labwiring', 'dvdpipe']).optional(),
       }).refine((f) => !!f.src !== !!f.diagram, 'a figure is a picture or a drawing')).optional(),
     }),
 });

@@ -12,9 +12,12 @@
    side, where 58% shrank every picture into a corner (Jason, 2026-10-24; sweep: 86%) */
 :root { --pic-h: 58svh; }
 @media (orientation: landscape) and (max-height: 599px) { :root { --pic-h: 84svh; } }
-/* the one picture or video: spans the column like the key numbers under it; on a short screen it crops top and bottom
-   instead of shrinking sideways, down to 2.35:1 at most */
-.hero-media { position: relative; margin: 0; border-radius: var(--radius-panel); overflow: hidden; background: var(--color-panel); aspect-ratio: 16 / 9; width: min(100%, calc(var(--pic-h) * 2.35)); max-height: var(--pic-h); }
+/* the hero has its picture's own shape (--har, set by the page), so nothing is cut off; its width is capped so its
+   height stays under --hero-h, a little taller than a section picture's so the video stays big (Jason, 2026-10-24/25) */
+.ptop { --hero-h: calc(var(--pic-h) * 1.14); }
+@media (orientation: landscape) and (max-height: 599px) { .ptop { --hero-h: var(--pic-h); } }
+.hero-media { position: relative; margin: 0; border-radius: var(--radius-panel); overflow: hidden; background: var(--color-panel); aspect-ratio: var(--har, 16 / 9); width: min(100%, calc(var(--hero-h) * var(--har, 1.78))); }
+.hero-media.whole img { object-fit: contain; }
 .hero-media > video, .hero-media > img, .hero-media > picture img, .hero-media > svg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
 .hero-media picture { display: contents; }
 .pfig { margin: 20px 0 0; border-radius: var(--radius-inner); overflow: hidden; background: var(--color-panel); }
@@ -37,7 +40,7 @@
 .ptop { display: grid; gap: 20px; min-width: 0; justify-items: start; }
 /* the numbers take the video's width, also where a short screen caps it (on a real phone or tablet held sideways the
    toolbars shorten the screen, so svh is smaller than in an emulator: Jason, 2026-10-24) */
-.ptop > .knums { width: min(100%, calc(var(--pic-h) * 2.35)); }
+.ptop > .knums { width: min(100%, calc(var(--hero-h) * var(--har, 1.78))); }
 /* a tablet-wide body shows the contents list above the text, not beside it: it follows the numbers closely */
 @media (min-width: 761px) and (max-width: 995.98px) { .ptop + .pbody { margin-top: calc(32px - var(--gap)); } }
 @media (max-width: 760px) {

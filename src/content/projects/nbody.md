@@ -17,6 +17,19 @@ numbers:
   - { value: "431", label: "billion body-to-body interactions per second, up from 0.148" }
   - { value: "40×", label: "faster than our OpenMP version on the CPU" }
   - { value: "4", label: "NVIDIA Tesla K80 GPUs working at once" }
+figures:
+  - section: "keeping-the-gpu-busy"
+    src: "../../assets/projects/nbody-kernels.png"
+    alt: "Two kernel designs: with one record per body, the kernels are called many times each iteration; with a structure of arrays, each kernel is called once per iteration"
+  - section: "keeping-the-gpu-busy"
+    src: "../../assets/projects/nbody-streams.png"
+    alt: "The Nsight Systems timeline: kernels from dozens of CUDA streams overlapping on the GPU"
+  - section: "sharing-data-inside-a-block"
+    src: "../../assets/projects/nbody-tiling.png"
+    alt: "Memory flow inside the force kernel: each tile of positions is read into shared memory, the forces build up in registers, and only the finished velocities go to global memory"
+  - section: "four-gpus-no-divergence"
+    src: "../../assets/projects/nbody-gpus.png"
+    alt: "How the work splits: rows of galaxies shared out across four GPUs, each galaxy its own CUDA stream, its bodies processed tile by tile"
 results:
   text: "Billions of interactions per second after each step, on the same simulation."
   bars:

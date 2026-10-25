@@ -57,7 +57,7 @@ The approved spec is `docs/superpowers/specs/2026-10-20-portfolio-design.md`; wh
 - Minecraft is the origin story: one compact section linking to https://acrispycookie.dev.
 - **Homelab privacy:** never show IPs, subnets, VLAN IDs, internal hostnames or domains, port numbers, software versions, firewall/VPN topology, or where security tooling sits. Show capabilities and service categories only. Exception (Jason, 2026-10-20): the skills explorer may name the homelab's software (e.g. Traefik, WireGuard) and link it to the Homelab project, without versions or layout.
 - No CV yet. Don't render a CV button; leave a `TODO(jason)` slot in the contact section.
-- **Security projects (ECE455, ECE436):** describe at outcome level only, in the site, the brief and REPORTS_INDEX.md alike: what was demonstrated, the setup in one sentence, the measured results, and the defensive takeaway. No step-by-step reproduction, code-level attack mechanics, payload/encoding details, or driver/tuning parameters.
+- **Security projects (ECE455, ECE436):** describe at outcome level only, in the site, the brief and REPORTS_INDEX.md alike: what was demonstrated, the setup in one sentence, the measured results, and the defensive takeaway. No step-by-step reproduction, code-level attack mechanics, payload/encoding details, or driver/tuning parameters. **Deferred (Jason, 2026-10-25):** the RAMBO and Wi-Fi pages need richer detail and media; leave them unchanged until a future plan takes them up.
 
 ## Workflow
 1. **Plan before building.** For each page or section, propose layout, hierarchy, motion and copy first, and wait for approval.
@@ -98,5 +98,5 @@ When sources disagree, use the higher-trust one and note the conflict for Jason.
 **Privacy and publishing rules for `reports/` and `research/`:**
 - Both folders are **git-ignored** and are never imported, linked or copied into `public/` or the build.
 - Reports may contain classmates' full names, student IDs, grades, professor comments and course handouts. Never publish those. Collaborators appear on the site only as confirmed in the brief.
-- Figures or diagrams from reports may be used only after Jason approves each one. Re-export them cleanly into `src/assets/`, cropped to remove names, IDs and course logos.
+- Figures or diagrams from reports may be used only after Jason approves each one. Jason (2026-10-25) approved using any figure from his reports and presentations on the project pages. Re-export them cleanly into `src/assets/`, cropped to remove names, IDs and course logos.
 - Don't publish full reports or slides. Ask Jason before linking any of them.

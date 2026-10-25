@@ -1,0 +1,8 @@
+---
+// Live FPGA Lab: who talks to whom (brief; no hosts, ports or versions): the browser and the web app over a WebSocket,
+// the web app and the hardware agent over a local connection, the agent and the board.
+import Chain from './Chain.astro';
+interface Props { label?: string }
+const { label = 'Diagram: the browser talks to the web app over a WebSocket; the web app talks to the hardware agent over a local connection; the agent programs and watches the board' } = Astro.props;
+---
+<Chain label={label} both steps={[{ lines: ['browser'] }, { lines: ['web app'] }, { lines: ['hardware', 'agent'] }, { lines: ['board'], end: true }]} tags={['live', 'local', undefined]} notes={['the board is reached only through the web app']} />

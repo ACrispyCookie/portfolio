@@ -6,7 +6,7 @@ Reuse this instead of re-reading the files. "p." = PDF page; `.tex` refs are sec
 Rules that apply here (from CLAUDE.md):
 - Classmates are named only to record authorship. Nothing here is cleared for the site; the brief decides that.
 - Student IDs, grades and professor comments are deliberately left out. Several `.tex` title blocks contain student IDs or ORCIDs, so crop any figure before reuse.
-- **Security projects (ECE455, ECE436):** outcome level only. That means what was shown, the setup in one sentence, the measured results and the defensive takeaway.
+- **Security projects (ECE455, ECE436):** outcome level only. That means what was shown, the setup in one sentence, the measured results and the defensive takeaway. Enriching these pages is deferred to a future plan (Jason, 2026-10-25).
 
 Paths below are relative to `reports/`; `OL/` = `Overleaf Projects (31 items)/`.
 
@@ -154,7 +154,7 @@ Paths below are relative to `reports/`; `OL/` = `Overleaf Projects (31 items)/`.
 ---
 
 ## ECE321 Concurrent Programming: Projects 1–4 (Tier 2)
-**Authors:** team (confirmed by Jason). Repo contributors: ACrispyCookie, PANAGIVTHS (Tsogkas), Tvangos (unidentified). Projects 1–3 are written in Greek, Project 4 mostly in English.
+**Authors:** team (confirmed by Jason). Repo contributors: ACrispyCookie, PANAGIVTHS (Tsogkas), Tvangos (Thodoris Vangos ✅ Jason 2026-10-25). Projects 1–3 are written in Greek, Project 4 mostly in English.
 
 | File | Summary |
 |---|---|

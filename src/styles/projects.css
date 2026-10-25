@@ -11,6 +11,9 @@
 .card:hover { background: var(--color-hover); --ring: var(--color-hover); }
 .card .media { position: relative; aspect-ratio: 16 / 10; border-radius: var(--radius-inner); overflow: hidden; background: var(--color-raised); width: 100%; max-height: 60vh; max-height: 60svh; } /* on short screens a picture crops (full width, capped height) rather than filling the screen */
 .card .media img, .card .media video, .card .media > svg { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* a video's still sits under it until the video plays over it (the video paints nothing before its first frame) */
+.card .media .still { position: absolute; inset: 0; }
+.card .media video { position: relative; }
 .card .media.paper { background: var(--color-paper); }
 .card .media.paper img { object-fit: contain; padding: 8px; box-sizing: border-box; }
 .card .body { display: grid; gap: 8px; padding: 0 6px; min-width: 0; }

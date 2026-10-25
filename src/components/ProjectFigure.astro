@@ -1,0 +1,20 @@
+---
+// One picture or drawing inside a project page's section, from the project's `figures`.
+import { Picture } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import { diagrams, shapes } from './diagrams';
+
+interface Props { f: NonNullable<CollectionEntry<'projects'>['data']['figures']>[number] }
+const { f } = Astro.props;
+const Drawing = f.diagram && diagrams[f.diagram];
+---
+<figure class:list={['pfig', { drawn: Drawing }]} style={`--ar:${(f.src ? f.src.width / f.src.height : shapes[f.diagram!] ?? 1.6).toFixed(3)}`}>
+  {Drawing ? <Drawing label={f.alt} /> : (
+    // a picture opens full screen at its full size (Jason, 2026-10-24: hard to see on every device);
+    // without JavaScript the link is the full-size file itself
+    <a class="zoom" href={f.src!.src} aria-label={`Enlarge: ${f.alt}`}>
+      <Picture src={f.src!} formats={['avif', 'webp']} widths={[480, 720, 1080, f.src!.width]} sizes="(max-width: 760px) 100vw, 840px" alt={f.alt} loading="lazy" />
+      <span class="zoom-hint" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M10 2h4v4M14 2 9 7M6 14H2v-4M2 14l5-5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg></span>
+    </a>
+  )}
+</figure>

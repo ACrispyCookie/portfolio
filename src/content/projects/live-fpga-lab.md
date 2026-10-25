@@ -12,6 +12,13 @@ links:
 media:
   src: "../../assets/projects/lab.jpg"
   alt: "The lab's dashboard: the board's status and the demos anyone can start"
+figures:
+  - section: "how-a-turn-works"
+    diagram: "session"
+    alt: "Diagram: a session goes from queued to starting to active to ended; it ends by the visitor, time up, programming failed, a board fault, or the board going offline"
+  - section: "behind-the-board"
+    diagram: "labwiring"
+    alt: "Diagram: the browser talks to the web app over a WebSocket; the web app talks to the hardware agent over a local connection; the agent programs and watches the board"
 numbers:
   - { value: "2", label: "demos on one real board: the GPGPU and the DVD logo" }
   - { value: "5 min", label: "per turn once someone is waiting, plus a minute to hand over" }
@@ -41,7 +48,3 @@ A small public, read-only status feed is what shows "Running now" and the board'
 
 - **N-body on our [RISC-V GPGPU](/courses/ece338/gpgpu):** a 3D view in the browser that you can orbit and zoom, with every position computed on the GPGPU on the FPGA.
 - **The [DVD logo](/projects/dvd-logo-fpga):** the board's HDMI output, streamed to the browser as live video.
-
-## What took the most work
-
-The Vivado Tcl scripts that program the board's logic and processor automatically, and making the lab recover from faults on its own, without anyone touching it.

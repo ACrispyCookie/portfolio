@@ -1,0 +1,8 @@
+---
+// Live FPGA Lab: a session's life (brief): queued, starting while the board is programmed, active, ended, and the
+// reasons a session can end.
+import Chain from './Chain.astro';
+interface Props { label?: string }
+const { label = 'Diagram: a session goes from queued to starting to active to ended; it ends by the visitor, time up, programming failed, a board fault, or the board going offline' } = Astro.props;
+---
+<Chain label={label} steps={[{ lines: ['queued'] }, { lines: ['starting'] }, { lines: ['active'] }, { lines: ['ended'], end: true }]} notes={['ended by you, time up, programming failed,', 'a board fault, or the board offline']} />

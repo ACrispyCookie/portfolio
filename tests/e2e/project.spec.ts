@@ -488,3 +488,36 @@ test('phone: the RAMBO table fits the column without scrolling', async ({ page }
   const [sw, cw] = await page.locator('#what-we-measured table').evaluate((t) => [t.scrollWidth, t.clientWidth]);
   expect(sw).toBeLessThanOrEqual(cw + 1);
 });
+
+test('N-body: each step\'s picture sits under that step, before the next step (Jason, 2026-10-25: pages felt like plain text)', async ({ page }) => {
+  await page.goto('/courses/ece415/nbody');
+  // the figure that follows each step's heading, before the next heading
+  const under = await page.locator('#one-change-at-a-time').evaluate((sec) => {
+    const out: Record<string, number> = {};
+    let at = '';
+    for (const el of sec.children) {
+      if (el.tagName === 'H3') { at = el.id; out[at] = 0; }
+      else if (el.matches('figure.pfig') && at) out[at]++;
+    }
+    return out;
+  });
+  expect(under['keeping-the-gpu-busy']).toBe(2); // the two kernel designs, then the streams overlapping
+  expect(under['sharing-data-inside-a-block']).toBe(1);
+  expect(under['four-gpus-no-divergence']).toBe(1);
+});
+
+test('the hero picture or video is never cropped: its box has the picture\'s own shape, or shows it whole (Jason, 2026-10-25)', async ({ page }) => {
+  for (const url of ['/courses/ece338/gpgpu', '/courses/ece415/nbody', '/courses/ece433/house', '/projects/live-fpga-lab', '/projects/dvd-logo-fpga', '/courses/ece455/rambo', '/courses/ece436/wifi']) {
+    await page.goto(url);
+    const m = page.locator('.hero-media > video, .hero-media img').first();
+    await expect.poll(() => m.evaluate((e) => e instanceof HTMLVideoElement ? e.readyState > 0 || !!e.poster : (e as HTMLImageElement).complete)).toBe(true);
+    const r = await m.evaluate(async (e) => {
+      const own = e instanceof HTMLVideoElement
+        ? await new Promise<number>((ok) => { const i = new Image(); i.onload = () => ok(i.naturalWidth / i.naturalHeight); i.src = e.poster; })
+        : (e as HTMLImageElement).naturalWidth / (e as HTMLImageElement).naturalHeight;
+      const b = e.getBoundingClientRect();
+      return { own, box: b.width / b.height, fit: getComputedStyle(e).objectFit };
+    });
+    if (r.fit !== 'contain') expect(Math.abs(r.box / r.own - 1), url).toBeLessThan(0.02);
+  }
+});

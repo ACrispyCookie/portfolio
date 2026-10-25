@@ -141,7 +141,9 @@ test(`${path}, ${mode.name}, every window shape, portrait and landscape: the pag
         if (!r.height) return [];
         // the hero photo may fill up to 80% of the screen; every other picture up to 60%, except a project page's
         // pictures on a short landscape screen, which may use 86% so they aren't shrunk to a corner (Jason, 2026-10-24)
-        const limit = m.closest('.cover') ? 0.8 : m.closest('.hero-media, .pfig') && innerWidth > innerHeight && innerHeight < 600 ? 0.86 : 0.6;
+        // a project page's top video may use 68% (Jason, 2026-10-24: make it bigger; 2026-10-25: never crop it)
+        const short = innerWidth > innerHeight && innerHeight < 600;
+        const limit = m.closest('.cover') ? 0.8 : m.closest('.hero-media, .pfig') && short ? 0.86 : m.closest('.hero-media') ? 0.68 : 0.6;
         const what = m.closest('.cover') ? 'hero photo' : m.closest('[data-id]')?.getAttribute('data-id') ?? m.tagName.toLowerCase();
         return r.height > innerHeight * limit ? [`${what} ${Math.round((r.height / innerHeight) * 100)}%`] : [];
       });
@@ -160,11 +162,12 @@ test(`${path}, ${mode.name}, every window shape, portrait and landscape: the pag
         const what = m.closest('[data-id]')?.getAttribute('data-id') ?? m.closest('.course')?.querySelector('.cn b')?.textContent ?? m.className;
         return r.height && r.width / r.height > 2 ? [`${what} ${Math.round(r.width)}×${Math.round(r.height)}`] : [];
       });
-      // project pages (Jason, 2026-10-24: pictures scaled badly in landscape): the top picture spans the column like the
-      // key numbers under it, and is never cropped to a strip
+      // project pages (Jason, 2026-10-24: pictures scaled badly in landscape; 2026-10-25: never crop the top picture):
+      // the top picture keeps its own shape and is as big as it can be: the column's width, or its height cap
       const hero = document.querySelector('.hero-media')?.getBoundingClientRect();
-      const col = (document.querySelector('.knums') ?? document.querySelector('.phead'))?.getBoundingClientRect();
-      if (hero && col && hero.width < Math.min(col.width, hero.height * 2.35) - 2) narrow.push(`top picture ${Math.round(hero.width)}px in a ${Math.round(col.width)}px column`);
+      const col = document.querySelector('.phead')?.getBoundingClientRect();
+      const cap = innerHeight * (innerWidth > innerHeight && innerHeight < 600 ? 0.84 : 0.58 * 1.14);
+      if (hero && col && hero.width < col.width - 2 && hero.height < cap - 2) narrow.push(`top picture ${Math.round(hero.width)}×${Math.round(hero.height)} in a ${Math.round(col.width)}px column`);
       if (hero && hero.width / hero.height > 2.4) strips.push(`top picture ${Math.round(hero.width)}×${Math.round(hero.height)}`);
       // the key numbers belong to the video: always its width, also where a short screen caps the video (Jason,
       // 2026-10-24: on real phones and tablets held sideways the toolbars shorten the screen and the video came out

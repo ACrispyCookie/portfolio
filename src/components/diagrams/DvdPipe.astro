@@ -1,0 +1,8 @@
+---
+// DVD Logo FPGA: the video path (brief, 📄 README): a 51×23 logo in block RAM, drawn into a 128×96 frame, each pixel
+// shown as a 5×5 block, out at 640×480 over HDMI; the logo moves once per frame, at its end.
+import Chain from './Chain.astro';
+interface Props { label?: string }
+const { label = 'Diagram: the logo in block RAM is drawn into a 128 by 96 frame, each pixel is shown as a 5 by 5 block, and the picture leaves at 640 by 480 over HDMI' } = Astro.props;
+---
+<Chain label={label} steps={[{ lines: ['logo', 'in BRAM'] }, { lines: ['128×96', 'frame'] }, { lines: ['pixel', 'as 5×5'] }, { lines: ['640×480', 'HDMI'], end: true }]} notes={['the logo moves once per frame, at its end']} />

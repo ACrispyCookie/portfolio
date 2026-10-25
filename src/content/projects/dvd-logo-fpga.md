@@ -15,6 +15,10 @@ media:
   src: "../../assets/projects/dvd.jpg"
   alt: "A hand tilting the FPGA board beside the monitor it drives, where the DVD logo moves the same way"
   video: "/media/dvd.mp4"
+figures:
+  - section: "drawing-the-logo"
+    diagram: "dvdpipe"
+    alt: "Diagram: the logo in block RAM is drawn into a 128 by 96 frame, each pixel is shown as a 5 by 5 block, and the picture leaves at 640 by 480 over HDMI"
 numbers:
   - { value: "640×480", label: "HDMI output on the Smart Zynq SL" }
   - { value: "51×23", label: "pixel DVD logo, stored in block RAM" }

@@ -25,7 +25,12 @@ const sizes = { wide: '(max-width: 760px) 100vw, 640px', large: '(max-width: 760
 <article class={`card ${size}`} data-id={project.id} data-size={size}>
   <div class:list={['media', { paper: p.media?.paper }]}>
     {p.media?.video ? (
-      <video src={p.media.video} poster={p.media.video.replace(/\.mp4$/, '.jpg')} muted loop playsinline preload="none" aria-label={p.media.alt}></video>
+      // the still under the video loads only as the card nears the screen, at full size; a poster would load with the
+      // page and slow the hero (Lighthouse, 2026-10-25). Under reduced motion the video never plays and the still stays.
+      <>
+        <img class="still" src={p.media.video.replace(/\.mp4$/, '.jpg')} alt="" loading="lazy" decoding="async" />
+        <video src={p.media.video} muted loop playsinline preload="none" aria-label={p.media.alt}></video>
+      </>
     ) : p.media ? (
       <Picture src={p.media.src} formats={['avif', 'webp']} widths={[240, 480, 720, 1080]} sizes={sizes} alt={p.media.alt} loading="lazy" style={p.media.position ? `object-position:${p.media.position}` : undefined} />
     ) : (

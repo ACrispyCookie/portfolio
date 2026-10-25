@@ -86,7 +86,7 @@ Source of truth for content and priorities. Facts come from Jason's answers, his
   | ECE433 Graphics (the 3D house; also HW1–2) | Jason + Tsogkas + **Anastasios Kalousis** ✅ (Jason, 2026-10-21; 📑 named in all three `Overleaf Projects/Computer Graphics - Homework 1–3/ece433_template.tex`; GitHub contributor AnastasisK126) |
   | ECE333 Digital Systems Lab | Jason alone |
   | ECE348 Distributed | **solo** ✅ |
-  | ECE321 Concurrent | **team** ✅: Jason + Tsogkas + **Tvangos** (a colleague, ECE321 teammate ✅; GitHub https://github.com/Tvangos, no public name, so show the handle unless Jason gives a name) |
+  | ECE321 Concurrent | **team** ✅: Jason + Tsogkas + **Tvangos** (**Thodoris Vangos** ✅ Jason 2026-10-25, ECE321 teammate; GitHub https://github.com/Tvangos) |
 - **tsiantosd.tech credits Jason** (🌐 2026-10-19) as "Project collaborator" on **Parallel Computer Architecture (Simple GPGPU)**, **Microprocessor Design**, **High Performance Computing**, **Operating Systems**, **Wireless Communications** and **Hardware Security**. Each is "Team of 3": Tsiantos + Jason + Tsogkas, except Wireless, which is Tsiantos + Jason + Balamotis. This matches the reports. Dimitrios's **Embedded Systems** team is with a different partner (Zerdalis), and Jason's ECE340 was with Tsogkas, so the two were separate teams. His site links Jason's LinkedIn, not GitHub.
   - His site also hosts a "GPGPU 3D Visualizer". ✅ That's the team's 3D n-body demo for the GPGPU, the same one the Live FPGA Lab serves.
 - Collaborator stacks approved ✅. **Avatars:** public GitHub avatars, fetched at build time, with an initials fallback ✅. Handles: Tsiantos https://github.com/TsiantosD · Tsogkas https://github.com/PANAGIVTHS ✅ · Balamotis https://github.com/Balamotakos ✅ · Tvangos https://github.com/Tvangos · Kalousis https://github.com/AnastasisK126 ✅. Link each avatar to GitHub.
@@ -172,6 +172,7 @@ Source: `docs/GRADES.md` ✅ (Jason's file; **never publish the file itself**, i
   - Coroutines switch with `swapcontext` (p. 2–6). Threads: the timer is switched off while library code runs and re-armed with the thread's remaining time; before a context switch it is off, and the new thread turns it back on (p. 14). Sleep uses wake-up timestamps; when every thread sleeps, the scheduler sleeps the process until the next wake-up (p. 15).
   - Threads were first kept in an array, where removing one moved the last thread into its place and changed the order, so priorities shifted (and could be gamed); a linked list fixed it (p. 21).
   - Time slice: with Project 1's pipe workload the run time grows linearly with the slice, except for very small slices: at 1 µs it took about 70 s, the same as a 40 ms slice, because even the quickest system calls can't finish within a slice (p. 23–25). The first performance number for ECE321.
+  - 📄 The data behind slide 24 is in the repo (`Project4/test/execution_times_4-1000.csv`, 3 runs per slice from 4 to 1000 µs): the median run time rises in a straight line from **about 0.04 s at 4 µs to 1.65 s at 1000 µs** (0.18 s at 100 µs, 0.83 s at 500 µs). Drawn on the threads page (2026-10-25).
   - `scanf` kept returning early when the timer interrupted it, so the library got its own: the scheduler wakes threads waiting for input when standard input changes, and a thread takes the input only if it matches its format (p. 40).
 
 **ECE494 Microprocessor Design: CV32E40P timing optimization** ⬆ raised
@@ -204,6 +205,7 @@ Source: `docs/GRADES.md` ✅ (Jason's file; **never publish the file itself**, i
   - Load balancing: nodes broadcast their thread counts and move a thread to the least loaded node only when the gap is 2 or more, so threads don't bounce back and forth; it reruns periodically (p. 15).
   - Shutdown: the leaving node stops its scheduler, announces it, waits for every node to acknowledge, then hands all its threads and tuples to another node (p. 17).
 - **Numbers:** the client-side cache raised file-system throughput from **~10.5 MB/s to ~53 MB/s (~5×)** once it held the working set (📑 Assignment 3, p. 21). The request/reply server scaled from **112 to 1413 req/s** going from 1 to 16 worker threads (📑 Assignment 1, p. 25). Total-order multicast measured **64.2 packets per message** in a group of 4, matching the predicted 4N² (📑 Assignment 2, p. 26–27).
+- **Not built on Assignments 1–3** ✅ (Jason, 2026-10-25): the runtime is its own assignment; don't present the earlier ones as its layers.
 - **Solo project** ✅
 
 **ECE333 Digital Systems Lab + DVD Logo FPGA**

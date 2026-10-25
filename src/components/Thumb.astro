@@ -13,7 +13,12 @@ const Diagram = p?.diagram ? diagrams[p.diagram] : null;
 ---
 <span class="thumb" aria-hidden="true">
   {p?.media?.video ? (
-    <video src={p.media.video} poster={p.media.video.replace(/\.mp4$/, '.jpg')} muted loop playsinline preload="none"></video>
+    // the still under the video loads only as the card nears the screen, at full size; a poster would load with the
+    // page and slow the hero (Lighthouse, 2026-10-25). Under reduced motion the video never plays and the still stays.
+    <>
+      <img class="still" src={p.media.video.replace(/\.mp4$/, '.jpg')} alt="" loading="lazy" decoding="async" />
+      <video src={p.media.video} muted loop playsinline preload="none"></video>
+    </>
   ) : p?.media ? (
     <Picture src={p.media.src} formats={['avif', 'webp']} widths={[240, 400, 640, 960]} sizes={sizes} alt="" loading="lazy" class:list={{ paper: p.media.paper }} />
   ) : Diagram ? <Diagram label="" /> : <i class="pad"></i>}

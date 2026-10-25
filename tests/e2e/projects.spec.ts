@@ -46,7 +46,7 @@ test('course tags, team avatars (Jason first); solo work shows only Jason (no So
   await expect(tag).toHaveText('ECE415Grade 9.5');
   await expect(tag).toHaveAttribute('href', '/courses/ece415');
   const threads = await page.locator('#projects .card[data-id="threads"] .av a').evaluateAll((as) => as.map((a) => a.getAttribute('title')));
-  expect(threads).toEqual(['Jason Nikas', 'Panagiotis Nikolaos Tsogkas', 'Tvangos']);
+  expect(threads).toEqual(['Jason Nikas', 'Panagiotis Nikolaos Tsogkas', 'Thodoris Vangos']);
   // Jason (2026-10-21): solo course work shows his avatar alone instead of a "Solo" pill
   await expect(page.locator('#projects .tag', { hasText: /^Solo$/ })).toHaveCount(0);
   const solo = await page.locator('#projects .card[data-id="runtime"] .av a').evaluateAll((as) => as.map((a) => a.getAttribute('title')));
@@ -76,11 +76,11 @@ test('no shadows, borders or gradients in #projects', async ({ page }) => {
   expect(bad).toEqual([]);
 });
 
-test('videos are muted inline loops with a poster that play on screen', async ({ page }) => {
+test('videos are muted inline loops over their still, and play on screen', async ({ page }) => {
   await page.goto('/');
   const vids = await page.locator('#projects video').evaluateAll((vs) => vs.map((v) => {
     const x = v as HTMLVideoElement;
-    return { muted: x.muted, inline: x.playsInline, loop: x.loop, poster: !!x.getAttribute('poster') };
+    return { muted: x.muted, inline: x.playsInline, loop: x.loop, poster: !!x.previousElementSibling?.matches('img.still') };
   }));
   expect(vids).toHaveLength(3); // GPGPU, N-body and DVD
   for (const v of vids) expect(v).toEqual({ muted: true, inline: true, loop: true, poster: true });
@@ -133,4 +133,20 @@ test('a demo button wherever a project runs in the lab, except the card that alr
   const box = (await demo('dvd-logo-fpga').boundingBox())!;
   const hit = await page.evaluate(([x, y]) => document.elementFromPoint(x, y)?.closest('a')?.getAttribute('href'), [box.x + box.width / 2, box.y + box.height / 2]);
   expect(hit).toBe('https://fpga.njason.dev/?start=dvd-logo-video');
+});
+
+test('a card video\'s still loads only as the card nears the screen, at full quality (Lighthouse, 2026-10-25)', async ({ page }) => {
+  // a poster loads with the page at full priority and held back the hero photo (home LCP 3.4–3.9 s → 1.8–2.3 s);
+  // a lazy still is fetched at low priority, and only when the card is within the browser's lazy-load distance
+  await page.goto('/');
+  // each card video has its still as a lazy picture under it, the same full-size file the video was cut from
+  for (const v of await page.locator('#projects .card video').all()) {
+    expect(await v.getAttribute('poster')).toBeNull();
+    const still = v.locator('xpath=preceding-sibling::img[1]');
+    await expect(still).toHaveAttribute('loading', 'lazy');
+    expect(await still.getAttribute('src')).toBe((await v.getAttribute('src'))!.replace(/\.mp4$/, '.jpg'));
+  }
+  // and it arrives once the card is near
+  await page.locator('#projects .card[data-id="nbody"]').scrollIntoViewIfNeeded();
+  await expect.poll(() => page.locator('#projects .card[data-id="nbody"] img.still').evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth > 0)).toBe(true);
 });

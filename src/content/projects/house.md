@@ -11,6 +11,16 @@ team: ["tsogkas", "kalousis"]
 media:
   src: "../../assets/projects/house.jpg"
   alt: "The house in daylight"
+figures:
+  - section: "furniture-from-text-files"
+    src: "../../assets/projects/house-views.png"
+    alt: "Four views of the house: the front with its chimney, the dining room, the floor plan from above with the car in the garage, and the roof"
+  - section: "furniture-from-text-files"
+    src: "../../assets/projects/house-car.png"
+    alt: "The car from the garage, an OBJ model loaded with its textures and lit by the scene"
+  - section: "the-house-and-the-world-around-it"
+    src: "../../assets/projects/house-day-night.png"
+    alt: "The same view of the house by day and by night, when only a lantern and the purple Nether portal in the garden still glow"
 
 ---
 

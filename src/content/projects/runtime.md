@@ -9,6 +9,13 @@ summary: "A distributed runtime with a shared tuple space, live thread migration
 tools: ["Python", "Bash", "Git"]
 team: []
 diagram: "runtime"
+figures:
+  - section: "a-tuple-space-every-machine-shares"
+    diagram: "tupletake"
+    alt: "Diagram: a take across machines: the request goes to every machine, one offers its tuple and holds it aside, and the asker confirms or cancels"
+  - section: "moving-a-running-thread"
+    diagram: "migrate"
+    alt: "Diagram: moving a thread: it leaves its queue, its waiting request is cancelled, it steps back one instruction, and it resumes on the new machine"
 
 ---
 
@@ -41,11 +48,3 @@ Machines regularly share how many threads they run. A machine moves a thread to 
 ### Leaving gracefully
 
 A machine that shuts down stops its scheduler and tells the others. It waits until every one of them has acknowledged, then hands all its threads and tuples to another machine, so nothing is lost.
-
-## Built on three earlier assignments
-
-The course built up to this runtime one layer at a time:
-
-- A request/reply library over UDP that runs each request at most once. Going from 1 to 16 worker threads raised the server from 112 to 1413 requests per second.
-- Group communication with total-order multicast, so every member sees messages in the same order. A group of 4 used 64.2 packets per message, as the 4N² estimate predicted.
-- A network file system with a client cache. Once the cache held the working set, throughput went from about 10.5 to about 53 MB/s.

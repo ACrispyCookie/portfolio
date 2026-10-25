@@ -4,6 +4,7 @@
 // the key numbers and result bars from its frontmatter. A section with no true content is simply absent, and the
 // contents list follows what is there.
 import { existsSync } from 'node:fs';
+import sharp from 'sharp';
 import { Picture } from 'astro:assets';
 import { getCollection, getEntries, getEntry, type CollectionEntry } from 'astro:content';
 import Base from '../layouts/Base.astro';
@@ -19,6 +20,7 @@ import Skills from './Skills.astro';
 import { diagrams, shapes } from './diagrams';
 import { courseHref, pageHref } from '../lib/links';
 import { docsFor } from '../lib/docs';
+import ProjectFigure from './ProjectFigure.astro';
 import { buildSkillIndex, toSkillProjects } from '../lib/skills';
 import skills from '../data/skills.json';
 import evidence from '../data/skills-evidence.json';
@@ -50,10 +52,20 @@ const esc = (t: string) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;');
 // (the Markdown's own What's next text, if any, follows the list)
 if (todo.length) md.set('whats-next', { title: "What's next", html: `<ul>${todo.map((m) => `<li>${m.state === 'now' ? 'Now' : 'Next'}: ${esc(m.name)}</li>`).join('')}</ul>${md.get('whats-next')?.html ?? ''}` });
 if (p.next && !md.has('whats-next')) md.set('whats-next', { title: "What's next", html: '' });
-const sections = [...md].map(([id, s]) => ({ id, ...s }));
-const lost = (p.figures ?? []).filter((f) => !md.has(f.section));
+// each section in parts, one per sub-heading, so a picture can sit under the step it explains (Jason, 2026-10-25)
+const H3 = /<h3 id="([^"]+)"/;
+const sections = [...md].map(([id, s]) => ({ id, ...s, parts: s.html.split(/(?=<h3 id=")/).map((html) => ({ id: H3.exec(html)?.[1], html })) }));
+const anchors = new Set(sections.flatMap((s) => [s.id, ...s.parts.map((x) => x.id).filter(Boolean)]));
+const lost = (p.figures ?? []).filter((f) => !anchors.has(f.section));
 if (lost.length) throw new Error(`${entry.id}: figures for missing sections: ${lost.map((f) => f.section).join(', ')}`);
 const docs = docsFor({ id: entry.id, course: p.course?.id }, existsSync);
+// the hero keeps its picture's own shape, so nothing is cut off (Jason, 2026-10-25: hero pictures were cropped);
+// a video's shape is its poster's, which is cut from the video at full size. A very tall or very wide picture
+// gets a box at the nearest usable shape and is shown whole inside it.
+const own = p.media?.video ? await sharp(`public${p.media.video.replace(/\.mp4$/, '.jpg')}`).metadata() : p.media?.src;
+const ownAr = own ? own.width! / own.height! : 16 / 9;
+const heroAr = Math.min(2.4, Math.max(4 / 3, ownAr));
+const heroFit = Math.abs(heroAr / ownAr - 1) > 0.01;
 
 const members = await getEntries([{ collection: 'collaborators' as const, id: 'jason' }, ...p.team.map((t) => ({ collection: 'collaborators' as const, id: t.id }))]);
 
@@ -89,8 +101,8 @@ const Diagram = diagrams[p.diagram ?? 'runtime'];
   </header>
 
   <!-- the video and its numbers, one block; on a phone it spans the full width and the copper starts under it -->
-  <div class="ptop" data-trace-start="phone">
-  <figure class:list={['hero-media', { paper: p.media?.paper }]}>
+  <div class="ptop" data-trace-start="phone" style={`--har:${heroAr.toFixed(3)}`}>
+  <figure class:list={['hero-media', { paper: p.media?.paper, whole: heroFit }]}>
     {p.media?.video ? (
       <video src={p.media.video} poster={p.media.video.replace(/\.mp4$/, '.jpg')} muted loop playsinline preload="none" aria-label={p.media.alt}></video>
     ) : p.media ? (
@@ -116,23 +128,14 @@ const Diagram = diagrams[p.diagram ?? 'runtime'];
               {p.results.bars && <ResultBars bars={p.results.bars} />}
             </>
           )}
-          <Fragment set:html={s.html} />
+          {s.parts.map((part) => (
+            <>
+              <Fragment set:html={part.html} />
+              {part.id && (p.figures ?? []).filter((f) => f.section === part.id).map((f) => <ProjectFigure f={f} />)}
+            </>
+          ))}
           {s.id === 'whats-next' && p.next && <NextCard id={p.next.id} />}
-          {(p.figures ?? []).filter((f) => f.section === s.id).map((f) => {
-            const Drawing = f.diagram && diagrams[f.diagram];
-            return (
-              <figure class:list={['pfig', { drawn: Drawing }]} style={`--ar:${(f.src ? f.src.width / f.src.height : shapes[f.diagram!] ?? 1.6).toFixed(3)}`}>
-                {Drawing ? <Drawing label={f.alt} /> : (
-                  // a picture opens full screen at its full size (Jason, 2026-10-24: hard to see on every device);
-                  // without JavaScript the link is the full-size file itself
-                  <a class="zoom" href={f.src!.src} aria-label={`Enlarge: ${f.alt}`}>
-                    <Picture src={f.src!} formats={['avif', 'webp']} widths={[480, 720, 1080, f.src!.width]} sizes="(max-width: 760px) 100vw, 840px" alt={f.alt} loading="lazy" />
-                    <span class="zoom-hint" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M10 2h4v4M14 2 9 7M6 14H2v-4M2 14l5-5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg></span>
-                  </a>
-                )}
-              </figure>
-            );
-          })}
+          {(p.figures ?? []).filter((f) => f.section === s.id).map((f) => <ProjectFigure f={f} />)}
         </section>
       ))}
       {docs.length > 0 && (

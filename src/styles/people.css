@@ -35,7 +35,9 @@
 }
 /* the narrowest phones: the count moves under the name as one line ("17 projects"), so a long name has the width */
 @media (max-width: 420px) {
-  #people .big .head { grid-template-columns: auto minmax(0, 1fr); }
+  /* the count follows the links as closely as the link lines follow each other (Jason, 2026-10-25: a row gap away) */
+  #people .big .head { grid-template-columns: auto minmax(0, 1fr); row-gap: 2px; }
+  #people .big .head > img, #people .big .head > .ini { grid-row: span 2; }
   #people .big .count { grid-column: 2; text-align: left; display: flex; align-items: baseline; gap: 6px; }
   #people .big .count b { font-size: var(--text-lead); }
 }

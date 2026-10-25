@@ -13,7 +13,7 @@ test('the section replaces Other projects, with its lead', async ({ page }) => {
 
 test('people by projects shared: the regulars large, the rest small', async ({ page }) => {
   await page.goto('/');
-  expect(await page.locator('#people .person .name').allTextContents()).toEqual(['Panagiotis Nikolaos Tsogkas', 'Dimitrios Tsiantos', 'Tvangos', 'Panagiotis Balamotis', 'Anastasios Kalousis']);
+  expect(await page.locator('#people .person .name').allTextContents()).toEqual(['Panagiotis Nikolaos Tsogkas', 'Dimitrios Tsiantos', 'Thodoris Vangos', 'Panagiotis Balamotis', 'Anastasios Kalousis']);
   expect(await page.locator('#people .person').evaluateAll((ps) => ps.map((p) => p.classList.contains('regular')))).toEqual([true, true, false, false, false]);
   const tsogkas = page.locator('#people .person').first();
   await expect(tsogkas.locator('.count b')).toHaveText('17');
@@ -30,7 +30,7 @@ test('each person links to their site or GitHub, and the one-course people show 
   // LinkedIn only where the person agreed to it (Jason, 2026-10-23)
   const tsogkas = page.locator('#people .person', { hasText: 'Panagiotis Nikolaos Tsogkas' });
   expect(await tsogkas.locator('.where a').evaluateAll((as) => as.map((a) => a.getAttribute('href')))).toEqual(['https://www.linkedin.com/in/panagiotis-nikolaos-tsogkas-650871293/', 'https://github.com/PANAGIVTHS']);
-  const tvangos = page.locator('#people .person', { hasText: 'Tvangos' });
+  const tvangos = page.locator('#people .person', { hasText: 'Thodoris Vangos' });
   await expect(tvangos.locator('.where a')).toHaveAttribute('href', 'https://github.com/Tvangos');
   await expect(tvangos.locator('.count b')).toHaveText('4');
   await expect(tvangos.locator('a.tag')).toHaveText('ECE321 User-level threads', { useInnerText: true });
@@ -46,5 +46,14 @@ test('no middle-dot meta strings anywhere (spec §11), on home and on /projects'
   for (const path of ['/', '/projects']) {
     await page.goto(path);
     expect(await page.locator('body').evaluate((b) => b.textContent!.includes('·')), path).toBe(false);
+  }
+});
+
+test('phone: a big card\'s project count follows its links closely, not a row gap away (Jason, 2026-10-25)', async ({ page }) => {
+  test.skip(page.viewportSize()!.width > 420, 'the narrow phones, where the count goes under the name');
+  await page.goto('/');
+  for (const p of await page.locator('#people .big .person').all()) {
+    const gap = await p.evaluate((el) => el.querySelector('.count')!.getBoundingClientRect().top - el.querySelector('.where')!.getBoundingClientRect().bottom);
+    expect(gap).toBeLessThanOrEqual(4);
   }
 });

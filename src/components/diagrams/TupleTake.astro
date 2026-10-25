@@ -1,0 +1,8 @@
+---
+// ECE348 runtime: a take across machines (brief, 📑 Assignment 4 p. 10): the request goes to every machine, one that
+// has the tuple offers it and holds it aside, and the asker confirms or cancels, so two machines never take it twice.
+import Chain from './Chain.astro';
+interface Props { label?: string }
+const { label = 'Diagram: a take across machines: the request goes to every machine, one offers its tuple and holds it aside, and the asker confirms or cancels' } = Astro.props;
+---
+<Chain label={label} steps={[{ lines: ['ask', 'everyone'] }, { lines: ['one offers', 'its tuple'] }, { lines: ['it holds', 'it aside'] }, { lines: ['confirm', 'or cancel'], end: true }]} notes={['two machines never take the same tuple']} />

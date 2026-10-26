@@ -54,15 +54,15 @@
 .mine { margin-top: 44px; display: grid; }
 .sub-h { font: 700 var(--text-lead) var(--font-display); margin-bottom: 14px; }
 .mine > .lead { color: var(--color-dim); margin: -8px 0 20px; }
-/* the picture as big as the cards' above it (Jason, 2026-10-25: smaller than the others): one of three columns on wide
-   screens, the text and its button in the other two */
-.origin { margin-top: 18px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 18px; align-items: center; padding: 16px 22px 16px 16px; border-radius: var(--radius-panel); background: var(--color-panel); color: var(--color-silk); text-decoration: none; transition: background-color .25s; }
+/* the picture exactly as wide as a personal card's above it (Jason, 2026-10-25: smaller than the others; 2026-10-26:
+   bigger than theirs): one of three cards (18px gaps) less the card's 14px edges, the text and its button beside it */
+.origin { margin-top: 18px; display: grid; grid-template-columns: calc((100cqi - 36px) / 3 - 28px) minmax(0, 1fr); gap: 12px 18px; align-items: center; padding: 16px 22px 16px 14px; border-radius: var(--radius-panel); background: var(--color-panel); color: var(--color-silk); text-decoration: none; transition: background-color .25s; }
 .origin:hover { background: var(--color-hover); }
 .origin:hover .btn-secondary { background: var(--color-lift); }
 .origin .blk { grid-row: span 2; width: 100%; max-height: 60svh; aspect-ratio: 16 / 10; border-radius: var(--radius-inner); overflow: hidden; background: var(--color-raised); }
 .origin .blk svg { display: block; width: 100%; height: 100%; }
 .origin > * { min-width: 0; } /* its parts may be narrower than their longest word on the narrowest windows */
-.origin > div:not(.blk), .origin .btn { grid-column: 2 / -1; }
+.origin > div:not(.blk), .origin .btn { grid-column: 2; }
 .origin > div:not(.blk) { align-self: end; }
 .origin .btn { justify-self: start; align-self: start; }
 .origin h3 { font: 700 var(--text-lead) / 1.25 var(--font-display); }
@@ -131,15 +131,17 @@
   .card.wide .meta .btn-live { flex: 1 1 100%; order: -1; }
   .card.wide .meta .row > :last-child { margin-left: auto; } /* the team, at the far end */
 }
-/* a card alone in its row puts its whole picture beside its text where the row is wide (800px), or where a 16:10
+/* a card alone in its row puts its whole picture beside its text where the row is wide enough for the lead card's
+   picture to sit beside its text (725px), or where a 16:10
    picture across the row would be taller than about 56% of the screen (row wider than 90% of the screen's height), so a
-   short window never crops it to a strip (Jason, 2026-10-25). The picture's column: at most 45% of the card, and no
+   short window never crops it to a strip (Jason, 2026-10-25). Below the lead card's own switch, a lone card's picture
+   would outgrow the lead's (Jason, 2026-10-26: a half-width window). The picture's column: at most 45% of the card, and no
    wider than a 16:10 picture 56% of the screen's height. */
-@container cards (max-width: 939.98px) { @container cards ((min-width: 800px) or (min-width: 90svh)) and (min-width: 400px) {
+@container cards (max-width: 939.98px) { @container cards ((min-width: 725px) or (min-width: 90svh)) and (min-width: 400px) {
   .grid.three .card { grid-template-columns: min(45%, calc(56svh * 1.6)) minmax(0, 1fr); align-items: center; column-gap: 20px; }
   .grid.three .card .media { aspect-ratio: 16 / 10; max-height: none; }
 } }
-@container cards (max-width: 724.98px) { @container cards ((min-width: 800px) or (min-width: 90svh)) and (min-width: 400px) {
+@container cards (max-width: 724.98px) { @container cards (min-width: 90svh) and (min-width: 400px) {
   .card.wide, .grid.feat .card, .grid.compact .card { grid-template-columns: min(45%, calc(56svh * 1.6)) minmax(0, 1fr); align-items: center; column-gap: 20px; }
   .card.wide .media, .grid.feat .card .media, .grid.compact .card .media { aspect-ratio: 16 / 10; max-height: none; }
 } }
@@ -152,7 +154,7 @@
   .origin > div:not(.blk), .origin .btn { grid-column: 1; }
   .origin > div:not(.blk) { padding: 0 6px; }
   .origin .btn { justify-self: start; margin: 0 6px; }
-  @container mine ((min-width: 800px) or (min-width: 90svh)) and (min-width: 400px) {
+  @container mine ((min-width: 725px) or (min-width: 90svh)) and (min-width: 400px) {
     .origin { grid-template-columns: min(45%, calc(56svh * 1.6)) minmax(0, 1fr); column-gap: 20px; }
     .origin .blk { grid-row: span 2; max-height: none; } /* the text and its button together beside it */
     .origin > div:not(.blk), .origin .btn { grid-column: 2; padding: 0; margin: 0; }

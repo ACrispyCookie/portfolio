@@ -123,6 +123,19 @@ export function inspect(): Finding[] {
     }
   }
 
+  // pictures squashed flat: laid out (not hidden on purpose) but with no width or height left (Jason, 2026-10-26: the
+  // home photo vanished at 582×592, where two layout rules disagreed)
+  for (const img of document.querySelectorAll<HTMLImageElement>('main img, main video')) {
+    const r = img.getBoundingClientRect();
+    if ((r.width >= 1) === (r.height >= 1) || img.closest('.av, .avatar, .person .head, .stack, .face, .avs')) continue;
+    let hidden = false;
+    for (let p: Element | null = img; p && !hidden; p = p.parentElement) {
+      const cs = getComputedStyle(p);
+      hidden = cs.display === 'none' || cs.visibility === 'hidden' || +cs.opacity === 0 || p.matches('dialog:not([open]), details:not([open]) > :not(summary)');
+    }
+    if (!hidden) out.push({ kind: 'picture collapsed', what: name(img.parentElement!.closest('figure, .card, .cover, .media, .thumb, .t') ?? img), detail: `${Math.round(r.width)}×${Math.round(r.height)}` });
+  }
+
   // pictures: cut hard (less than 60% of the picture shown) or shrunk far below their space
   for (const img of document.querySelectorAll<HTMLImageElement>('main img')) {
     if (!shown(img) || !img.naturalWidth || img.closest('.av, .avatar, .person .head, .stack, .face, .avs')) continue; // faces are small on purpose

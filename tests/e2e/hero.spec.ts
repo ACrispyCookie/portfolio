@@ -124,3 +124,19 @@ test('phones upright: the photo is as big as it can be with the name still on th
     expect(r.cover.height, `${w}x${h}: square, or only as short as the name needs`).toBeGreaterThanOrEqual(Math.min(r.cover.width, h - 230) - 1);
   }
 });
+
+// a short desktop window: the photo keeps the size it has on a tall one, and the page just scrolls further to the
+// Currently working on rows (Jason, 2026-10-26: "make the photo have a normal height even on these windows")
+test('desktop: the home photo is the same size however short the window', async ({ page }, info) => {
+  test.skip(info.project.name !== 'desktop', 'it sets its own window sizes');
+  const size = async (w: number, h: number) => {
+    await page.setViewportSize({ width: w, height: h });
+    await page.waitForTimeout(60);
+    return page.locator('.cover').evaluate((e) => { const r = e.getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height)]; });
+  };
+  await page.goto('/');
+  for (const w of [1120, 1280, 1440, 1920]) {
+    const tall = await size(w, 1000);
+    for (const h of [300, 360, 420, 520, 660]) expect(await size(w, h), `${w}×${h} against ${w}×1000`).toEqual(tall);
+  }
+});

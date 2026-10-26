@@ -4,7 +4,7 @@
 .lcol, .rcol { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
 .rcol { gap: 24px; justify-content: space-between; }
 
-.cover { flex: 1 1 auto; min-height: min(380px, 60vh); max-height: max(80vh, 280px); max-height: max(80svh, 280px); position: relative; border-radius: var(--radius-panel); overflow: hidden; background: var(--color-panel); }
+.cover { flex: 1 1 auto; position: relative; border-radius: var(--radius-panel); overflow: hidden; background: var(--color-panel); }
 /* framed for more sky than shirt (Jason, 2026-10-23) */
 .cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; display: block; } /* a trimmed photo keeps the summit (~14% down) and the sky over it (Jason, 2026-10-25) */
 
@@ -28,58 +28,43 @@
 .w .tx { min-width: 0; }
 .w .pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 .w .pills:empty { display: none; }
-/* laptops and up: the two rows sit side by side under the photo, too narrow for a picture beside the text, so each is
-   a small card with its picture across the top */
-@media (min-width: 1101px) {
+/* The top picks its layout from its own width, not the device or the window's shape (Jason, 2026-10-26: adjust to
+   the space; a 582×592 window got half of one layout and half of another, and the photo collapsed). Each layout is
+   whole in one rule, so two can never mix. */
+.hero { container: hero / inline-size; }
+
+/* wide: the photo and the Currently working on rows in the left column, the name and widget in the right. The photo's
+   size comes from the width only; a short window scrolls further instead of trimming it (Jason, 2026-10-26) */
+@container hero (min-width: 920px) {
+  .lcol { container-type: inline-size; }
+  .cover { min-height: max(380px, 62cqi); }
+  /* the two rows side by side under the photo are too narrow for a picture beside the text: a small card each, the
+     picture across the top, a little shorter so the photo above keeps the summit (Jason, 2026-10-23) */
   .w { grid-template-columns: 1fr; align-content: start; gap: 10px; }
-  .w .t { aspect-ratio: 2 / 1; } /* a little shorter, so the photo above keeps the summit (Jason, 2026-10-23) */
+  .w .t { aspect-ratio: 2 / 1; }
   .w .tx { padding: 0 4px 2px; }
 }
-
-/* desktop: the photo is at least 62% as tall as it is wide, so a short, wide window never cuts it to a strip */
-@media (min-width: 1101px) { .lcol { container-type: inline-size; } .cover { min-height: max(min(380px, 60vh), 62cqi); } }
-@media (max-width: 1100px) {
-  .top { grid-template-columns: minmax(0, 300px) minmax(0, 1fr); grid-template-areas: "cover who" "side side" "now now"; row-gap: 24px; align-items: start; }
+/* middle: the photo beside the name, a little more than half the width (Jason, 2026-10-25: could be bigger), as tall
+   as the name and text beside it but never wider than 5:4 (the summit and Jason stay in) nor taller than 1.6:1 (60% of its width still shows); the
+   widget and the rows across under both */
+@container hero (max-width: 919.98px) {
+  .top { --gap: clamp(20px, 3cqi, 28px); grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); grid-template-areas: "cover who" "side side" "now now"; column-gap: var(--gap); row-gap: 24px; align-items: start; }
   .lcol, .rcol { display: contents; }
-  .cover { grid-area: cover; aspect-ratio: 1 / 1; min-height: 0; flex: none; align-self: center; }
+  .cover { --cw: calc((100cqi - var(--gap)) * 1.3 / 2.3); grid-area: cover; flex: none; align-self: stretch; min-height: calc(var(--cw) / 1.22); max-height: calc(var(--cw) * 1.6); }
   .who { grid-area: who; align-self: center; }
   .side { grid-area: side; }
-  .now { grid-area: now; grid-template-columns: auto 1fr 1fr; align-items: center; }
-  .now > a { align-self: stretch; } /* peers: one row, one height */
-  .now > p { grid-column: auto; padding-right: 8px; }
-}
-@media (max-width: 900px) {
-  .now { grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); } /* side by side only when each row has 15rem */
+  .now { grid-area: now; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); } /* side by side when each has 15rem */
   .now > p { grid-column: 1 / -1; }
 }
-@media (max-width: 760px) {
-  .top { grid-template-columns: 1fr; grid-template-areas: "cover" "who" "side" "now"; row-gap: 28px; }
-  /* as big as it can be with the name still on the first screen: a square the column's width, never taller than the
-     screen less the room above it and the name under it (86px + 28px + 94px + 16px), so it yields only on short
-     phones (Jason, 2026-10-25: fluid instead of a 35% cap); the full width always, a capped height trims it */
-  /* the photo's height: the room under the name (86px above, 28px gap and 94px of name, 16px margin), at least 200px.
-     When that is less than the width, the photo gets narrower, never wider than 5:4, and stays centred: at most a fifth
-     of it is trimmed, so Fuji's summit and Jason both stay in (Jason, 2026-10-25: a short strip, barely visible) */
-  .cover { --ph: max(136px, calc(100vh - 224px)); --ph: max(136px, calc(100svh - 224px)); aspect-ratio: 1 / 1; max-height: var(--ph); width: min(100%, calc(var(--ph) * 1.22)); justify-self: center; }
+/* narrow: everything stacks. The photo is as big as it can be with the name still on the first screen: the room under
+   the name (86px above, 28px gap, 94px of name, 16px margin), at least 136px; where that is less than the width it gets
+   narrower, never wider than 5:4, centred (Jason, 2026-10-25: a short strip, barely visible) */
+@container hero (max-width: 439.98px) { /* under ~240px for the photo and ~185px for the name */
+  .top { grid-template-columns: minmax(0, 1fr); grid-template-areas: "cover" "who" "side" "now"; row-gap: 28px; }
+  .cover { --ph: max(136px, calc(100vh - 224px)); --ph: max(136px, calc(100svh - 224px)); align-self: start; justify-self: center; aspect-ratio: 1 / 1; min-height: 0; max-height: var(--ph); width: min(100%, calc(var(--ph) * 1.22)); }
   .now { grid-template-columns: 1fr; }
   .cta .btn-primary { flex: 1 1 100%; }
-  .cta .btn-secondary { flex: 1 1 150px; } /* side by side when both fit, stacked on the narrowest phones */
-}
-/* a phone held sideways: photo beside the name, as on tablets, so the name is on the first screen */
-@media (min-width: 560px) and (max-width: 760px) and (orientation: landscape) { /* room for both side by side (any-shape sweep) */
-  .top { grid-template-columns: minmax(0, 40%) minmax(0, 1fr); grid-template-areas: "cover who" "side side" "now now"; column-gap: 24px; }
-  .cover { aspect-ratio: 1 / 1; max-height: 80vh; max-height: 80svh; align-self: start; }
-  .now { grid-template-columns: 1fr 1fr; }
-}
-/* any phone held sideways (a short screen, also the wider ones that get the tablet layout): the photo takes half the
-   width and the screen's height, less a small margin, now that the top bar slides away there (Jason, 2026-10-25) */
-@media (min-width: 560px) and (max-width: 1100px) and (max-height: 599px) { /* by size, not orientation: room for both side by side */
-  /* the photo takes a little more than half: wider than tall where the height runs out, trimmed from the top area so
-     the summit stays (Jason, 2026-10-25: could be bigger) */
-  .top { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); column-gap: 28px; }
-  /* as tall as the name and text beside it: no strip of empty space under either, the summit on the first screen */
-  .cover { aspect-ratio: auto; max-height: calc((100cqw - 28px) * 1.3 / 2.3 * 1.4); min-height: 0; width: 100%; align-self: stretch; } /* at most 1.4× as tall as wide: a tiny window never stretches it into a sliver: a tiny window never stretches it into a sliver */
-  .top { container-type: inline-size; }
+  .cta .btn-secondary { flex: 1 1 150px; } /* side by side when both fit, stacked on the narrowest */
 }
 /* narrow working-on rows: the picture above the words instead of beside them (any-shape sweep, 2026-10-25) */
 .now { container: now / inline-size; }

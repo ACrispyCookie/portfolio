@@ -149,6 +149,8 @@ test(`${path}, ${mode.name}, every window shape, portrait and landscape: the pag
         if (m.matches('svg.diagram') && m.closest('.psec') && m.getBoundingClientRect().width <= 341) return [];
         // the home photo on a phone held sideways: as tall as the name and text beside it (Jason, 2026-10-25)
         if (m.closest('.cover') && short && innerWidth <= 1100) return [];
+        // the desktop home photo keeps its size on a short window; the page scrolls further (Jason, 2026-10-26)
+        if (m.closest('.cover') && innerWidth > 1100) return [];
         // the home photo may nearly fill a short window rather than be cut to a strip (any-shape sweep, 2026-10-25)
         const limit = m.closest('.cover') ? 0.95 : m.closest('.hero-media, .pfig') && short ? 0.86 : m.closest('.hero-media') ? 0.68 : 0.6;
         const what = m.closest('.cover') ? 'hero photo' : m.closest('[data-id]')?.getAttribute('data-id') ?? m.tagName.toLowerCase();

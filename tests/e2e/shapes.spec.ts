@@ -14,12 +14,15 @@ const WIDTHS = [200, 240, ...Array.from({ length: 30 }, (_, i) => 280 + i * 40),
 const HEIGHTS = [300, 360, 420, 520, 660, 800, 1000, 1400];
 
 // RAMBO's photo is portrait, so a landscape card or thumbnail shows under half of it: Jason (2026-10-25) keeps the crop
-const KNOWN = (f: Finding) => f.kind === 'picture cropped' && /rambo|ECE455/i.test(f.what);
+const KNOWN = (f: Finding, url: string) => f.kind === 'picture cropped' && /rambo|ECE455/i.test(f.what)
+  // the security pages stay as they are until their own plan (Jason, 2026-10-25): RAMBO's results table squeezes its
+  // headings into narrow columns on the narrowest windows
+  || f.kind === 'narrow text' && /#what-we-measured th/.test(f.what) && url.includes('ece455');
 
 for (const url of PAGES) {
   test(`${url}: nothing breaks at any window shape, touch or not`, async ({ browser }, info) => {
     test.skip(info.project.name !== 'desktop', 'one sweep is enough; it makes its own touch and non-touch windows');
-    test.setTimeout(900_000); // ~2 min alone, much longer while the gate runs everything at once
+    test.setTimeout(1_800_000); // ~2 min alone, over 15 while the gate runs everything at once
     const found = new Map<string, string[]>();
     for (const touch of [true, false]) {
       const ctx = await browser.newContext({ reducedMotion: 'reduce', hasTouch: touch, isMobile: touch, viewport: { width: 400, height: 800 } });
@@ -29,9 +32,7 @@ for (const url of PAGES) {
         if (touch && w > 1100) continue; // touch windows up to tablet size; wider ones are the desktop pass
         await page.setViewportSize({ width: w, height: h });
         await page.waitForTimeout(60); // a timed settle: headless Chrome may never deliver an animation frame
-        // the name on the first screen beats the photo: on a window too short for both, the home photo may be trimmed
-        const nameFirst = (f: Finding) => f.kind === 'picture cropped' && f.what.includes('div.cover') && h < 560;
-        for (const f of (await page.evaluate(inspect)).filter((x) => !KNOWN(x) && !nameFirst(x))) {
+        for (const f of (await page.evaluate(inspect)).filter((x) => !KNOWN(x, url))) {
           const k = `${f.kind}: ${f.what} (${f.detail})`;
           found.set(k, [...(found.get(k) ?? []), `${w}×${h}${touch ? ' touch' : ''}`]);
         }

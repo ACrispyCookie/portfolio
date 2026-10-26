@@ -166,3 +166,25 @@ for (const [w, h, phone] of [[734, 343, 'iPhone 15'], [932, 400, 'iPhone 15 Pro 
     }
   });
 }
+
+// The Minecraft drawing is a card picture like the others: it may not shrink below the personal cards' pictures above
+// it at any window shape (Jason, 2026-10-26: "still smaller on some dimensions")
+test('the Minecraft drawing is as big as the personal cards\' pictures at every window shape', async ({ page }, info) => {
+  test.skip(info.project.name !== 'desktop', 'one sweep is enough; it sets its own window sizes');
+  test.setTimeout(600_000);
+  const small: string[] = [];
+  for (const url of ['/', '/projects']) {
+    await page.goto(url);
+    for (const h of [360, 520, 800, 1000]) for (let w = 280; w <= 1920; w += 40) {
+      await page.setViewportSize({ width: w, height: h });
+      await page.waitForTimeout(40);
+      const r = await page.evaluate(() => {
+        const o = document.querySelector('.origin .blk')!.getBoundingClientRect();
+        const m = document.querySelector('.grid.three .card .media')!.getBoundingClientRect();
+        return { o: [Math.round(o.width), Math.round(o.height)], m: [Math.round(m.width), Math.round(m.height)] };
+      });
+      if (r.o[0] < r.m[0] * 0.95 || r.o[1] < r.m[1] * 0.95) small.push(`${url} ${w}×${h}: drawing ${r.o.join('×')}, card picture ${r.m.join('×')}`);
+    }
+  }
+  expect(small).toEqual([]);
+});

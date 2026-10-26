@@ -23,12 +23,13 @@
 .card.wide .hit { gap: 14px; }
 .card.wide h3 { font: 600 var(--text-lead) / 1.25 var(--font-text); }
 .card .head { font: 700 var(--text-lead) / 1.25 var(--font-display); letter-spacing: -.015em; text-wrap: balance; color: var(--color-silk); }
-.card .meta { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 4px; position: relative; z-index: 1; }
+.card .meta { display: flex; justify-content: flex-start; align-items: center; gap: 10px; flex-wrap: wrap; /* pills and the demo button from the left, the team at the far right (Jason, 2026-10-25) */ margin-top: 4px; position: relative; z-index: 1; }
 /* the row sits above the card's link only where it has links of its own: a click anywhere else, between pills or on a
    pill that isn't a link, opens the card (Jason, 2026-10-23) */
 .card .meta { pointer-events: none; }
 .card .meta :is(a, button) { pointer-events: auto; }
-.card .meta .row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-left: auto; }
+.card .meta .row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; flex: 1 1 auto; }
+.card .meta .row > :last-child { margin-left: auto; } /* the team */
 .card .tag b { color: var(--color-silk); font-weight: 600; }
 .card a.tag:hover { background: var(--color-lift); color: var(--color-silk); }
 
@@ -105,13 +106,9 @@
   .grid.feat, .grid.compact, .grid.three { grid-template-columns: 1fr; }
   .card.wide { grid-template-columns: 1fr; padding: 14px 14px 18px; gap: 14px; }
   .card.wide .body { padding: 0 6px; }
-  .origin { grid-template-columns: minmax(0, .9fr) minmax(0, 1fr); } /* the picture beside the text, as the sideways cards */
-  .origin .blk { grid-row: auto; }
-  .origin > div:not(.blk) { grid-column: 2; align-self: center; }
-  .origin .btn { grid-column: 1 / -1; } /* its own row: its label is wider than the text column */
 }
 @media (max-width: 760px) {
-  .card, .card.wide { padding: 12px 12px 16px; }
+  .card, .card.wide { padding: clamp(8px, 3.5vw, 12px) clamp(8px, 3.5vw, 12px) 16px; } /* less on the narrowest windows */
   .card .body { padding: 0 4px; }
   .card.wide .body { padding: 0; }
   .card.wide .head { font-size: var(--text-lead); line-height: 1.25; }
@@ -124,12 +121,25 @@
   .card.wide .meta .btn-live { flex: 1 1 100%; order: -1; }
   .card.wide .meta .row > :last-child { margin-left: auto; } /* the team, at the far end */
 }
-/* phones in portrait: the origin card stacks, its picture filling the card (narrowed only if the screen is short) */
-@media (max-width: 559px) {
-  .origin { grid-template-columns: 1fr; }
-  .origin .blk { grid-row: auto; } /* full width, stacked like the cards above */
+/* the origin card lays out as the personal cards above it, so its drawing is never smaller than their pictures
+   (Jason, 2026-10-26): beside the text where they take a row each, stacked full width where they stack */
+@media (max-width: 1100px) {
+  .origin { grid-template-columns: minmax(0, .8fr) minmax(0, 1fr); padding: 14px; }
+  .origin .blk { grid-row: span 2; } /* the text and its button together beside it, as on desktop */
+  .origin > div:not(.blk) { grid-column: 2; align-self: end; }
+  .origin .btn { grid-column: 2; }
+}
+@media (max-width: 900px) {
+  .origin { grid-template-columns: minmax(0, 1fr); }
+  .origin .blk { grid-row: auto; }
   .origin > div:not(.blk), .origin .btn { grid-column: 1; }
-  .origin .btn { grid-column: auto; font-size: var(--text-small); }
+  .origin > div:not(.blk) { padding: 0 6px; }
+  .origin .btn { justify-self: start; margin: 0 6px; }
+}
+@media (max-width: 760px) {
+  .origin { padding: clamp(8px, 3.5vw, 12px) clamp(8px, 3.5vw, 12px) 16px; } /* as the cards */
+  .origin > div:not(.blk) { padding: 0 4px; }
+  .origin .btn { margin: 0 4px; font-size: var(--text-small); }
 }
 /* on the narrowest cards (small phones) headlines drop to the body size so they still fit two lines */
 .card { container: card / inline-size; }
@@ -144,5 +154,14 @@
   /* the picture's column: at most 45% of the card, and no wider than a 16:10 picture 56% of the screen's height */
   .card, .card.wide, .grid.compact .card, .grid.three .card { grid-template-columns: min(45%, calc(56svh * 1.6)) minmax(0, 1fr); align-items: center; column-gap: 20px; }
   .card .media, .grid.compact .card .media, .grid.feat .card .media, .card.wide .media { aspect-ratio: 16 / 10; max-height: none; }
+}
+}
+/* the origin card follows the cards on a short window: its drawing beside its text, the same size as their pictures */
+:has(> .origin) { container: mine / inline-size; } /* whatever holds it: the home section, or the All projects page's */
+@media (max-height: 599px) { @container mine (min-width: 520px) {
+  .origin { grid-template-columns: min(45%, calc(56svh * 1.6)) minmax(0, 1fr); column-gap: 20px; padding: 14px; }
+  .origin .blk { grid-row: span 2; max-height: none; }
+  .origin > div:not(.blk) { grid-column: 2; align-self: end; padding: 0; }
+  .origin .btn { grid-column: 2; margin: 0; }
 }
 }

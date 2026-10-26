@@ -56,5 +56,17 @@
    landscape, so a short screen never crops it to a strip. In portrait the picture goes above at full width. */
 @media (orientation: landscape) and (min-width: 440px) and (max-width: 900px) {
   #beyond .card.personal, #beyond .card.wide { grid-template-columns: minmax(0, .8fr) minmax(0, 1fr); align-items: center; }
+  /* and the Minecraft card with them, its drawing beside the text and its button (Jason, 2026-10-26) */
+  #beyond .origin { grid-template-columns: minmax(0, .8fr) minmax(0, 1fr); column-gap: 12px; }
+  #beyond .origin .blk { grid-row: span 2; }
+  #beyond .origin > div:not(.blk), #beyond .origin .btn { grid-column: 2; }
+  #beyond .origin > div:not(.blk) { align-self: end; padding: 0; }
+  #beyond .origin .btn { margin: 0; }
+  /* too narrow for the button's label beside the drawing: it takes its own row under both */
+  @container mine (max-width: 560px) {
+    #beyond .origin .blk { grid-row: auto; }
+    #beyond .origin > div:not(.blk) { align-self: center; }
+    #beyond .origin .btn { grid-column: 1 / -1; }
+  }
 }
 #beyond .card .media { max-height: none; width: min(100%, 96vh); width: min(100%, 96svh); }

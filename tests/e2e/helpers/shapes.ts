@@ -99,6 +99,30 @@ export function inspect(): Finding[] {
     if (h < 12.5) out.push({ kind: 'small text', what: `${name(t.closest('svg')!)} text "${t.textContent}"`, detail: `${h.toFixed(1)}px` });
   }
 
+  // text set in a column too narrow to read: over 12 characters on 2+ lines in a column under six times its font
+  // size (Jason, 2026-10-25: "proj / ects / on / this / site" at 200px, which nothing above caught)
+  for (const e of document.querySelectorAll<HTMLElement>('main *, header.topbar *, footer *')) {
+    if (e.closest('svg, .vh, .sr-only') || !shown(e)) continue;
+    const own = [...e.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent!.trim()).join(' ').trim();
+    if (own.length <= 12) continue;
+    const fs = parseFloat(getComputedStyle(e).fontSize), w = e.getBoundingClientRect().width;
+    if (w < fs * 6 && lines(e) > 2) out.push({ kind: 'narrow text', what: name(e), detail: `${Math.round(w)}px for ${Math.round(fs)}px text` });
+  }
+
+  // content outside its card: a part of a panel (a box with its own background and rounded corners) that pokes out
+  for (const box of document.querySelectorAll<HTMLElement>('main *, footer *')) {
+    if (!shown(box) || box.closest('svg') || box.matches('.tag, .pill, .btn, .chip, .labpill, img, video, a.tag')) continue;
+    const cs = getComputedStyle(box);
+    if (cs.backgroundColor === 'rgba(0, 0, 0, 0)' || parseFloat(cs.borderTopLeftRadius) < 6 || cs.overflowX !== 'visible') continue;
+    const b = box.getBoundingClientRect();
+    for (const k of box.querySelectorAll<HTMLElement>('*')) {
+      if (k.closest('svg') && k.tagName !== 'svg') continue;
+      if (k.closest('.pfig.drawn, .tscroll') && !box.matches('.pfig.drawn, .tscroll') || !shown(k)) continue;
+      const r = k.getBoundingClientRect();
+      if (r.right > b.right + 1 || r.left < b.left - 1) { out.push({ kind: 'outside its card', what: `${name(k)} in ${name(box)}`, detail: `${Math.round(Math.max(r.right - b.right, b.left - r.left))}px out` }); break; }
+    }
+  }
+
   // pictures: cut hard (less than 60% of the picture shown) or shrunk far below their space
   for (const img of document.querySelectorAll<HTMLImageElement>('main img')) {
     if (!shown(img) || !img.naturalWidth || img.closest('.av, .avatar, .person .head, .stack, .face, .avs')) continue; // faces are small on purpose
@@ -106,7 +130,12 @@ export function inspect(): Finding[] {
     if (cs.objectFit === 'cover') {
       const s = Math.max(r.width / img.naturalWidth, r.height / img.naturalHeight);
       const seen = (r.width * r.height) / (img.naturalWidth * s * img.naturalHeight * s);
-      if (seen < 0.6) out.push({ kind: 'picture cropped', what: name(img.parentElement!.closest('figure, .card, .cover, .media, .thumb, .t') ?? img), detail: `${Math.round(seen * 100)}% shown` });
+      // the home photo above the name shows at least 80% of its height (the summit is near the top, Jason at the bottom:
+      // never a strip; Jason, 2026-10-25); beside the name it fills the text's height, and like any picture may show 60%
+      const who = document.querySelector('#top .who')?.getBoundingClientRect();
+      const stacked = !!img.closest('.cover') && !!who && r.bottom <= who.top + 1;
+      const trimsHeight = r.width / r.height > img.naturalWidth / img.naturalHeight;
+      if (seen < (stacked && trimsHeight ? 0.8 : 0.6)) out.push({ kind: 'picture cropped', what: name(img.parentElement!.closest('figure, .card, .cover, .media, .thumb, .t') ?? img), detail: `${Math.round(seen * 100)}% shown` });
     }
     const room = img.closest('figure, .card, .cover, .media, .thumb')?.parentElement?.getBoundingClientRect().width ?? vw;
     if (r.width < Math.min(160, room * 0.3)) out.push({ kind: 'picture tiny', what: name(img.closest('figure, .card, .cover, .media, .thumb, .t') ?? img), detail: `${Math.round(r.width)}px wide` });

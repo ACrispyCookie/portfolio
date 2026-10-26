@@ -40,3 +40,6 @@
 }
 #timeline.rails .tlw { display: none; }
 #timeline.rails .tll { display: block; }
+/* a narrow timeline: slimmer rails and small titles, so the words keep a readable column (any-shape sweep) */
+.tll { container: tl / inline-size; }
+@container tl (max-width: 220px) { .tll .it { grid-template-columns: 8px 8px 8px minmax(0, 1fr); column-gap: 2px; } .tll .it > div { padding-left: 8px; } .tll .it b { font-size: var(--text-small); } }

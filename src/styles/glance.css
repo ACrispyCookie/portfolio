@@ -29,3 +29,6 @@
 /* a narrow card: the count steps down to small text, so it stays on the title's line (Jason, 2026-10-25) */
 .rc { container: rc / inline-size; }
 @container rc (max-width: 300px) { .rc summary span { font-size: var(--text-small); gap: 6px; } }
+/* a narrow column: each number sits above its words instead of beside them (any-shape sweep, 2026-10-25) */
+.glance { container: glance / inline-size; }
+@container glance (max-width: 260px) { .read { grid-template-columns: minmax(0, 1fr); padding: 14px 16px; } }

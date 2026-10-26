@@ -32,3 +32,6 @@
   .actions { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
 }
 .side, .board { min-width: 0; }
+/* a narrow widget: the status steps down a size so it keeps a readable line (any-shape sweep, 2026-10-25) */
+.board { container: board / inline-size; }
+@container board (max-width: 220px) { .running b { font-size: var(--text-body); } .running { padding: 10px 12px; } }

@@ -1,7 +1,7 @@
 /* Contact card (spec §5.1 item 8): the last card on the page. No ring, no shadow.
    Every part sizes from its own width (container queries), so the address and the labels never break mid-word. */
 #contact { container: contact / inline-size; }
-.ccard { padding: clamp(22px, 3vw, 36px); display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 28px; align-items: center; }
+.ccard { padding: clamp(16px, 3vw, 36px); display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 28px; align-items: center; }
 .ccard .cl { display: grid; gap: 16px; min-width: 0; container: mail / inline-size; }
 .ccard .lead { margin: 0; }
 .mail { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; font: 700 var(--text-title) / 1.2 var(--font-display); letter-spacing: -.015em; color: var(--color-silk); }
@@ -16,7 +16,6 @@
 
 /* one column when the card can't hold the address and the links side by side */
 @container contact (max-width: 880px) { .ccard { grid-template-columns: 1fr; gap: 20px; } }
-@media (max-width: 760px) { .ccard { padding: 20px 16px; } }
 /* the address steps down the scale with its column: title, then lead, then body */
 @container mail (max-width: 440px) { .mail { font-size: var(--text-lead); } }
 @container mail (max-width: 290px) { .mail { font-size: clamp(12.5px, 8cqi, var(--text-body)); } } /* and on, with the box, down to 12.5px on the narrowest windows */

@@ -123,6 +123,15 @@ export function inspect(): Finding[] {
     }
   }
 
+  // sections spaced out of proportion: a page's first section follows its heading within 15% of the window's width (36px
+  // on the narrowest), so a narrow split screen doesn't get a wide screen's gap (Jason, 2026-10-26); between sections the
+  // gap may be up to 72px, below which a section's last line reads as a label on the next heading (spec §11)
+  const secs = [...document.querySelectorAll('.wrap > main > *')].filter(shown);
+  for (let i = 1; i < secs.length; i++) {
+    const gap = secs[i].getBoundingClientRect().top - secs[i - 1].getBoundingClientRect().bottom;
+    if (gap > Math.max(secs[i - 1].matches('.allhead') ? 36 : 72, vw * 0.15) + 1) out.push({ kind: 'gap too big', what: `${name(secs[i - 1])} → ${name(secs[i])}`, detail: `${Math.round(gap)}px in a ${vw}px window` });
+  }
+
   // pictures squashed flat: laid out (not hidden on purpose) but with no width or height left (Jason, 2026-10-26: the
   // home photo vanished at 582×592, where two layout rules disagreed)
   for (const img of document.querySelectorAll<HTMLImageElement>('main img, main video')) {

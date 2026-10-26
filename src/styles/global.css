@@ -40,7 +40,7 @@
   --rail: 68px;
   --rail-r: var(--rail); /* the trace gutter is mirrored on the right so the frame is centred */
   --trace-x: 18.5px;
-  --gap: clamp(64px, 7vw, 96px);
+  --gap: clamp(64px, 7vw, 96px); /* under ~72px the last line of a section reads as a label on the next heading (spec §11) */
   --side-l: max(20px, env(safe-area-inset-left, 0px));
   --side-r: max(20px, env(safe-area-inset-right, 0px));
 }
@@ -109,7 +109,8 @@ a { color: inherit; text-underline-offset: 3px; }
 /* "See all 28 projects and 11 courses": the section's closing link, at its content edge */
 .seeall { display: inline-flex; margin-top: 22px; }
 .seeall .short { display: none; }
-@media (max-width: 420px) { .seeall { font-size: var(--text-small); } .seeall .long { display: none; } .seeall .short { display: inline; } }
+:has(> .seeall) { container: seeall / inline-size; } /* the shorter label where the full one doesn't fit its section */
+@container seeall (max-width: 349.98px) { .seeall { font-size: var(--text-small); } .seeall .long { display: none; } .seeall .short { display: inline; } }
 /* The lab's status dot: one look everywhere (top-bar pill, widget, lab card), coloured by the live status set on <html>
    (data-lab). Grey until a status is known. Never blinks (Jason, 2026-10-21). */
 .sdot { width: 9px; height: 9px; border-radius: 50%; background: var(--color-dim); display: inline-block; flex: none; transition: background-color .3s; }
@@ -153,7 +154,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 }
 /* a phone held sideways: the bar slides up out of the way while scrolling down and back on the way up (TopBar's
    script sets .away), so a picture can use the short screen's height (Jason, 2026-10-25) */
-@media (orientation: landscape) and (max-height: 599px) {
+@media (max-height: 599px) { /* any short window, whatever its shape */
   .topbar.away { transform: translateY(calc(-100% - env(safe-area-inset-top, 0px))); }
   @media (prefers-reduced-motion: no-preference) { .topbar { transition: transform .25s cubic-bezier(.2, .8, .2, 1); } }
 }

@@ -27,11 +27,12 @@
 .board[data-state="static"] [data-live] { display: none; }
 .board[data-state="static"] .runrow { grid-template-columns: 1fr; }
 [data-f][hidden] { display: none !important; }
-@media (max-width: 760px) {
+.side, .board { min-width: 0; }
+/* a narrow widget (by its own width, Jason, 2026-10-26): the status above its button, the button and tags wrapping */
+.board { container: board / inline-size; }
+@container board (max-width: 479.98px) {
   .runrow { grid-template-columns: 1fr; }
   .actions { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
 }
-.side, .board { min-width: 0; }
 /* a narrow widget: the status steps down a size so it keeps a readable line (any-shape sweep, 2026-10-25) */
-.board { container: board / inline-size; }
 @container board (max-width: 220px) { .running b { font-size: var(--text-body); } .running { padding: 10px 12px; } }

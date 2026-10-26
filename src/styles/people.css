@@ -25,16 +25,18 @@
 #people .small .count { order: 2; min-width: 4.5em; }
 #people .small .count b { font-size: var(--text-lead); }
 
-@media (max-width: 900px) {
+/* each part chooses from its own width (Jason, 2026-10-26): two big cards a row where each gets ~400px */
+#people { container: people seeall / inline-size; } /* also the See all button's (global.css) */
+@container people (max-width: 799.98px) {
   #people .big { grid-template-columns: 1fr; }
 }
-/* phones: the pill goes on its own line across the row, so the longest one fits at 320px */
-@media (max-width: 560px) {
+/* a narrow list: the pill goes on its own line across the row, so the longest one fits */
+@container people (max-width: 489.98px) {
   #people .small .person { grid-template-columns: auto minmax(0, 1fr) auto; padding: 12px 16px; row-gap: 8px; }
   #people .small .tags { order: 3; grid-column: 1 / -1; }
 }
-/* the narrowest phones: the count moves under the name as one line ("17 projects"), so a long name has the width */
-@media (max-width: 420px) {
+/* a narrow big card: the count moves under the name as one line ("17 projects"), so a long name has the width */
+@container person (max-width: 340px) {
   /* the count follows the links as closely as the link lines follow each other (Jason, 2026-10-25: a row gap away) */
   #people .big .head { grid-template-columns: auto minmax(0, 1fr); row-gap: 2px; }
   #people .big .head > img, #people .big .head > .ini { grid-row: span 2; }

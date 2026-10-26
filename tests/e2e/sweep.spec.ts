@@ -139,20 +139,20 @@ test(`${path}, ${mode.name}, every window shape, portrait and landscape: the pag
       const tall = [...document.querySelectorAll('main img, main video, main svg.diagram, main .origin svg')].flatMap((m) => {
         const r = m.getBoundingClientRect();
         if (!r.height) return [];
-        // the hero photo may fill up to 80% of the screen; every other picture up to 60%, except a project page's
-        // pictures on a short landscape screen, which may use 86% so they aren't shrunk to a corner (Jason, 2026-10-24)
-        // a project page's top video may use 68% (Jason, 2026-10-24: make it bigger; 2026-10-25: never crop it)
         const short = innerWidth > innerHeight && innerHeight < 600;
-        // a phone held sideways: the top picture spans the column, whole, taller than the screen (Jason, 2026-10-25)
-        if (m.closest('.hero-media') && short && innerWidth <= 1100 && matchMedia('(pointer: coarse)').matches) return [];
+        // a project page's pictures: 58% of the screen, never under 336px unless the screen is shorter (then all but
+        // 64px); its top video 1.14× that, never under 500px, so a short window scrolls (Jason, 2026-10-26)
+        const picH = Math.min(innerHeight - 64, Math.max(0.58 * innerHeight, 336));
+        if (m.closest('.hero-media')) return r.height > Math.max(picH * 1.14, 500) + 2 ? [`top picture ${Math.round(r.height)}px`] : [];
         // a drawing at the smallest size its words stay readable at (340px) may be taller than a tiny window: it scrolls
         if (m.matches('svg.diagram') && m.closest('.psec') && m.getBoundingClientRect().width <= 341) return [];
+        if (m.closest('.psec > .pfig')) return r.height > picH + 2 ? [`${m.tagName.toLowerCase()} ${Math.round(r.height)}px`] : [];
         // the home photo on a phone held sideways: as tall as the name and text beside it (Jason, 2026-10-25)
         if (m.closest('.cover') && short && innerWidth <= 1100) return [];
         // the desktop home photo keeps its size on a short window; the page scrolls further (Jason, 2026-10-26)
         if (m.closest('.cover') && innerWidth > 1100) return [];
         // the home photo may nearly fill a short window rather than be cut to a strip (any-shape sweep, 2026-10-25)
-        const limit = m.closest('.cover') ? 0.95 : m.closest('.hero-media, .pfig') && short ? 0.86 : m.closest('.hero-media') ? 0.68 : 0.6;
+        const limit = m.closest('.cover') ? 0.95 : 0.6; // every other picture up to 60% of the screen
         const what = m.closest('.cover') ? 'hero photo' : m.closest('[data-id]')?.getAttribute('data-id') ?? m.tagName.toLowerCase();
         return r.height > innerHeight * limit ? [`${what} ${Math.round((r.height / innerHeight) * 100)}%`] : [];
       });
@@ -183,12 +183,14 @@ test(`${path}, ${mode.name}, every window shape, portrait and landscape: the pag
       // narrower than the numbers)
       const nums = document.querySelector('.knums')?.getBoundingClientRect();
       if (hero && nums && Math.abs(nums.width - hero.width) > 2) narrow.push(`key numbers ${Math.round(nums.width)}px wide under a ${Math.round(hero.width)}px video`);
-      // on a short landscape screen a section picture either fills the text's width or most of the screen's height
+      // a section picture either fills the text's width or reaches its height cap (58% of the screen, never under 336px
+      // unless the screen is shorter), so a short screen never shrinks it into a corner (Jason, 2026-10-24/26)
       const textW = document.querySelector('.psec > p')?.getBoundingClientRect().width ?? 0;
-      if (innerWidth > innerHeight && innerHeight < 600) for (const f of document.querySelectorAll('.psec > .pfig')) {
+      const capH = Math.min(innerHeight - 64, Math.max(0.58 * innerHeight, 336));
+      for (const f of document.querySelectorAll('.psec > .pfig')) {
         const r = f.getBoundingClientRect();
         const full = f.matches('.drawn, .square') ? Math.min(textW, 520) : textW;
-        if (r.width < full - 2 && r.height < innerHeight * 0.8 - 2) narrow.push(`section picture ${Math.round(r.width)}×${Math.round(r.height)}, small for the screen`);
+        if (r.width < full - 2 && r.height < capH - 2) narrow.push(`section picture ${Math.round(r.width)}×${Math.round(r.height)}, small for the screen`);
       }
       return { nameBottom: Math.round(name.bottom), tall, narrow, strips };
     });

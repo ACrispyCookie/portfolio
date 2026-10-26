@@ -48,9 +48,9 @@
    as the name and text beside it but never wider than 5:4 (the summit and Jason stay in) nor taller than 1.6:1 (60% of its width still shows); the
    widget and the rows across under both */
 @container hero (max-width: 919.98px) {
-  .top { --gap: clamp(20px, 3cqi, 28px); grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); grid-template-areas: "cover who" "side side" "now now"; column-gap: var(--gap); row-gap: 24px; align-items: start; }
+  .top { --cgap: clamp(20px, 3cqi, 28px); grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); grid-template-areas: "cover who" "side side" "now now"; column-gap: var(--cgap); row-gap: 24px; align-items: start; }
   .lcol, .rcol { display: contents; }
-  .cover { --cw: calc((100cqi - var(--gap)) * 1.3 / 2.3); grid-area: cover; flex: none; align-self: stretch; min-height: calc(var(--cw) / 1.22); max-height: calc(var(--cw) * 1.6); }
+  .cover { --cw: calc((100cqi - var(--cgap)) * 1.3 / 2.3); grid-area: cover; flex: none; align-self: stretch; min-height: calc(var(--cw) / 1.22); max-height: calc(var(--cw) * 1.6); }
   .who { grid-area: who; align-self: center; }
   .side { grid-area: side; }
   .now { grid-area: now; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); } /* side by side when each has 15rem */

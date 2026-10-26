@@ -4,6 +4,9 @@
 .allhead { padding: clamp(16px, 2.2vw, 32px) 0 18px; display: grid; gap: 8px; } /* room under the lead for the trace's start pad */
 .allhead h1 { font: 800 min(var(--text-display), 14vw) / 1 var(--font-display); letter-spacing: -.035em; } /* a page title: the display size */
 .allhead .lead { max-width: 65ch; color: var(--color-silk); }
+/* the page's first section follows its heading at a gap that grows with the width: ~40px on a narrow split screen,
+   a section's gap on a wide one (Jason, 2026-10-26: "an awkwardly long spacing" between the heading and the cards) */
+.wrap > main > .allhead + * { margin-top: calc(clamp(36px, 5vw + 24px, 96px) - var(--gap)); }
 .counts { color: var(--color-dim); }
 
 /* pictures: the box sets the size, the image fills it; paper charts sit whole on white */
@@ -43,30 +46,10 @@
 }
 /* a picture never crops to a strip on a short screen: it keeps 16:10 and narrows until it is 60% of the screen tall */
 .course .thumb { max-height: none; width: min(100%, 96vh); width: min(100%, 96svh); }
-/* narrow (phones in portrait), and tablets in portrait, where beside the course it was too small (Jason, 2026-10-23):
-   the picture goes above the course at full width */
-@container courses (max-width: 559px) {
+/* the picture goes above the course at full width where the row is narrow (under 560px), or where beside it would be
+   small: a row under 800px on a screen tall enough for the picture above (Jason, 2026-10-23: too small on tablets in
+   portrait). As the cards, by the row's own width (Jason, 2026-10-26) */
+@container courses (max-width: 559.98px) or ((max-width: 799.98px) and (max-width: 90svh)) {
   .course { grid-template-columns: 1fr; gap: 16px; }
-}
-@media (orientation: portrait) and (max-width: 900px) {
-  .course { grid-template-columns: 1fr; gap: 16px; }
-}
-
-/* personal cards on landscape phones and small landscape tablets: picture beside the text, as home does on tablets in
-   landscape, so a short screen never crops it to a strip. In portrait the picture goes above at full width. */
-@media (orientation: landscape) and (min-width: 440px) and (max-width: 900px) {
-  #beyond .card.personal, #beyond .card.wide { grid-template-columns: minmax(0, .8fr) minmax(0, 1fr); align-items: center; }
-  /* and the Minecraft card with them, its drawing beside the text and its button (Jason, 2026-10-26) */
-  #beyond .origin { grid-template-columns: minmax(0, .8fr) minmax(0, 1fr); column-gap: 12px; }
-  #beyond .origin .blk { grid-row: span 2; }
-  #beyond .origin > div:not(.blk), #beyond .origin .btn { grid-column: 2; }
-  #beyond .origin > div:not(.blk) { align-self: end; padding: 0; }
-  #beyond .origin .btn { margin: 0; }
-  /* too narrow for the button's label beside the drawing: it takes its own row under both */
-  @container mine (max-width: 560px) {
-    #beyond .origin .blk { grid-row: auto; }
-    #beyond .origin > div:not(.blk) { align-self: center; }
-    #beyond .origin .btn { grid-column: 1 / -1; }
-  }
 }
 #beyond .card .media { max-height: none; width: min(100%, 96vh); width: min(100%, 96svh); }

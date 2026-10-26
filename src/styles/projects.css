@@ -34,7 +34,10 @@
 .card a.tag:hover { background: var(--color-lift); color: var(--color-silk); }
 
 .card.wide { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 28px; align-items: center; padding: 16px; }
-.card.wide .media { aspect-ratio: 16 / 9.4; }
+/* its picture column stops growing where the picture would pass 60% of the screen's height, so a short, wide window
+   gives the text more room instead of cutting the picture to a strip */
+.card.wide { grid-template-columns: minmax(0, min(52%, calc(60svh * 1.7))) minmax(0, 1fr); }
+.card.wide .media { aspect-ratio: 16 / 9.4; max-height: none; }
 .card.wide .body { gap: 14px; padding: 6px 14px 6px 0; }
 .card.wide .head { font: 700 var(--text-lead) / 1.1 var(--font-display); letter-spacing: -.025em; } /* the title size runs it to three lines */
 .card.wide .sum { color: var(--color-dim); max-width: 46ch; }
@@ -91,77 +94,80 @@
   .card .media img, .card .media video { transition: transform .6s cubic-bezier(.16, 1, .3, 1); }
   .card:hover .media img, .card:hover .media video { transform: scale(1.03); }
 }
-/* the picture sits beside the text only in a full-width grid (cards of about 550px); narrower, the cards stack */
+/* on the narrowest cards (small phones) headlines drop to the body size so they still fit two lines */
+.card { container: card / inline-size; }
+@container card (max-width: 310px) { .head { font-size: var(--text-body); } }
+
+/* The cards pick their layout from the room they have, not from the device or the window's shape (Jason, 2026-10-26:
+   "adjust to the space"). The only thing a window's height decides is whether a picture above its text would fill too
+   much of the screen; then a card alone in its row puts the picture beside the text. */
+.cards { container: cards / inline-size; }
+:has(> .origin) { container: mine / inline-size; } /* whatever holds the Minecraft card: home's section or All projects' */
+
+/* compact cards put their picture beside the text only in a full-width grid (cards of about 550px) */
 @container compact (max-width: 1110px) {
   .grid.compact .card { grid-template-columns: 1fr; align-items: start; }
   .grid.compact .card .media { aspect-ratio: 16 / 9; }
 }
-/* tablet landscape: three personal cards would be too narrow, so each takes a row with its picture beside the text */
-@media (min-width: 901px) and (max-width: 1100px) {
-  .grid.three { grid-template-columns: 1fr; }
-  .grid.three .card { grid-template-columns: minmax(0, .8fr) minmax(0, 1fr); align-items: center; }
-}
-/* tablet portrait: two columns would be narrower than a phone, so cards take the full width */
-@media (max-width: 900px) {
-  .grid.feat, .grid.compact, .grid.three { grid-template-columns: 1fr; }
-  .card.wide { grid-template-columns: 1fr; padding: 14px 14px 18px; gap: 14px; }
+/* columns: three personal cards need 940px (their headlines in two lines), two large or compact cards 725px; with
+   less, one card a row */
+@container cards (max-width: 939.98px) { .grid.three { grid-template-columns: 1fr; } }
+@container cards (max-width: 724.98px) {
+  .grid.feat, .grid.compact { grid-template-columns: 1fr; }
+  .card.wide { grid-template-columns: 1fr; gap: 14px; }
+  .card.wide .media { max-height: 60svh; } /* stacked: a short screen crops it a little rather than filling the screen */
   .card.wide .body { padding: 0 6px; }
 }
-@media (max-width: 760px) {
-  .card, .card.wide { padding: clamp(8px, 3.5vw, 12px) clamp(8px, 3.5vw, 12px) 16px; } /* less on the narrowest windows */
+/* a narrow row: thinner card edges, and the wide card's demo button leads at full width with the course tag and team
+   on the row under it, wrapping instead of crushing (any-shape sweep, 2026-10-25: two pills overlapped at 280px) */
+@container cards (max-width: 600px) {
+  .card, .card.wide { padding: clamp(8px, 3cqi, 12px) clamp(8px, 3cqi, 12px) 16px; }
   .card .body { padding: 0 4px; }
   .card.wide .body { padding: 0; }
   .card.wide .head { font-size: var(--text-lead); line-height: 1.25; }
   .card.wide h3 { font-size: var(--text-body); }
-  /* the demo button leads, full width; the course tag and team share the row under it */
-  /* a wrapping row, not a fixed grid: whatever doesn't fit moves to the next line instead of being crushed beside it
-     (any-shape sweep, 2026-10-25: two pills overlapped at 280px) */
   .card.wide .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 10px; }
   .card.wide .meta .row { display: contents; }
   .card.wide .meta .btn-live { flex: 1 1 100%; order: -1; }
   .card.wide .meta .row > :last-child { margin-left: auto; } /* the team, at the far end */
 }
-/* the origin card lays out as the personal cards above it, so its drawing is never smaller than their pictures
-   (Jason, 2026-10-26): beside the text where they take a row each, stacked full width where they stack */
-@media (max-width: 1100px) {
-  .origin { grid-template-columns: minmax(0, .8fr) minmax(0, 1fr); padding: 14px; }
-  .origin .blk { grid-row: span 2; } /* the text and its button together beside it, as on desktop */
-  .origin > div:not(.blk) { grid-column: 2; align-self: end; }
-  .origin .btn { grid-column: 2; }
-}
-@media (max-width: 900px) {
-  .origin { grid-template-columns: minmax(0, 1fr); }
+/* a card alone in its row puts its whole picture beside its text where the row is wide (800px), or where a 16:10
+   picture across the row would be taller than about 56% of the screen (row wider than 90% of the screen's height), so a
+   short window never crops it to a strip (Jason, 2026-10-25). The picture's column: at most 45% of the card, and no
+   wider than a 16:10 picture 56% of the screen's height. */
+@container cards (max-width: 939.98px) { @container cards ((min-width: 800px) or (min-width: 90svh)) and (min-width: 400px) {
+  .grid.three .card { grid-template-columns: min(45%, calc(56svh * 1.6)) minmax(0, 1fr); align-items: center; column-gap: 20px; }
+  .grid.three .card .media { aspect-ratio: 16 / 10; max-height: none; }
+} }
+@container cards (max-width: 724.98px) { @container cards ((min-width: 800px) or (min-width: 90svh)) and (min-width: 400px) {
+  .card.wide, .grid.feat .card, .grid.compact .card { grid-template-columns: min(45%, calc(56svh * 1.6)) minmax(0, 1fr); align-items: center; column-gap: 20px; }
+  .card.wide .media, .grid.feat .card .media, .grid.compact .card .media { aspect-ratio: 16 / 10; max-height: none; }
+} }
+
+/* the Minecraft card lays out as the personal cards above it, so its drawing is never smaller than their pictures
+   (Jason, 2026-10-26): three columns as theirs, beside its text where they are, stacked full width where they stack */
+@container mine (max-width: 939.98px) {
+  .origin { grid-template-columns: minmax(0, 1fr); padding: 14px; }
   .origin .blk { grid-row: auto; }
   .origin > div:not(.blk), .origin .btn { grid-column: 1; }
   .origin > div:not(.blk) { padding: 0 6px; }
   .origin .btn { justify-self: start; margin: 0 6px; }
+  @container mine ((min-width: 800px) or (min-width: 90svh)) and (min-width: 400px) {
+    .origin { grid-template-columns: min(45%, calc(56svh * 1.6)) minmax(0, 1fr); column-gap: 20px; }
+    .origin .blk { grid-row: span 2; max-height: none; } /* the text and its button together beside it */
+    .origin > div:not(.blk), .origin .btn { grid-column: 2; padding: 0; margin: 0; }
+    .origin > div:not(.blk) { align-self: end; }
+    .origin .btn { align-self: start; }
+  }
+  /* too narrow for the button's label beside the drawing: it takes its own row under both */
+  @container mine (max-width: 559.98px) {
+    .origin .btn { grid-column: 1 / -1; }
+    .origin .blk { grid-row: auto; }
+    .origin > div:not(.blk) { align-self: center; }
+  }
 }
-@media (max-width: 760px) {
-  .origin { padding: clamp(8px, 3.5vw, 12px) clamp(8px, 3.5vw, 12px) 16px; } /* as the cards */
-  .origin > div:not(.blk) { padding: 0 4px; }
-  .origin .btn { margin: 0 4px; font-size: var(--text-small); }
-}
-/* on the narrowest cards (small phones) headlines drop to the body size so they still fit two lines */
-.card { container: card / inline-size; }
-@container card (max-width: 310px) { .head { font-size: var(--text-body); } }
-
-/* a short window: where the cards have room (520px and up), each puts its whole picture beside its text, one card a
-   row, instead of a full-width picture cut to a strip by the window's height (Jason, 2026-10-25). It depends on the
-   cards' own width, not the device, so a small split-screen window keeps the stacked cards. Last, so it wins. */
-.cards { container: cards / inline-size; }
-@media (max-height: 599px) { @container cards (min-width: 520px) {
-  .grid.feat, .grid.compact, .grid.three { grid-template-columns: 1fr; }
-  /* the picture's column: at most 45% of the card, and no wider than a 16:10 picture 56% of the screen's height */
-  .card, .card.wide, .grid.compact .card, .grid.three .card { grid-template-columns: min(45%, calc(56svh * 1.6)) minmax(0, 1fr); align-items: center; column-gap: 20px; }
-  .card .media, .grid.compact .card .media, .grid.feat .card .media, .card.wide .media { aspect-ratio: 16 / 10; max-height: none; }
-}
-}
-/* the origin card follows the cards on a short window: its drawing beside its text, the same size as their pictures */
-:has(> .origin) { container: mine / inline-size; } /* whatever holds it: the home section, or the All projects page's */
-@media (max-height: 599px) { @container mine (min-width: 520px) {
-  .origin { grid-template-columns: min(45%, calc(56svh * 1.6)) minmax(0, 1fr); column-gap: 20px; padding: 14px; }
-  .origin .blk { grid-row: span 2; max-height: none; }
-  .origin > div:not(.blk) { grid-column: 2; align-self: end; padding: 0; }
-  .origin .btn { grid-column: 2; margin: 0; }
-}
+@container mine (max-width: 600px) {
+  .origin { padding: clamp(8px, 3cqi, 12px) clamp(8px, 3cqi, 12px) 16px; } /* as the cards */
+  .origin > div:not(.blk) { padding-inline: 4px; }
+  .origin .btn { margin-inline: 4px; font-size: var(--text-small); }
 }

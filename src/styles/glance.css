@@ -20,15 +20,18 @@
 .rc small { grid-column: 2 / 4; color: var(--color-dim); font-size: var(--text-small); }
 .rc small a { color: var(--color-silk); }
 
-@media (max-width: 900px) { .rc ul { grid-template-columns: 1fr; } }
-@media (max-width: 760px) {
-  .glance { grid-template-columns: 1fr; }
-  .read { padding: 16px 20px; grid-template-columns: 46px minmax(0, 1fr); column-gap: 14px; align-items: center; }
-  .rc { padding-inline: 20px; }
-}
-/* a narrow card: the count steps down to small text, so it stays on the title's line (Jason, 2026-10-25) */
+/* each part chooses from the section's width (Jason, 2026-10-26; a box can't query its own width): the grades in two
+   columns where each gets ~380px */
+:has(> .glance) { container: glance / inline-size; }
 .rc { container: rc / inline-size; }
+@container glance (max-width: 799.98px) { .rc ul { grid-template-columns: 1fr; } }
+/* a narrow card: the count steps down to small text, so it stays on the title's line (Jason, 2026-10-25) */
 @container rc (max-width: 300px) { .rc summary span { font-size: var(--text-small); gap: 6px; } }
+/* the three numbers side by side where each gets ~180px; else one a row, the number beside its words */
+@container glance (max-width: 559.98px) {
+  .glance { grid-template-columns: 1fr; }
+  .rc { padding-inline: 20px; }
+  .read { padding: 16px 20px; grid-template-columns: 46px minmax(0, 1fr); column-gap: 14px; align-items: center; }
+}
 /* a narrow column: each number sits above its words instead of beside them (any-shape sweep, 2026-10-25) */
-.glance { container: glance / inline-size; }
 @container glance (max-width: 260px) { .read { grid-template-columns: minmax(0, 1fr); padding: 14px 16px; } }

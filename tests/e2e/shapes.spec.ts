@@ -32,7 +32,18 @@ for (const url of PAGES) for (const touch of [true, false]) {
       if (touch && w > 1100) continue; // touch windows up to tablet size; wider ones are the desktop pass
       await page.setViewportSize({ width: w, height: h });
       await page.waitForTimeout(60); // a timed settle: headless Chrome may never deliver an animation frame
-      for (const f of (await page.evaluate(inspect)).filter((x) => !KNOWN(x, url))) {
+      // a page process starved by the rest of the suite can stop answering; reload and retry that shape once, so a stall
+      // is named instead of eating the whole time limit (it took 30 minutes twice, 2026-10-26)
+      const look = () => Promise.race([page.evaluate(inspect), new Promise<null>((done) => setTimeout(() => done(null), 20_000))]);
+      let seen = await look();
+      if (!seen) {
+        console.log(`${url} ${w}×${h}${touch ? ' touch' : ''}: no answer in 20s, reloading`);
+        await page.reload();
+        await page.waitForTimeout(60);
+        seen = await look();
+      }
+      if (!seen) { found.set(`page stopped answering`, [`${w}×${h}${touch ? ' touch' : ''}`]); break; }
+      for (const f of seen.filter((x) => !KNOWN(x, url))) {
         const k = `${f.kind}: ${f.what} (${f.detail})`;
         found.set(k, [...(found.get(k) ?? []), `${w}×${h}${touch ? ' touch' : ''}`]);
       }

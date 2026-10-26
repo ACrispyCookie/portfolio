@@ -152,17 +152,18 @@ test('a card video\'s still loads only as the card nears the screen, at full qua
 });
 
 for (const [w, h, phone] of [[734, 343, 'iPhone 15'], [932, 400, 'iPhone 15 Pro Max']] as const) {
-  test(`phone held sideways (${phone}): every card picture is whole, beside its text, never a cropped strip (Jason, 2026-10-25)`, async ({ page }) => {
+  test(`phone held sideways (${phone}): every card picture is whole, never a cropped strip (Jason, 2026-10-25)`, async ({ page }) => {
     await page.setViewportSize({ width: w, height: h });
     await page.goto('/');
     const cards = await page.locator('#projects .card').evaluateAll((cs) => cs.map((c) => {
       const m = c.querySelector('.media')!.getBoundingClientRect(), t = c.querySelector('.body')!.getBoundingClientRect();
-      return { id: (c as HTMLElement).dataset.id, ratio: m.width / m.height, h: m.height, beside: t.left >= m.right - 1 };
+      const [aw, ah = aw] = getComputedStyle(c.querySelector('.media')!).aspectRatio.split('/').map(Number);
+      return { id: (c as HTMLElement).dataset.id, ratio: m.width / m.height, own: aw / ah, h: m.height, beside: t.left >= m.right - 1 || m.bottom <= t.top + 1 };
     }));
     for (const c of cards) {
-      expect(Math.abs(c.ratio - 1.6), c.id).toBeLessThan(0.05);
+      expect(Math.abs(c.ratio - c.own), c.id).toBeLessThan(0.05); // whole: its own shape, never cut down
       expect(c.h, c.id).toBeLessThanOrEqual(h);
-      expect(c.beside, c.id).toBe(true);
+      expect(c.beside, c.id).toBe(true); // beside its text, or above it whole
     }
   });
 }

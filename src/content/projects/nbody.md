@@ -12,7 +12,7 @@ team: ["tsiantos", "tsogkas"]
 media:
   src: "../../assets/projects/nbody.jpg"
   alt: "Galaxy simulation"
-  video: "/media/nbody.mp4"
+  video: "/videos/nbody.mp4"
 numbers:
   - { value: "2,910×", label: "faster than the single-core C version" }
   - { value: "431", label: "billion body-to-body interactions per second, up from 0.148" }

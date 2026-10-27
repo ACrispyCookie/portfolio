@@ -146,7 +146,7 @@ Everything else is a section on its course page only. That includes homeworks an
 
 1. **Hero.** Two columns on desktop, matching heights (as in the mock, approved by Jason 2026-10-20).
    - **Left column:**
-     - the cover photo (`media/profile-fuji.jpg`). It may crop a little to match the right column (about 538 × 566 px at 1440 px wide); on phone it's 5:4.
+     - the cover photo (`src/assets/photos/profile-fuji.jpg`). It may crop a little to match the right column (about 538 × 566 px at 1440 px wide); on phone it's 5:4.
      - under it, "Currently working on" with two compact rows, each a whole-row link:
        - GPGPU v2: "Graphics, DDR, warp scheduling", to `/courses/ece338/gpgpu`;
        - Homelab: "Web, media, remote access, monitoring", to `/projects/homelab`.

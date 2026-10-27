@@ -14,7 +14,7 @@ fromCourse: "ece333"
 media:
   src: "../../assets/projects/dvd.jpg"
   alt: "A hand tilting the FPGA board beside the monitor it drives, where the DVD logo moves the same way"
-  video: "/media/dvd.mp4"
+  video: "/videos/dvd.mp4"
 figures:
   - section: "drawing-the-logo"
     diagram: "dvdpipe"

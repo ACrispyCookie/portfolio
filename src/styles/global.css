@@ -226,7 +226,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   .foot .links { justify-content: flex-start; }
 }
 
-/* copper trace (spec §7.3): drawn by src/scripts/trace.ts behind the content; no trace without JS */
+/* copper trace (spec §7.3): drawn by src/client/trace.ts behind the content; no trace without JS */
 svg.trace { position: absolute; left: 0; top: 0; pointer-events: none; overflow: visible; z-index: 0; }
 /* the narrowest windows (a split-screen sliver): the trace steps aside and its rail goes to zero, so the text gets the
    room (any-shape sweep, 2026-10-25) */

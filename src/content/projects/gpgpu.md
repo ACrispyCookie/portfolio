@@ -15,7 +15,7 @@ links:
 media:
   src: "../../assets/projects/gpgpu.jpg"
   alt: "The GPGPU on a ZedBoard, wired to a laptop that shows its n-body simulation"
-  video: "/media/gpgpu.mp4"
+  video: "/videos/gpgpu.mp4"
   overlay: "fpga"
 numbers:
   - { value: "2.38×", label: "faster than the ARM core on the same chip, for one n-body step" }

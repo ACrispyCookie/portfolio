@@ -117,7 +117,7 @@ test('All projects: three or more projects sit in two columns wherever the list 
 test('All projects: every course and personal project has a real picture (no placeholder pad)', async ({ page }) => {
   await page.goto('/projects');
   await expect(page.locator('.thumb .pad')).toHaveCount(0);
-  await expect(course(page, 'ECE338').locator('.thumb video')).toHaveAttribute('src', '/media/gpgpu.mp4');
+  await expect(course(page, 'ECE338').locator('.thumb video')).toHaveAttribute('src', '/videos/gpgpu.mp4');
   await expect(course(page, 'ECE494').locator('.thumb img')).toHaveCount(1);
   for (const [code, kind] of [['ECE318', 'dedup'], ['ECE340', 'alignment'], ['ECE348', 'runtime'], ['ECE321', 'threads']])
     await expect(course(page, code).locator(`.thumb svg.diagram[data-kind="${kind}"]`)).toHaveCount(1);

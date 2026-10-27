@@ -38,8 +38,8 @@ const { title, description, home = false } = Astro.props;
     <Footer home={home} />
     <slot name="scripts" />
     <script>
-      import '../scripts/trace';
-      import '../scripts/lab-status';
+      import '../client/trace';
+      import '../client/lab-status';
       addEventListener('load', () => document.documentElement.classList.add('glide'));
     </script>
   </body>

@@ -118,7 +118,7 @@
 :has(> .prevnext) { container: prevnext / inline-size; }
 @container prevnext (max-width: 479.98px) { .prevnext { grid-template-columns: 1fr; } .prevnext .next { text-align: left; } } /* one link a row */
 
-/* a section picture is a link that opens it full size (src/scripts/zoom.ts); the corner mark says so */
+/* a section picture is a link that opens it full size (src/client/zoom.ts); the corner mark says so */
 .pfig .zoom { position: relative; display: block; color: var(--color-silk); }
 .pfig .zoom:focus-visible { outline-offset: -3px; }
 .zoom-hint { position: absolute; right: 10px; top: 10px; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: color-mix(in srgb, var(--color-mask) 82%, transparent); transition: background-color .2s; }

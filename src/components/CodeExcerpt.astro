@@ -1,13 +1,13 @@
 ---
 // A short excerpt of the real code (spec §5.3), highlighted at build time, with a link to the same lines on GitHub at
-// a pinned commit. The file under src/content/code/ starts with one comment line naming its source; it isn't shown.
+// a pinned commit. The file under src/content/excerpts/ starts with one comment line naming its source; it isn't shown.
 import { Code } from 'astro:components';
 import { codeTheme } from '../lib/code-theme';
 
 interface Props { code: { file: string; lang: string; url: string; caption: string } }
 const { code } = Astro.props;
-const files = import.meta.glob<string>('../content/code/*', { query: '?raw', import: 'default', eager: true });
-const raw = files[`../content/code/${code.file}`];
+const files = import.meta.glob<string>('../content/excerpts/*', { query: '?raw', import: 'default', eager: true });
+const raw = files[`../content/excerpts/${code.file}`];
 if (!raw) throw new Error(`no code excerpt ${code.file}`);
 // tabs become 4 spaces (the files mix both, and line up at 4); the indent every line then shares is the file's, not
 // the excerpt's, so it is taken off and the code starts at the box's edge

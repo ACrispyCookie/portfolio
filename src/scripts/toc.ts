@@ -1,26 +1,27 @@
-// Marks the section in view in the contents list (spec §5.2); on a narrow screen the strip scrolls itself, never the
-// page, to keep that link in sight.
-for (const nav of document.querySelectorAll<HTMLElement>('nav.toc')) {
+// Marks the section being read in every contents list (spec §5.2), always one: the first before the reader gets there,
+// then the last section whose heading has passed the reading line under the top bar, the last one once read past
+// (Jason, 2026-10-27: on a phone "What it is" should be marked even before it comes into view).
+// the reading line: a quarter of the way down the screen, never closer to the top bar than 160px; lower, a short
+// section counted as read while its heading still sat near the top (a tablet, 2026-10-27)
+const readingLine = () => Math.max(160, innerHeight * 0.25);
+const lists = [...document.querySelectorAll<HTMLElement>('nav.toc')].map((nav) => {
   const links = [...nav.querySelectorAll<HTMLAnchorElement>('a')];
-  const list = nav.querySelector<HTMLElement>('ol')!;
-  const targets = links.map((a) => document.getElementById(a.hash.slice(1))).filter((e): e is HTMLElement => !!e);
-  const mark = (id: string) => {
-    for (const a of links) {
-      const on = a.hash === `#${id}`;
-      if (on) a.setAttribute('aria-current', 'true');
-      else a.removeAttribute('aria-current');
-      // measured against the strip itself (offsetLeft counts from the page's frame, not the strip)
-      if (on && list.scrollWidth > list.clientWidth) list.scrollTo({ left: a.getBoundingClientRect().left - list.getBoundingClientRect().left + list.scrollLeft - 8, behavior: 'smooth' });
-    }
-  };
-  const seen = new Set<string>();
-  const io = new IntersectionObserver(
-    (entries) => {
-      for (const e of entries) e.isIntersecting ? seen.add(e.target.id) : seen.delete(e.target.id);
-      const first = targets.find((t) => seen.has(t.id));
-      if (first) mark(first.id);
-    },
-    { rootMargin: '-84px 0px -55% 0px' },
-  );
-  targets.forEach((t) => io.observe(t));
+  const targets = links.map((a) => document.getElementById(a.hash.slice(1)));
+  return { links, targets };
+});
+
+function mark(): void {
+  const line = readingLine();
+  for (const { links, targets } of lists) {
+    let at = 0;
+    targets.forEach((t, i) => { if (t && t.getBoundingClientRect().top <= line) at = i; });
+    links.forEach((a, i) => (i === at ? a.setAttribute('aria-current', 'true') : a.removeAttribute('aria-current')));
+  }
+}
+
+// a few dozen heading positions per scroll event: cheap enough to read at once, no frame to wait for
+if (lists.length) {
+  mark();
+  addEventListener('scroll', mark, { passive: true });
+  addEventListener('resize', mark);
 }

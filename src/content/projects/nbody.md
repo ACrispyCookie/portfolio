@@ -4,6 +4,7 @@ kind: "course"
 course: "ece415"
 main: true
 order: 2
+step: 5
 headline: "2,910× faster than the single-core version"
 summary: "A galaxy simulation tuned step by step, from a single-core C program to four NVIDIA Tesla K80 GPUs at once."
 tools: ["CUDA", "OpenMP", "C", "Python", "Bash", "Git"]

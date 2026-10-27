@@ -50,7 +50,7 @@ const ONE_LINE = ['.mail span', '.clink b', '.clink small', '.topbar .name', '.c
 // Phones lay text out differently from desktop browsers at the same width (touch, mobile text sizing), so every
 // sweep runs as both.
 // Every page the sweep covers. Plan 2 adds each new page type here as it lands.
-const PAGES = ['/', '/projects', '/courses/ece338/gpgpu', '/courses/ece455/rambo', '/projects/homelab'];
+const PAGES = ['/', '/projects', '/courses/ece338/gpgpu', '/courses/ece455/rambo', '/projects/homelab', '/courses/ece415', '/courses/ece333'];
 
 const MODES = [{ name: 'desktop browser', isMobile: false, hasTouch: false }, { name: 'phone browser', isMobile: true, hasTouch: true }];
 
@@ -145,13 +145,14 @@ test(`${path}, ${mode.name}, every window shape, portrait and landscape: the pag
         const picH = Math.min(innerHeight - 64, Math.max(0.58 * innerHeight, 336));
         if (m.closest('.hero-media')) return r.height > Math.max(picH * 1.14, 500) + 2 ? [`top picture ${Math.round(r.height)}px`] : [];
         // a drawing at the smallest size its words stay readable at (340px) may be taller than a tiny window: it scrolls
-        if (m.matches('svg.diagram') && m.closest('.psec') && m.getBoundingClientRect().width <= 341) return [];
-        if (m.closest('.psec > .pfig')) return r.height > picH + 2 ? [`${m.tagName.toLowerCase()} ${Math.round(r.height)}px`] : [];
+        if (m.matches('svg.diagram') && m.closest('.psec, .csec') && m.getBoundingClientRect().width <= 341) return [];
+        if (m.closest('.psec > .pfig, .csec > .pfig')) return r.height > picH + 2 ? [`${m.tagName.toLowerCase()} ${Math.round(r.height)}px`] : [];
         // the home photo on a phone held sideways: as tall as the name and text beside it (Jason, 2026-10-25)
         if (m.closest('.cover') && short && innerWidth <= 1100) return [];
         // card, course and Minecraft pictures are sized by their width alone; a short window scrolls past them (Jason,
         // 2026-10-26: "I accept the trade-off"); that they stay whole is the strips rule below and the shapes sweep's
-        if (m.closest('.card .media, .thumb, .origin .blk')) return [];
+        // a course page's cards and a What came next card too (2026-10-27)
+        if (m.closest('.card .media, .thumb, .origin .blk, .cproj .cmedia, .nextcard .art:not(.road-art)')) return [];
         // the desktop home photo keeps its size on a short window; the page scrolls further (Jason, 2026-10-26)
         if (m.closest('.cover') && innerWidth > 1100) return [];
         // the home photo may nearly fill a short window rather than be cut to a strip (any-shape sweep, 2026-10-25)
@@ -169,7 +170,7 @@ test(`${path}, ${mode.name}, every window shape, portrait and landscape: the pag
         return m.width < inner - 2 ? [`${c.getAttribute('data-id')} picture ${Math.round(m.width)}px in a ${Math.round(inner)}px card`] : [];
       });
       // All projects (Jason, 2026-10-23: cropped on a landscape phone): no picture is cut down to a strip by a capped height
-      const strips = [...document.querySelectorAll('.thumb, .card .media, .origin .blk')].flatMap((m) => { // on home too (2026-10-26)
+      const strips = [...document.querySelectorAll('.thumb, .card .media, .origin .blk, .cproj .cmedia, .nextcard .art:not(.road-art)')].flatMap((m) => { // on home too (2026-10-26)
         const r = m.getBoundingClientRect();
         const what = m.closest('[data-id]')?.getAttribute('data-id') ?? m.closest('.course')?.querySelector('.cn b')?.textContent ?? m.className;
         return r.height && r.width / r.height > 2 ? [`${what} ${Math.round(r.width)}×${Math.round(r.height)}`] : [];
@@ -188,9 +189,10 @@ test(`${path}, ${mode.name}, every window shape, portrait and landscape: the pag
       if (hero && nums && Math.abs(nums.width - hero.width) > 2) narrow.push(`key numbers ${Math.round(nums.width)}px wide under a ${Math.round(hero.width)}px video`);
       // a section picture either fills the text's width or reaches its height cap (58% of the screen, never under 336px
       // unless the screen is shorter), so a short screen never shrinks it into a corner (Jason, 2026-10-24/26)
-      const textW = document.querySelector('.psec > p')?.getBoundingClientRect().width ?? 0;
+      // a course page's sections hold their pictures the same way (2026-10-27)
+      const textW = document.querySelector('.psec > p, .csec > p')?.getBoundingClientRect().width ?? 0;
       const capH = Math.min(innerHeight - 64, Math.max(0.58 * innerHeight, 336));
-      for (const f of document.querySelectorAll('.psec > .pfig')) {
+      for (const f of document.querySelectorAll('.psec > .pfig, .csec > .pfig')) {
         const r = f.getBoundingClientRect();
         const full = f.matches('.drawn, .square') ? Math.min(textW, 520) : textW;
         if (r.width < full - 2 && r.height < capH - 2) narrow.push(`section picture ${Math.round(r.width)}×${Math.round(r.height)}, small for the screen`);

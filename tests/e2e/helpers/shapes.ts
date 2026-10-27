@@ -60,8 +60,8 @@ export function inspect(): Finding[] {
   // pills, tags and buttons broken across lines; headings one word per line
   for (const e of atoms) {
     // a pill or button on two lines is broken only if its row had room for it on one: wrapping in a row narrower than
-    // its words is the intended fallback
-    if (e.matches('.tag, .pill, .btn, .labpill, nav a') && !e.matches('.prev, .next, .toc a') && lines(e) > 1) {
+    // its words is the intended fallback; a phone's step strip sets each project's headline under its name on purpose
+    if (e.matches('.tag, .pill, .btn, .labpill, nav a') && !e.matches('.prev, .next, .toc a, .strip a') && lines(e) > 1) {
       const c = e.cloneNode(true) as HTMLElement;
       c.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;width:auto;min-width:0;max-width:none';
       document.body.append(c);

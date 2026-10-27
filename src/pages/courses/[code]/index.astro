@@ -1,0 +1,75 @@
+---
+// A course's page (spec §5.3): /courses/ece415. Its projects in full, newest first (Jason, 2026-10-27); where they
+// build on each other, a strip lists them in the same order. A project that grew out of the course follows as what came next (ECE333 → DVD).
+import { getCollection, type CollectionEntry } from 'astro:content';
+import Base from '../../../layouts/Base.astro';
+import CourseProject from '../../../components/CourseProject.astro';
+import StepStrip from '../../../components/StepStrip.astro';
+import NextCard from '../../../components/NextCard.astro';
+import Skills from '../../../components/Skills.astro';
+import { buildSkillIndex, toSkillProjects } from '../../../lib/skills';
+import skills from '../../../data/skills.json';
+import evidence from '../../../data/skills-evidence.json';
+import '../../../styles/projects.css';
+import '../../../styles/project.css';
+import '../../../styles/course.css';
+
+export async function getStaticPaths() {
+  const courses = await getCollection('courses');
+  return courses.map((c) => ({ params: { code: c.id }, props: { course: c } }));
+}
+
+interface Props { course: CollectionEntry<'courses'> }
+const { course } = Astro.props;
+const c = course.data;
+const all = await getCollection('projects');
+const mine = all.filter((p) => p.data.course?.id === course.id);
+// newest first by its place in the course; a project without one keeps the main project first, then course order
+const rank = (p: CollectionEntry<'projects'>) => [-(p.data.step ?? -Infinity), p.data.main ? 0 : 1, p.data.order];
+const cards = mine.sort((a, b) => { const [x, y] = [rank(a), rank(b)]; return x[0] - y[0] || x[1] - y[1] || x[2] - y[2]; });
+const steps = c.sequence ? cards.map((p) => ({ id: p.id, title: p.data.title, headline: p.data.headline })) : [];
+const after = all.filter((p) => p.data.fromCourse?.id === course.id);
+
+// Tools: the skills explorer limited to this course's projects' tools
+const courses = await getCollection('courses');
+const codes = Object.fromEntries(courses.map((x) => [x.id, x.data.code]));
+const index = buildSkillIndex(toSkillProjects(all.map((x) => ({ ...x.data, id: x.id, course: x.data.course?.id })), codes, skills.origin), { coursework: evidence.coursework });
+const used = new Set(mine.flatMap((p) => p.data.tools));
+const tools = index.filter((e) => used.has(e.tool));
+---
+<Base title={`${c.code} ${c.name} | Jason Nikas`} description={c.intro ?? `${c.code} ${c.name}: every project, in full.`}>
+  <header class="phead chead" data-trace-start>
+    <nav class="crumb" aria-label="Breadcrumb"><a href="/projects">Projects</a> / <span aria-current="page">{c.code}</span></nav>
+    <div class="top">
+      <div class="txt">
+        <h1>{c.name}</h1>
+        {c.intro && <p class="lead">{c.intro}</p>}
+      </div>
+      <p class="grade"><b>{c.grade}</b><span>Course grade</span><i class="gbar" aria-hidden="true"><i style={`width:${c.grade * 10}%`}></i></i></p>
+    </div>
+    {steps.length > 1 && <StepStrip steps={steps} />}
+  </header>
+
+  {cards.map((p) => <CourseProject entry={p} />)}
+
+  {after.length > 0 && (
+    <section id="after" class="sec psec cont" aria-labelledby="after-h">
+      <h2 id="after-h" data-pad>What came next</h2>
+      {after.map((p) => <NextCard id={p.id} />)}
+    </section>
+  )}
+
+  {tools.length > 0 && <Skills entries={tools} id="tools" heading="Tools" intro="What this course's projects were built with. Pick one to see where else I used it." />}
+
+  <dialog class="viewer" aria-label="Picture, full size">
+    <div class="stage"></div>
+    <button class="btn btn-secondary close" type="button">Close</button>
+    <p class="hint" aria-live="polite">Tap the picture to see it at full size</p>
+  </dialog>
+</Base>
+<script>
+  import '../../../scripts/skills';
+  import '../../../scripts/videos';
+  import '../../../scripts/zoom';
+  import '../../../scripts/toc';
+</script>

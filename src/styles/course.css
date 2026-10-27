@@ -1,0 +1,90 @@
+/* Course page (spec §5.3): the project page's header with a grade box, the order strip, then every project in full,
+   newest first. Layouts follow each box's own width. */
+.chead { gap: 14px; container: chead / inline-size; }
+.chead .top { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 18px 32px; width: 100%; }
+.chead .txt { display: grid; gap: 14px; flex: 1 1 22rem; min-width: 0; container: ctitle / inline-size; }
+/* a course name is longer than a project's: in a narrow column it scales with the column, so two words fit a line
+   and it never stands one word a line */
+.chead h1 { font-size: min(var(--text-display), 11cqi); }
+.chead .lead { max-width: 46ch; font: 400 var(--text-lead) / 1.45 var(--font-text); color: var(--color-dim); }
+.chead .grade { display: grid; justify-items: center; gap: 2px; padding: 14px 22px; border-radius: var(--radius-inner); background: var(--color-panel); flex: none; }
+.chead .grade b { font: 800 var(--text-title) / 1 var(--font-display); color: var(--color-gold); letter-spacing: -.02em; }
+.chead .grade span { color: var(--color-dim); font-size: var(--text-small); }
+.chead .gbar { display: none; }
+/* a narrow header: the grade is one row, as on home's grade report: its words, a flat bar filled to the grade out of
+   10, then the number (Jason, 2026-10-27: a box of its own looked bad; then "make the grade pill a bit better") */
+@container chead (max-width: 559.98px) {
+  .chead .grade { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; justify-items: stretch; gap: 14px; width: 100%; box-sizing: border-box; padding: 10px 16px; }
+  .chead .grade span { order: -1; color: var(--color-silk); font-weight: 600; }
+  .chead .grade b { order: 1; font-size: var(--text-lead); }
+  .chead .gbar { display: block; height: 8px; border-radius: 999px; background: var(--color-raised); overflow: hidden; }
+  .chead .gbar i { display: block; height: 100%; border-radius: 999px; background: var(--color-gold); }
+}
+
+/* the order: gold pads on one unbroken copper line, newest first like the projects below; one row where each name
+   has room, else one project a row with the copper running down */
+.strip { width: 100%; margin-top: 18px; container: strip / inline-size; }
+.strip ol { list-style: none; margin: 0; padding: 0; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); }
+.strip li { min-width: 0; position: relative; }
+/* from this pad's centre to the next one's, under both pads */
+.strip li::before { content: ""; position: absolute; left: 7px; right: -7px; top: 6px; height: 2px; background: var(--color-copper); }
+.strip li:last-child::before { display: none; }
+.strip a { position: relative; display: grid; gap: 10px; justify-items: start; grid-template-rows: 14px auto; padding-right: 14px; color: var(--color-silk); text-decoration: none; font: 700 var(--text-small) / 1.3 var(--font-display); }
+.strip a::before { content: ""; width: 14px; height: 14px; border-radius: 50%; background: var(--color-gold); } /* the pad: drawn, not an element, so it is no line of text */
+.strip a b { font-weight: 700; text-wrap: balance; }
+.strip a .sub { display: none; }
+.strip a:hover b { text-decoration: underline; text-decoration-color: var(--color-gold); text-underline-offset: 3px; }
+/* a narrow strip: a panel of rows, one project each with its headline, the copper running down through the pads */
+@container strip (max-width: 599.98px) {
+  .strip ol { grid-auto-flow: row; grid-auto-columns: auto; padding: 6px 16px; border-radius: var(--radius-inner); background: var(--color-panel); }
+  .strip li { padding-block: 10px; }
+  .strip li::before { left: 6px; right: auto; top: 19px; bottom: -19px; width: 2px; height: auto; } /* from this pad's centre down to the next one's */
+  .strip a { grid-template-columns: 14px minmax(0, 1fr); grid-template-rows: auto; align-items: start; gap: 14px; padding-right: 0; }
+  .strip a::before { margin-top: 2px; } /* centred on the name's line */
+  .strip a b { display: block; }
+  .strip a .sub { display: block; margin-top: 2px; color: var(--color-dim); font: 400 var(--text-small) / 1.4 var(--font-text); }
+}
+
+/* a project: its title, headline, tools and team, then its own sections; as far apart as sections are */
+.cproj { container: cproj / inline-size; display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; min-width: 0; } /* one column that may be narrower than a title's longest word */
+/* the title keeps its size wherever there is room, and shrinks with a narrow column so its words stay whole */
+.cproj > h2 { font: 800 clamp(1.125rem, 11cqi, var(--text-title)) / 1.05 var(--font-display); letter-spacing: -.025em; margin: 0; }
+.cproj > .head { margin-top: 8px; font: 700 var(--text-lead) / 1.3 var(--font-display); color: var(--color-silk); text-wrap: balance; }
+.cproj > .meta { margin-top: 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.cproj > .meta .av { margin-left: 6px; }
+
+/* the main project: a panel with its video beside its words and numbers where there is room, above them where not */
+.cmain { margin-top: 22px; padding: clamp(12px, 2.4vw, 22px); display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; align-items: start; }
+@container cproj (min-width: 820px) { .cmain { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 24px; } }
+.cmedia { position: relative; margin: 0; border-radius: var(--radius-inner); overflow: hidden; background: var(--color-raised); aspect-ratio: var(--har, 16 / 10); }
+.cmedia > video, .cmedia img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.cmedia picture { display: contents; }
+.cmedia.paper img { object-fit: contain; background: var(--color-paper); padding: 12px; box-sizing: border-box; }
+.cmain .side { display: grid; gap: 16px; align-content: start; min-width: 0; }
+.cmain .intro p { color: var(--color-silk); }
+.cmain .knum { background: var(--color-raised); }
+.cproj .btns { display: flex; flex-wrap: wrap; gap: 10px; }
+
+/* a smaller project in full: its sections one after another, like a project page's, a step smaller */
+/* its sections beside their contents list where there is room (project.css's .pgrid), under it where not */
+.cbody { margin-top: 28px; }
+.csecs { display: grid; grid-template-columns: minmax(0, 1fr); gap: 36px; min-width: 0; }
+.csec { min-width: 0; } /* a jump lands it under the top bar by the page's own scroll padding (global.css) */
+.csec > h3 { font: 700 var(--text-lead) / 1.3 var(--font-display); letter-spacing: -.01em; margin: 0 0 10px; }
+.csec > :not(h3, .pfig, .bars, .excerpt) { max-width: 65ch; }
+.csec > p { color: var(--color-silk); }
+.csec > p + p { margin-top: 14px; }
+.csec > h4 { font: 700 var(--text-body) / 1.35 var(--font-display); margin: 22px 0 6px; }
+.csec > ul:not([class]) { margin: 14px 0 0; padding-left: 20px; display: grid; gap: 8px; }
+.csec > ul:not([class]) li::marker { color: var(--color-gold); }
+.csec .bars { margin: 16px 0 0; }
+.csec > .pfig { margin: 20px 0 0; max-width: min(100%, calc(var(--pic-h) * var(--ar, 1.78))); }
+.csec > .excerpt { margin-top: 4px; }
+
+/* the code excerpt scrolls sideways inside its own box; the page never does */
+.excerpt { margin: 0; display: grid; gap: 10px; min-width: 0; }
+.excerpt pre { margin: 0; padding: 16px 18px; border-radius: var(--radius-inner); overflow-x: auto; font: 400 var(--text-small) / 1.6 ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace; tab-size: 4; }
+.excerpt pre:focus-visible { outline-offset: 2px; }
+.excerpt figcaption { max-width: 65ch; color: var(--color-dim); font-size: var(--text-small); }
+.excerpt figcaption a { color: var(--color-silk); text-decoration-color: var(--color-gold); text-decoration-thickness: 1.5px; white-space: nowrap; }
+.excerpt figcaption a:hover { color: var(--color-gold); }

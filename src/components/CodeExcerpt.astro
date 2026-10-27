@@ -1,0 +1,27 @@
+---
+// A short excerpt of the real code (spec §5.3), highlighted at build time, with a link to the same lines on GitHub at
+// a pinned commit. The file under src/content/code/ starts with one comment line naming its source; it isn't shown.
+import { Code } from 'astro:components';
+import { codeTheme } from '../lib/code-theme';
+
+interface Props { code: { file: string; lang: string; url: string; caption: string } }
+const { code } = Astro.props;
+const files = import.meta.glob<string>('../content/code/*', { query: '?raw', import: 'default', eager: true });
+const raw = files[`../content/code/${code.file}`];
+if (!raw) throw new Error(`no code excerpt ${code.file}`);
+// tabs become 4 spaces (the files mix both, and line up at 4); the indent every line then shares is the file's, not
+// the excerpt's, so it is taken off and the code starts at the box's edge
+const width = (w: string) => [...w].reduce((col, ch) => (ch === '\t' ? col + 4 - (col % 4) : col + 1), 0);
+const expand = (l: string) => l.replace(/^[ \t]+/, (w) => ' '.repeat(width(w)));
+const body = raw.split('\n').slice(1).join('\n').replace(/\s+$/, '').split('\n').map(expand);
+const indent = Math.min(...body.filter((l) => l.trim()).map((l) => l.match(/^[ \t]*/)![0].length));
+const src = body.map((l) => l.slice(indent)).join('\n');
+const lines = code.url.match(/#L(\d+)-L(\d+)$/);
+---
+<!-- data-ui: a cropped piece of an editor; its long lines scroll inside the box, so the inspector shouldn't read the
+     hidden ends as text at the screen's edge. The caption leads into the code, so its link never ends up as a short
+     line of its own above the next heading (an eyebrow, 2026-10-27) -->
+<figure class="excerpt">
+  <figcaption>{code.caption} <a href={code.url}>{lines ? `Lines ${lines[1]}–${lines[2]} on GitHub` : 'On GitHub'}</a></figcaption>
+  <Code code={src} lang={code.lang as any} theme={codeTheme} data-ui />
+</figure>

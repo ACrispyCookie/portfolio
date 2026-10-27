@@ -11,6 +11,7 @@ const projects = defineCollection({
       course: reference('courses').optional(),
       main: z.boolean(),
       order: z.number(),
+      step: z.number().optional(), // its place in its course, 1 = first done; the course page lists newest first (Jason, 2026-10-27)
       headline: z.string(),
       summary: z.string(),
       tools: z.array(z.string().min(1)),

@@ -1,0 +1,12 @@
+---
+// A course whose projects build on each other (spec §5.3): their order as gold pads on one copper line, each a link
+// to its card. The order is the line itself; there are no "Project N" labels. Wraps on a narrow window.
+// on a phone, where they stand one a row, each also shows its headline (Jason, 2026-10-27)
+interface Props { steps: { id: string; title: string; headline: string }[] }
+const { steps } = Astro.props;
+---
+<nav class="strip" aria-label="The projects in order">
+  <ol>
+    {steps.map((s) => <li><a href={`#${s.id}`}><span><b>{s.title}</b><span class="sub">{s.headline}</span></span></a></li>)}
+  </ol>
+</nav>

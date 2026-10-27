@@ -1,0 +1,112 @@
+---
+// One project on its course page (spec §5.3): title, headline, tools and its own team, then either the main
+// project's video, numbers, what it is and the way to its full page, or a smaller project in full: its own sections
+// from its Markdown, in their own order, then Results and Code. Nothing sits behind a click (Jason, 2026-10-27: "too
+// many buttons"). A section with no true content is left out.
+import { existsSync } from 'node:fs';
+import sharp from 'sharp';
+import { Picture } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import Avatars from './Avatars.astro';
+import KeyNumbers from './KeyNumbers.astro';
+import ResultBars from './ResultBars.astro';
+import ProjectFigure from './ProjectFigure.astro';
+import CodeExcerpt from './CodeExcerpt.astro';
+import Toc from './Toc.astro';
+import { pageHref } from '../lib/links';
+import { docsFor } from '../lib/docs';
+
+interface Props { entry: CollectionEntry<'projects'> }
+const { entry } = Astro.props;
+const p = entry.data;
+const id = entry.id;
+const team = ['jason', ...p.team.map((t) => t.id)];
+const full = p.main ? pageHref({ id, kind: p.kind, course: p.course?.id, main: true }) : undefined;
+const report = docsFor({ id, course: p.course?.id }, existsSync).find((d) => d.kind === 'report');
+
+// the Markdown's sections, one heading level down (the course is the page's h1, the project its h2), every id
+// prefixed with the project's so two projects' "What it is" never share one
+const strip = (s: string) => s.replace(/<[^>]+>/g, '').replace(/&#39;|&#x27;/g, "'").replace(/&amp;/g, '&').trim();
+const demote = (html: string) => html
+  .replace(/<h3 id="([^"]+)">([\s\S]*?)<\/h3>/g, (_, h, t) => `<h4 id="${id}-${h}">${t}</h4>`);
+const sections = (entry.rendered?.html ?? '').split(/(?=<h2 id=")/).flatMap((chunk) => {
+  const m = /^<h2 id="([^"]+)">([\s\S]*?)<\/h2>/.exec(chunk);
+  return m ? [{ key: m[1], title: strip(m[2]), html: demote(chunk.slice(m[0].length)) }] : [];
+});
+if (p.results && !sections.some((s) => s.key === 'results')) sections.push({ key: 'results', title: 'Results', html: '' });
+const lost = (p.figures ?? []).filter((f) => !sections.some((s) => s.key === f.section));
+if (!p.main && lost.length) throw new Error(`${id}: figures for missing sections: ${lost.map((f) => f.section).join(', ')}`);
+// its own contents list, so any section is one tap away (Jason, 2026-10-27)
+const toc = [...sections.map((s) => ({ id: `${id}-${s.key}`, title: s.title })), ...(p.code ? [{ id: `${id}-code`, title: 'Code' }] : []), ...(report ? [{ id: `${id}-report`, title: 'Report' }] : [])];
+// the main project's card: its first paragraph, the rest is on its page
+const intro = p.main ? /<p>[\s\S]*?<\/p>/.exec(sections[0]?.html ?? '')?.[0] : undefined;
+
+// the main project's picture keeps its own shape, as on its page
+const own = p.main && p.media?.video ? await sharp(`public${p.media.video.replace(/\.mp4$/, '.jpg')}`).metadata() : p.main ? p.media?.src : undefined;
+const ar = own ? Math.min(2.4, Math.max(4 / 3, own.width! / own.height!)) : 16 / 10;
+---
+<section id={id} data-id={id} class:list={['cproj', { main: p.main }]} aria-labelledby={`${id}-h`}>
+  <h2 id={`${id}-h`} data-pad>{p.title}</h2>
+  <p class="head">{p.headline}</p>
+  <div class="meta">
+    {p.tools.slice(0, 6).map((t) => <span class="tag">{t}</span>)}
+    <Avatars handles={team} />
+  </div>
+
+  {p.main ? (
+    <div class="cmain panel" style={`--har:${ar.toFixed(3)}`}>
+      {p.media && (
+        <figure class:list={['cmedia', { paper: p.media.paper }]}>
+          {p.media.video ? (
+            <video src={p.media.video} poster={p.media.video.replace(/\.mp4$/, '.jpg')} muted loop playsinline preload="none" aria-label={p.media.alt}></video>
+          ) : (
+            <Picture src={p.media.src} formats={['avif', 'webp']} widths={[480, 720, 1080]} sizes="(max-width: 760px) 100vw, 640px" alt={p.media.alt} loading="lazy" style={p.media.position ? `object-position:${p.media.position}` : undefined} />
+          )}
+        </figure>
+      )}
+      <div class="side">
+        {intro && <div class="intro" set:html={intro} />}
+        {p.numbers && <KeyNumbers numbers={p.numbers} />}
+        <div class="btns">
+          <a class="btn btn-primary" href={full}>Read the full page</a>
+          {p.links.repo && <a class="btn btn-secondary" href={p.links.repo}>Code</a>}
+          {report && <a class="btn btn-secondary" href={report.href} target="_blank" rel="noopener">Report</a>}
+        </div>
+      </div>
+    </div>
+  ) : (
+    <div class="pbody cbody"><div class="pgrid">
+    <Toc items={toc} label={`${p.title}: sections`} />
+    <div class="csecs">
+      {sections.map((s) => (
+        <div class="csec" id={`${id}-${s.key}`}>
+          <h3>{s.title}</h3>
+          {s.key === 'results' && p.results && (
+            <>
+              <p>{p.results.text}</p>
+              {p.results.bars && <ResultBars bars={p.results.bars} />}
+            </>
+          )}
+          <Fragment set:html={s.html} />
+          {(p.figures ?? []).filter((f) => f.section === s.key).map((f) => <ProjectFigure f={f} />)}
+        </div>
+      ))}
+      {p.code && (
+        <div class="csec" id={`${id}-code`}>
+          <h3>Code</h3>
+          <CodeExcerpt code={p.code} />
+        </div>
+      )}
+      {report && (
+        <div class="csec" id={`${id}-report`}>
+          <h3>Report</h3>
+          <p class="btns">
+            <a class="btn btn-secondary" href={report.href} target="_blank" rel="noopener">Read the report</a>
+            <a class="btn btn-secondary" href={report.href} download={`${p.title} - Report.pdf`}>Download</a>
+          </p>
+        </div>
+      )}
+    </div>
+    </div></div>
+  )}
+</section>

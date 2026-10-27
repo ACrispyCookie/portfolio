@@ -64,6 +64,29 @@ Paths below are relative to `reports/`; `OL/` = `Overleaf Projects (31 items)/`.
 - Hardware for Project 5: **4× Tesla K80** (confirmed by Jason, 2026-10-19; not stated in the report).
 - **Best figures:** `Project 5/plot_galaxy_data.png` (throughput per version) and `streams-gantt.png`.
 
+**Projects 1–4 in detail** (for the ECE415 course page, 2026-10-27; each from its `main-EN.tex`):
+
+- **Project 1, Sobel** (§Results): 4096×4096 image, one Performance-core of an Intel Core i5-1235U, icx; each version run 12 times, fastest and slowest left out.
+  - At `-fast`, speedup over the original: loop interchange 2.79×, loop unrolling 4.25×, strength reduction 5.02×, fast convolution 17.30×, fast convolution + fast square root 21.49×.
+  - Loop interchange cut cache misses 22× at `-O0` (57.7M → 2.6M) and 12.2× at `-fast` (§Loop Interchange).
+  - Also at `-fast`: function inlining 4.38×, then common sub-expression elimination 4.12× (slower); the new baseline without unrolling or loop fusion 6.11× (§Baseline); fast PSNR 13.18× and fast min 11.69× (both slower than fast convolution's 17.30×). Fast square root approximates log₂(1 + x) as x + 0.043. Best at `-O0`: 18.56×.
+  - Figure: `bad-access.png` (column-order reads waste each cache line).
+- **Project 2, K-means** (§Parallelization): course server CSL Venus, Intel Xeon E5-2695 v3, icx `-O3`.
+  - Speedup over sequential: critical 14.23× (28 threads) and 13.24× (56 threads); atomic 14.16× (28 threads) and 17.31× (56 threads).
+  - `atomic` was 27% faster than `critical` at 56 threads. `omp simd` on the distance function: AVX2, 8 float operations at once.
+  - Failed attempt: threads inside `find_nearest_cluster`, also nested as 14 outer × 3 inner threads; slower than serial.
+  - Stops when the groups stop changing or after 500 rounds (pseudocode).
+- **Project 3, CUDA convolution** (§Experimental Study with Floats): one Tesla K80; 32×32 = 1024 threads per block.
+  - GPU over CPU, float: 3.28× at 64×64, 11.33× at 512×512, 12.78× at 4096×4096, 16.97× at 8192×8192, 16.34× at 16384×16384.
+  - Memory limit: 31618 pixels a side with three arrays, 38725 with two (§Image Size Limits). One block of 1024 threads handles at most a 32×32 image.
+  - Float max difference grows with the filter radius: 0.0078125 at radius 1 to 640 at radius 256; double stays near 1.19E-06 at 256. With doubles, GPU over CPU at 8192×8192 is 14.45×.
+  - Padding on an RTX 3060, 16384×16384: 0.99 → 0.92 s at radius 128, 13.05 → 10.91 s at radius 4096 (§Eliminating Divergence; on the K80 the times barely differed).
+  - Figure: `padded.png` (padding removes the edge checks, §Eliminating Divergence).
+- **Project 4, CLAHE** (§Execution Times): Tesla K80, `senator.pgm`, each version 25 runs without the two extremes. Throughput in MPixel/s:
+  - CPU 55.8; 3 kernels 703.5; 2 kernels 470.1 (slower); 256 threads per tile 722.9; privatization 854.9; parallel scan 897.6; streams 1,234.4; streams + events 1,333.8.
+  - Streams: about 8 work best (`NUM_STREAMS`). Privatization: 8 private histograms (`NUM_BANKS`).
+  - Figure: `first_step.png` (the two steps: tile histograms → clipped lookup tables → per-pixel blend).
+
 ---
 
 ## ECE494 Microprocessor Design: CV32E40P timing optimization (Tier 2)

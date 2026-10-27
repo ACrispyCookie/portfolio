@@ -9,7 +9,8 @@ export default defineConfig({
   testDir: 'tests/e2e',
   timeout: 60_000,
   fullyParallel: true,
-  reporter: [['list']],
+  // the JSON file keeps each test's time, to see where a gate run spends it (2026-10-27: the gate takes ~50 min)
+  reporter: [['list'], ['json', { outputFile: '.gate/e2e-times.json' }]],
   use: { baseURL: 'http://localhost:4321' },
   webServer: {
     command: 'npm run build && npm run preview -- --port 4321 --ignore-lock',

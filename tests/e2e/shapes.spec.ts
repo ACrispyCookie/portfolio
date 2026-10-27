@@ -9,7 +9,7 @@ import { inspect, type Finding } from './helpers/shapes';
 
 const PAGES = ['/', '/projects', '/courses/ece338/gpgpu', '/courses/ece415/nbody', '/courses/ece455/rambo', '/courses/ece433/house',
   '/courses/ece436/wifi', '/courses/ece348/runtime', '/courses/ece321/threads', '/projects/live-fpga-lab', '/projects/dvd-logo-fpga',
-  '/projects/homelab', '/projects/gpgpu-v2'];
+  '/projects/homelab', '/projects/gpgpu-v2', '/courses/ece415', '/courses/ece333'];
 const WIDTHS = [200, 240, ...Array.from({ length: 30 }, (_, i) => 280 + i * 40), 1600, 1920, 2560]; // down to a narrow split screen
 const HEIGHTS = [230, 300, 360, 420, 520, 580, 660, 800, 1000, 1400]; // 580: short, yet taller than wide at 560 (Jason found 582×592); 230: cut very short (he found 450×230)
 
@@ -26,21 +26,26 @@ for (const url of PAGES) for (const touch of [true, false]) {
     test.setTimeout(1_800_000); // ~1 min alone, several while the gate runs everything at once
     const found = new Map<string, string[]>();
     const ctx = await browser.newContext({ reducedMotion: 'reduce', hasTouch: touch, isMobile: touch, viewport: { width: 400, height: 800 } });
-    const page = await ctx.newPage();
+    let page = await ctx.newPage();
     await page.goto(url);
     for (const h of HEIGHTS) for (const w of WIDTHS) {
       if (touch && w > 1100) continue; // touch windows up to tablet size; wider ones are the desktop pass
       await page.setViewportSize({ width: w, height: h });
       await page.waitForTimeout(60); // a timed settle: headless Chrome may never deliver an animation frame
-      // a page process starved by the rest of the suite can stop answering; reload and retry that shape once, so a stall
-      // is named instead of eating the whole time limit (it took 30 minutes twice, 2026-10-26)
-      const look = () => Promise.race([page.evaluate(inspect), new Promise<null>((done) => setTimeout(() => done(null), 20_000))]);
+      // a page process starved by the rest of the suite can stop answering; retry that shape once in a fresh page, so a
+      // stall is named instead of eating the whole time limit (it took 30 minutes twice, 2026-10-26). Not a reload: a
+      // page that stopped answering can't reload either (the reload was aborted twice, 2026-10-27)
+      const within = <T,>(p: Promise<T>, ms: number) => Promise.race([p, new Promise<null>((done) => setTimeout(() => done(null), ms))]);
+      const look = () => within(page.evaluate(inspect), 20_000);
       let seen = await look();
       if (!seen) {
-        console.log(`${url} ${w}×${h}${touch ? ' touch' : ''}: no answer in 20s, reloading`);
-        await page.reload();
+        console.log(`${url} ${w}×${h}${touch ? ' touch' : ''}: no answer in 20s, retrying in a fresh page`);
+        await within(page.close(), 5_000).catch(() => {});
+        page = await ctx.newPage();
+        await page.setViewportSize({ width: w, height: h });
+        await within(page.goto(url), 60_000).catch(() => {});
         await page.waitForTimeout(60);
-        seen = await look();
+        seen = await look().catch(() => null);
       }
       if (!seen) { found.set(`page stopped answering`, [`${w}×${h}${touch ? ' touch' : ''}`]); break; }
       for (const f of seen.filter((x) => !KNOWN(x, url))) {

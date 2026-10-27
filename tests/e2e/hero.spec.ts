@@ -140,3 +140,15 @@ test('desktop: the home photo is the same size however short the window', async 
     for (const h of [300, 360, 420, 520, 660]) expect(await size(w, h), `${w}×${h} against ${w}×1000`).toEqual(tall);
   }
 });
+
+// wide screens: the square photo is whole, never trimmed to a landscape box as its column grows (Jason, 2026-10-27)
+test('desktop: the home photo is square on a wide screen', async ({ page }, info) => {
+  test.skip(info.project.name !== 'desktop', 'it sets its own window sizes');
+  await page.goto('/');
+  for (let w = 1100; w <= 2560; w += 60) {
+    await page.setViewportSize({ width: w, height: 900 });
+    await page.waitForTimeout(40);
+    const [cw, ch] = await page.locator('.cover').evaluate((e) => { const r = e.getBoundingClientRect(); return [r.width, r.height]; });
+    expect(Math.abs(cw - ch), `${w}px: ${Math.round(cw)}×${Math.round(ch)}`).toBeLessThanOrEqual(1);
+  }
+});

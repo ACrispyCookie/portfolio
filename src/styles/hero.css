@@ -36,8 +36,7 @@
 /* wide: the photo and the Currently working on rows in the left column, the name and widget in the right. The photo's
    size comes from the width only; a short window scrolls further instead of trimming it (Jason, 2026-10-26) */
 @container hero (min-width: 920px) {
-  .lcol { container-type: inline-size; }
-  .cover { min-height: max(380px, 62cqi); }
+  .cover { flex: none; aspect-ratio: 1 / 1; } /* square, as the photo: whole however wide its column grows (Jason, 2026-10-27) */
   /* the two rows side by side under the photo are too narrow for a picture beside the text: a small card each, the
      picture across the top, a little shorter so the photo above keeps the summit (Jason, 2026-10-23) */
   .w { grid-template-columns: 1fr; align-content: start; gap: 10px; }

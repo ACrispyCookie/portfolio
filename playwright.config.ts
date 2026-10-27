@@ -9,11 +9,15 @@ export default defineConfig({
   testDir: 'tests/e2e',
   timeout: 60_000,
   fullyParallel: true,
+  // two: each browser already keeps about two cores busy. At four (2026-10-27) every test took twice as long, so the
+  // run was no faster (39.9 min against 41.9) and timing tests failed on the starved CPU (load ~15 on 4 cores)
+  workers: Number(process.env.PW_WORKERS ?? 2),
   // the JSON file keeps each test's time, to see where a gate run spends it (2026-10-27: the gate takes ~50 min)
   reporter: [['list'], ['json', { outputFile: '.gate/e2e-times.json' }]],
   use: { baseURL: 'http://localhost:4321' },
   webServer: {
-    command: 'npm run build && npm run preview -- --port 4321 --ignore-lock',
+    // the gate has just built the site; building it again here cost the gate a second build
+    command: `${process.env.GATE_BUILT ? '' : 'npm run build && '}npm run preview -- --port 4321 --ignore-lock`,
     url: 'http://localhost:4321',
     reuseExistingServer: false, // never test a leftover server holding an old build
     timeout: 180_000,

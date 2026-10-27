@@ -19,16 +19,18 @@ const KNOWN = (f: Finding, url: string) => f.kind === 'picture cropped' && /ramb
   // headings into narrow columns on the narrowest windows
   || f.kind === 'narrow text' && /#what-we-measured th/.test(f.what) && url.includes('ece455');
 
-// one test per page and input, so each stays short enough to finish while the gate runs everything at once
-for (const url of PAGES) for (const touch of [true, false]) {
-  test(`${url}: nothing breaks at any window shape, ${touch ? 'touch' : 'mouse'}`, async ({ browser }, info) => {
+// one test per page, input and band of heights, so the gate's workers share them out evenly instead of waiting on one
+// long test at the end (2026-10-27: a whole page took up to 2.5 min while the other workers sat idle)
+const BANDS = [HEIGHTS.slice(0, 3), HEIGHTS.slice(3, 6), HEIGHTS.slice(6)];
+for (const url of PAGES) for (const touch of [true, false]) for (const band of BANDS) {
+  test(`${url}: nothing breaks at any window shape, ${touch ? 'touch' : 'mouse'}, heights ${band[0]}–${band.at(-1)}`, async ({ browser }, info) => {
     test.skip(info.project.name !== 'desktop', 'one sweep is enough; it makes its own touch and non-touch windows');
     test.setTimeout(1_800_000); // ~1 min alone, several while the gate runs everything at once
     const found = new Map<string, string[]>();
     const ctx = await browser.newContext({ reducedMotion: 'reduce', hasTouch: touch, isMobile: touch, viewport: { width: 400, height: 800 } });
     let page = await ctx.newPage();
     await page.goto(url);
-    for (const h of HEIGHTS) for (const w of WIDTHS) {
+    for (const h of band) for (const w of WIDTHS) {
       if (touch && w > 1100) continue; // touch windows up to tablet size; wider ones are the desktop pass
       await page.setViewportSize({ width: w, height: h });
       await page.waitForTimeout(60); // a timed settle: headless Chrome may never deliver an animation frame

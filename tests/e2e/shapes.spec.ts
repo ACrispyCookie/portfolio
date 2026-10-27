@@ -11,7 +11,7 @@ const PAGES = ['/', '/projects', '/courses/ece338/gpgpu', '/courses/ece415/nbody
   '/courses/ece436/wifi', '/courses/ece348/runtime', '/courses/ece321/threads', '/projects/live-fpga-lab', '/projects/dvd-logo-fpga',
   '/projects/homelab', '/projects/gpgpu-v2'];
 const WIDTHS = [200, 240, ...Array.from({ length: 30 }, (_, i) => 280 + i * 40), 1600, 1920, 2560]; // down to a narrow split screen
-const HEIGHTS = [300, 360, 420, 520, 580, 660, 800, 1000, 1400]; // 580: short, yet taller than wide at 560 (Jason found 582×592)
+const HEIGHTS = [230, 300, 360, 420, 520, 580, 660, 800, 1000, 1400]; // 580: short, yet taller than wide at 560 (Jason found 582×592); 230: cut very short (he found 450×230)
 
 // RAMBO's photo is portrait, so a landscape card or thumbnail shows under half of it: Jason (2026-10-25) keeps the crop
 const KNOWN = (f: Finding, url: string) => f.kind === 'picture cropped' && /rambo|ECE455/i.test(f.what)

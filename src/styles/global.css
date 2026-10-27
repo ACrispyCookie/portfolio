@@ -101,6 +101,7 @@ a { color: inherit; text-underline-offset: 3px; }
   /* one line whenever its row has room (rows wrap, so it moves down first); never wider than a row narrower than its
      words, where it wraps evenly (any-shape sweep, 2026-10-25) */
   max-width: 100%; box-sizing: border-box;
+  flex-wrap: wrap; row-gap: 0; /* a course code and a title too long for one line take two, never the tag's edge */
 }
 @supports (text-wrap: balance) { .tag { text-wrap: balance; } }
 /* section headings, on every page */

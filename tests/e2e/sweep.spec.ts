@@ -149,6 +149,9 @@ test(`${path}, ${mode.name}, every window shape, portrait and landscape: the pag
         if (m.closest('.psec > .pfig')) return r.height > picH + 2 ? [`${m.tagName.toLowerCase()} ${Math.round(r.height)}px`] : [];
         // the home photo on a phone held sideways: as tall as the name and text beside it (Jason, 2026-10-25)
         if (m.closest('.cover') && short && innerWidth <= 1100) return [];
+        // card, course and Minecraft pictures are sized by their width alone; a short window scrolls past them (Jason,
+        // 2026-10-26: "I accept the trade-off"); that they stay whole is the strips rule below and the shapes sweep's
+        if (m.closest('.card .media, .thumb, .origin .blk')) return [];
         // the desktop home photo keeps its size on a short window; the page scrolls further (Jason, 2026-10-26)
         if (m.closest('.cover') && innerWidth > 1100) return [];
         // the home photo may nearly fill a short window rather than be cut to a strip (any-shape sweep, 2026-10-25)
@@ -166,7 +169,7 @@ test(`${path}, ${mode.name}, every window shape, portrait and landscape: the pag
         return m.width < inner - 2 ? [`${c.getAttribute('data-id')} picture ${Math.round(m.width)}px in a ${Math.round(inner)}px card`] : [];
       });
       // All projects (Jason, 2026-10-23: cropped on a landscape phone): no picture is cut down to a strip by a capped height
-      const strips = location.pathname !== '/projects' ? [] : [...document.querySelectorAll('.thumb, .card .media, .origin .blk')].flatMap((m) => {
+      const strips = [...document.querySelectorAll('.thumb, .card .media, .origin .blk')].flatMap((m) => { // on home too (2026-10-26)
         const r = m.getBoundingClientRect();
         const what = m.closest('[data-id]')?.getAttribute('data-id') ?? m.closest('.course')?.querySelector('.cn b')?.textContent ?? m.className;
         return r.height && r.width / r.height > 2 ? [`${what} ${Math.round(r.width)}×${Math.round(r.height)}`] : [];

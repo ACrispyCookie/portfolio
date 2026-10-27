@@ -9,7 +9,7 @@
 .card { position: relative; display: grid; gap: 12px; align-content: start; min-width: 0; padding: 14px 14px 18px; border-radius: var(--radius-panel); background: var(--color-panel); color: var(--color-silk); --ring: var(--color-panel); transition: background-color .25s; }
 /* a hovered card lifts above the raised tone of its pills and pictures, so their edges never vanish (Jason, 2026-10-23) */
 .card:hover { background: var(--color-hover); --ring: var(--color-hover); }
-.card .media { position: relative; aspect-ratio: 16 / 10; border-radius: var(--radius-inner); overflow: hidden; background: var(--color-raised); width: 100%; max-height: 60vh; max-height: 60svh; } /* on short screens a picture crops (full width, capped height) rather than filling the screen */
+.card .media { position: relative; aspect-ratio: 16 / 10; border-radius: var(--radius-inner); overflow: hidden; background: var(--color-raised); width: 100%; } /* sized by its width alone: a short window scrolls, never crops or shrinks it (Jason, 2026-10-26) */
 .card .media img, .card .media video, .card .media > svg { width: 100%; height: 100%; object-fit: cover; display: block; }
 /* a video's still sits under it until the video plays over it (the video paints nothing before its first frame) */
 .card .media .still { position: absolute; inset: 0; }
@@ -33,11 +33,8 @@
 .card .tag b { color: var(--color-silk); font-weight: 600; }
 .card a.tag:hover { background: var(--color-lift); color: var(--color-silk); }
 
-.card.wide { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 28px; align-items: center; padding: 16px; }
-/* its picture column stops growing where the picture would pass 60% of the screen's height, so a short, wide window
-   gives the text more room instead of cutting the picture to a strip */
-.card.wide { grid-template-columns: minmax(0, min(52%, calc(60svh * 1.7))) minmax(0, 1fr); }
-.card.wide .media { aspect-ratio: 16 / 9.4; max-height: none; }
+.card.wide { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 28px; align-items: center; } /* the cards' own edges and picture shape */
+.card.wide .media { aspect-ratio: 16 / 10; }
 .card.wide .body { gap: 14px; padding: 6px 14px 6px 0; }
 .card.wide .head { font: 700 var(--text-lead) / 1.1 var(--font-display); letter-spacing: -.025em; } /* the title size runs it to three lines */
 .card.wide .sum { color: var(--color-dim); max-width: 46ch; }
@@ -54,16 +51,16 @@
 .mine { margin-top: 44px; display: grid; }
 .sub-h { font: 700 var(--text-lead) var(--font-display); margin-bottom: 14px; }
 .mine > .lead { color: var(--color-dim); margin: -8px 0 20px; }
-/* the picture exactly as wide as a personal card's above it (Jason, 2026-10-25: smaller than the others; 2026-10-26:
-   bigger than theirs): one of three cards (18px gaps) less the card's 14px edges, the text and its button beside it */
-.origin { margin-top: 18px; display: grid; grid-template-columns: calc((100cqi - 36px) / 3 - 28px) minmax(0, 1fr); gap: 12px 18px; align-items: center; padding: 16px 22px 16px 14px; border-radius: var(--radius-panel); background: var(--color-panel); color: var(--color-silk); text-decoration: none; transition: background-color .25s; }
+/* the Minecraft card is built as the personal cards above it (Jason, 2026-10-26): their edges, and a drawing exactly as
+   big as their pictures. Beside its text, its column is one of three cards (18px gaps) less a card's 14px edges, and
+   the text lines up with the second card's picture (one gap and two edges further). */
+.origin { margin-top: 18px; display: grid; grid-template-columns: calc((100cqi - 36px) / 3 - 28px) minmax(0, 1fr); gap: 12px 46px; align-items: center; padding: 14px 14px 18px; border-radius: var(--radius-panel); background: var(--color-panel); color: var(--color-silk); text-decoration: none; transition: background-color .25s; }
 .origin:hover { background: var(--color-hover); }
 .origin:hover .btn-secondary { background: var(--color-lift); }
-.origin .blk { grid-row: span 2; width: 100%; max-height: 60svh; aspect-ratio: 16 / 10; border-radius: var(--radius-inner); overflow: hidden; background: var(--color-raised); }
+.origin .blk { grid-row: span 2; width: 100%; aspect-ratio: 16 / 10; border-radius: var(--radius-inner); overflow: hidden; background: var(--color-raised); }
 .origin .blk svg { display: block; width: 100%; height: 100%; }
 .origin > * { min-width: 0; } /* its parts may be narrower than their longest word on the narrowest windows */
-.origin > div:not(.blk), .origin .btn { grid-column: 2; }
-.origin > div:not(.blk) { align-self: end; }
+.origin .txt { align-self: end; padding-right: 8px; }
 .origin .btn { justify-self: start; align-self: start; }
 .origin h3 { font: 700 var(--text-lead) / 1.25 var(--font-display); }
 .origin p { color: var(--color-dim); margin-top: 4px; }
@@ -98,9 +95,9 @@
 .card { container: card / inline-size; }
 @container card (max-width: 310px) { .head { font-size: var(--text-body); } }
 
-/* The cards pick their layout from the room they have, not from the device or the window's shape (Jason, 2026-10-26:
-   "adjust to the space"). The only thing a window's height decides is whether a picture above its text would fill too
-   much of the screen; then a card alone in its row puts the picture beside the text. */
+/* Two layouts, picked by the room the cards have and nothing else (Jason, 2026-10-26: "the approach doesn't work"):
+   with 940px, the three personal cards side by side (their headlines in two lines) and the lead card's picture beside
+   its text; with less, one card a row with its picture above its text. Pictures are sized by their width alone. */
 .cards { container: cards / inline-size; }
 :has(> .origin) { container: mine / inline-size; } /* whatever holds the Minecraft card: home's section or All projects' */
 
@@ -109,14 +106,18 @@
   .grid.compact .card { grid-template-columns: 1fr; align-items: start; }
   .grid.compact .card .media { aspect-ratio: 16 / 9; }
 }
-/* columns: three personal cards need 940px (their headlines in two lines), two large or compact cards 725px; with
-   less, one card a row */
-@container cards (max-width: 939.98px) { .grid.three { grid-template-columns: 1fr; } }
-@container cards (max-width: 724.98px) {
-  .grid.feat, .grid.compact { grid-template-columns: 1fr; }
+@container cards (max-width: 939.98px) {
+  .grid.three { grid-template-columns: 1fr; }
   .card.wide { grid-template-columns: 1fr; gap: 14px; }
-  .card.wide .media { max-height: 60svh; } /* stacked: a short screen crops it a little rather than filling the screen */
   .card.wide .body { padding: 0 6px; }
+}
+/* two large or compact cards a row need 725px */
+@container cards (max-width: 724.98px) { .grid.feat, .grid.compact { grid-template-columns: 1fr; } }
+@container mine (max-width: 939.98px) {
+  .origin { grid-template-columns: 1fr; gap: 12px; }
+  .origin .blk { grid-row: auto; }
+  .origin .txt { padding: 0 6px; }
+  .origin .btn { margin: 0 6px; }
 }
 /* a narrow row: thinner card edges, and the wide card's demo button leads at full width with the course tag and team
    on the row under it, wrapping instead of crushing (any-shape sweep, 2026-10-25: two pills overlapped at 280px) */
@@ -131,45 +132,8 @@
   .card.wide .meta .btn-live { flex: 1 1 100%; order: -1; }
   .card.wide .meta .row > :last-child { margin-left: auto; } /* the team, at the far end */
 }
-/* a card alone in its row puts its whole picture beside its text where the row is wide enough for the lead card's
-   picture to sit beside its text (725px), or where a 16:10
-   picture across the row would be taller than about 56% of the screen (row wider than 90% of the screen's height), so a
-   short window never crops it to a strip (Jason, 2026-10-25). Below the lead card's own switch, a lone card's picture
-   would outgrow the lead's (Jason, 2026-10-26: a half-width window). The picture's column: at most 45% of the card, and no
-   wider than a 16:10 picture 56% of the screen's height. */
-@container cards (max-width: 939.98px) { @container cards ((min-width: 725px) or (min-width: 90svh)) and (min-width: 400px) {
-  .grid.three .card { grid-template-columns: min(45%, calc(56svh * 1.6)) minmax(0, 1fr); align-items: center; column-gap: 20px; }
-  .grid.three .card .media { aspect-ratio: 16 / 10; max-height: none; }
-} }
-@container cards (max-width: 724.98px) { @container cards (min-width: 90svh) and (min-width: 400px) {
-  .card.wide, .grid.feat .card, .grid.compact .card { grid-template-columns: min(45%, calc(56svh * 1.6)) minmax(0, 1fr); align-items: center; column-gap: 20px; }
-  .card.wide .media, .grid.feat .card .media, .grid.compact .card .media { aspect-ratio: 16 / 10; max-height: none; }
-} }
-
-/* the Minecraft card lays out as the personal cards above it, so its drawing is never smaller than their pictures
-   (Jason, 2026-10-26): three columns as theirs, beside its text where they are, stacked full width where they stack */
-@container mine (max-width: 939.98px) {
-  .origin { grid-template-columns: minmax(0, 1fr); padding: 14px; }
-  .origin .blk { grid-row: auto; }
-  .origin > div:not(.blk), .origin .btn { grid-column: 1; }
-  .origin > div:not(.blk) { padding: 0 6px; }
-  .origin .btn { justify-self: start; margin: 0 6px; }
-  @container mine ((min-width: 725px) or (min-width: 90svh)) and (min-width: 400px) {
-    .origin { grid-template-columns: min(45%, calc(56svh * 1.6)) minmax(0, 1fr); column-gap: 20px; }
-    .origin .blk { grid-row: span 2; max-height: none; } /* the text and its button together beside it */
-    .origin > div:not(.blk), .origin .btn { grid-column: 2; padding: 0; margin: 0; }
-    .origin > div:not(.blk) { align-self: end; }
-    .origin .btn { align-self: start; }
-  }
-  /* too narrow for the button's label beside the drawing: it takes its own row under both */
-  @container mine (max-width: 559.98px) {
-    .origin .btn { grid-column: 1 / -1; }
-    .origin .blk { grid-row: auto; }
-    .origin > div:not(.blk) { align-self: center; }
-  }
-}
 @container mine (max-width: 600px) {
   .origin { padding: clamp(8px, 3cqi, 12px) clamp(8px, 3cqi, 12px) 16px; } /* as the cards */
-  .origin > div:not(.blk) { padding-inline: 4px; }
-  .origin .btn { margin-inline: 4px; font-size: var(--text-small); }
+  .origin .txt { padding: 0 4px; }
+  .origin .btn { margin: 0 4px; font-size: var(--text-small); }
 }

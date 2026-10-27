@@ -10,7 +10,7 @@
 .counts { color: var(--color-dim); }
 
 /* pictures: the box sets the size, the image fills it; paper charts sit whole on white */
-.thumb { display: block; position: relative; overflow: hidden; background: var(--color-raised); border-radius: var(--radius-inner); aspect-ratio: 16 / 10; width: 100%; max-height: 60vh; max-height: 60svh; } /* short screens crop, as on home */
+.thumb { display: block; position: relative; overflow: hidden; background: var(--color-raised); border-radius: var(--radius-inner); aspect-ratio: 16 / 10; width: 100%; } /* sized by its width alone: a short window scrolls (Jason, 2026-10-26) */
 .thumb picture { display: contents; }
 .thumb img, .thumb video, .thumb > svg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
 .thumb img.paper { object-fit: contain; background: var(--color-paper); padding: 8px; box-sizing: border-box; }
@@ -45,11 +45,8 @@
   .course ul.two { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 24px; }
 }
 /* a picture never crops to a strip on a short screen: it keeps 16:10 and narrows until it is 60% of the screen tall */
-.course .thumb { max-height: none; width: min(100%, 96vh); width: min(100%, 96svh); }
-/* the picture goes above the course at full width where the row is narrow (under 560px), or where beside it would be
-   small: a row under 800px on a screen tall enough for the picture above (Jason, 2026-10-23: too small on tablets in
-   portrait). As the cards, by the row's own width (Jason, 2026-10-26) */
-@container courses (max-width: 559.98px) or ((max-width: 799.98px) and (max-width: 90svh)) {
+/* the picture goes above the course at full width where beside it would be small, a row under 800px (Jason,
+   2026-10-23: too small on tablets in portrait); by the row's width alone (Jason, 2026-10-26) */
+@container courses (max-width: 799.98px) {
   .course { grid-template-columns: 1fr; gap: 16px; }
 }
-#beyond .card .media { max-height: none; width: min(100%, 96vh); width: min(100%, 96svh); }

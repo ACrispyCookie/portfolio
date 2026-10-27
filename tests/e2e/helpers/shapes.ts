@@ -145,6 +145,53 @@ export function inspect(): Finding[] {
     if (!hidden) out.push({ kind: 'picture collapsed', what: name(img.parentElement!.closest('figure, .card, .cover, .media, .thumb, .t') ?? img), detail: `${Math.round(r.width)}×${Math.round(r.height)}` });
   }
 
+  // pictures with the same role come out the same size (Jason, 2026-10-26, three rounds: the drawing and the lead
+  // picture each came out smaller or bigger than the cards' at some shape): the Minecraft drawing as the personal cards'
+  // pictures, cards in one row alike, and the lead card's picture never smaller than the others in its section
+  const sz = (e: Element) => { const r = e.getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height)]; };
+  const blk = document.querySelector('.origin .blk');
+  const mine = blk?.closest('.origin')!.parentElement!.querySelector('.grid.three .card .media');
+  if (blk && mine && shown(blk)) {
+    const [a, b] = [sz(blk), sz(mine)];
+    if (Math.abs(a[0] - b[0]) > 2 || Math.abs(a[1] - b[1]) > 2) out.push({ kind: 'pictures differ in size', what: 'Minecraft drawing', detail: `${a.join('×')}, the cards' ${b.join('×')}` });
+  }
+  for (const grid of document.querySelectorAll('.grid')) {
+    const rows = new Map<number, Element[]>();
+    for (const m of grid.querySelectorAll('.card .media')) { const t = Math.round(m.getBoundingClientRect().top); rows.set(t, [...(rows.get(t) ?? []), m]); }
+    for (const row of rows.values()) {
+      const s0 = sz(row[0]);
+      const odd = row.find((m) => { const s1 = sz(m); return Math.abs(s1[0] - s0[0]) > 2 || Math.abs(s1[1] - s0[1]) > 2; });
+      if (odd) out.push({ kind: 'pictures differ in size', what: name(odd.closest('.card')!), detail: `${sz(odd).join('×')} beside ${s0.join('×')}` });
+    }
+  }
+  for (const lead of document.querySelectorAll('.cards > .card.wide .media')) {
+    const other = lead.closest('.cards')!.querySelector('.grid .card .media');
+    if (other && (sz(lead)[0] < sz(other)[0] - 1 || sz(lead)[1] < sz(other)[1] - 1)) out.push({ kind: 'pictures differ in size', what: name(lead.closest('.card')!), detail: `lead ${sz(lead).join('×')}, smaller than ${sz(other).join('×')}` });
+  }
+  // a card's picture is never a small part of its card (the compact cards' side pictures are a third)
+  for (const m of document.querySelectorAll('.card .media')) {
+    const c = m.closest('.card')!;
+    if (shown(m) && sz(m)[0] < sz(c)[0] * 0.3) out.push({ kind: 'picture small in its card', what: name(c), detail: `${sz(m)[0]}px in a ${sz(c)[0]}px card` });
+  }
+
+  // a button's or pill's text never touches its own edge (Jason, 2026-10-26: the Minecraft button lost its padding on
+  // an iPad Pro 13 and no check looked)
+  for (const el of document.querySelectorAll('main :is(.btn, .tag, button, .pill)')) {
+    if (!shown(el) || !el.textContent!.trim()) continue;
+    // the visible text only: words hidden for screen readers (.vh, clipped to a pixel) don't count
+    const r = el.getBoundingClientRect(); let left = Infinity, right = -Infinity;
+    const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    for (let n = walk.nextNode(); n; n = walk.nextNode()) {
+      const host = n.parentElement!;
+      if (!n.textContent!.trim() || host.getBoundingClientRect().width <= 1 || !shown(host)) continue;
+      const range = document.createRange(); range.selectNodeContents(n);
+      for (const t of range.getClientRects()) if (t.width > 1) { left = Math.min(left, t.left); right = Math.max(right, t.right); }
+    }
+    if (left === Infinity) continue;
+    const inset = Math.min(left - r.left, r.right - right);
+    if (inset < 6) { out.push({ kind: 'text touches its edge', what: name(el), detail: `${Math.round(inset)}px inside "${el.textContent!.trim().slice(0, 30)}"` }); }
+  }
+
   // pictures: cut hard (less than 60% of the picture shown) or shrunk far below their space
   for (const img of document.querySelectorAll<HTMLImageElement>('main img')) {
     if (!shown(img) || !img.naturalWidth || img.closest('.av, .avatar, .person .head, .stack, .face, .avs')) continue; // faces are small on purpose

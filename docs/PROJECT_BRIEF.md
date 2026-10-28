@@ -235,6 +235,17 @@ Source: `docs/GRADES.md` ✅ (Jason's file; **never publish the file itself**, i
   - Rooms: garage, family room, dining room and kitchen, two bedrooms, bathroom, hallway and porch, built from reusable pieces (ridged walls, framed glass windows, lanterns with their own light, prism roofs).
   - The world: a sun and a moon whose height blends the sky from night to sunset to day, a 100 × 100 m grass ground, a ring of mountains made from NURBS surfaces, and a Minecraft Nether portal with its own purple light.
 
+### Course page details for the smaller projects (📑, read 2026-10-28)
+Numbers the course pages quote, each from Jason's own reports and slides (`reports/`, git-ignored). Conditions as stated there.
+- **ECE494 CV32E40P** (📑 `Overleaf Projects/Microprocessor Design/main.tex`, Tables I–II, §Critical Path Analysis): estimated Fmax per version: baseline 66.8 MHz, no ALU forwarding 67.2 MHz (67.177), neither forwarded 69.6 MHz (69.589), no multiplier forwarding 73.2 MHz. LUTs 4,171 → 4,314. The 1,000 slowest paths were taken from Vivado; the baseline's spread out to 14.9 ns. ⚠ Conflict: the paper puts the break-even at 9.9% (it uses 66.6 MHz as the baseline); the slides and the brief say 9.6% (66.8 MHz, the measured Fmax). The site uses 9.6%.
+- **ECE318 FUSE** (📑 `Operating Systems - Project 3/main-EN.tex`): partial defragmentation runs while gaps exceed 10% of the store, until under 10%. Node metadata for the Linux 6.8.0 source: 88,982 nodes (about 89,000), about 23 MB.
+- **ECE318 scheduler** (📑 `Operating Systems - Project 2/main.tex`, Greek): with plain SJF, the compute task starved at about 20 interactive tasks; tests: 1 compute + 25 interactive, 5 + 5, 4 compute, 4 interactive.
+- **ECE348 RPC** (📑 `Distributed Systems - Assignment 1.pdf`, p. 24–25): throughput by worker threads (20 clients × 500 requests, prime checks): 1 → 112, 2 → 224, 4 → 439, 8 → 852, 16 → 1,413, 32 → 1,165 req/s. Null request-reply 1.324 ms average, 1,000 of 1,000 succeeded.
+- **ECE348 multicast** (📑 `Distributed Systems - Assignment 2.pdf`, p. 24, 27): single-sender throughput by group size: 1 → 27,802, 2 → 3,294, 3 → 1,935, 4 → 1,592, 5 → 428, 7 → 264 msg/s. Group of 4, 10,000 messages each: 2,570,374 packets, 64.2 per message.
+- **ECE348 NFS** (📑 `Distributed Systems - Assignment 3.pdf`, p. 19–21): 4 KB blocks, working set 2,560 blocks; throughput by cache size: 1,000 → 10.5, 2,000 → 10.5, 2,500 → 10.6, 2,750 → 53.0, 3,000 → 53.5 MB/s. Reading a 10 MB file, packets fell from about 12,800 to about 2,600 (read off the chart). No cache: under 3 MB/s at 1 KB blocks, about 21 MB/s at 8 KB.
+- **ECE340 Smith-Waterman** (📑 `Embedded Systems - Lab 3/conference_101719.tex`, §x86 Execution): at 256 × 300,000, 100 runs: Iteration I 1.43×, II 1.8×, III 2.93×, IV 3.81×, V 3.57×; up to 95 times fewer branch misses from Iteration II on. The board run: 32 × 65,536.
+- **ECE333 UART** (📑 `Digital Systems Lab - Lab 2/main.tex`): eight baud rates from 300 to 115,200; the largest rounding error is 0.4672% at 115,200 (all within 0.47%).
+
 ### Self-initiated band: "Built because I wanted to"
 A visual band of its own (the passion proof). Live FPGA Lab and DVD Logo FPGA link back to their cards.
 - **Homelab** ✅: self-hosted infrastructure for services, automation and networking experiments. Hosts the Live FPGA Lab. It also serves this portfolio, njason.dev, behind its reverse proxy (📄 `scripts/deploy.sh`, 2026-10-24).

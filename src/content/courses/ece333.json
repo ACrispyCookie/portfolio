@@ -2,8 +2,9 @@
   "code": "ECE333",
   "name": "Digital Systems Lab",
   "grade": 9,
-  "sequence": false,
+  "sequence": true,
   "order": 10,
   "rank": 7,
-  "featuredProject": "dvd-logo-fpga"
+  "featuredProject": "dvd-logo-fpga",
+  "intro": "Four labs in Verilog on one FPGA board, each building on the last: a display driver, a serial link, video out, and an accelerometer that steers a bouncing logo."
 }

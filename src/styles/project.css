@@ -154,8 +154,8 @@
 .psec h3 + p { margin-top: 0; }
 .psec > ul:not([class]) { margin-top: 14px; }
 /* a link inside the copy is underlined in gold, so it reads as a link (Jason, 2026-10-24: What's next's didn't) */
-.psec > p a:not(.btn), .psec > ul:not([class]) li a { text-decoration: underline; text-decoration-color: var(--color-gold); text-decoration-thickness: 1.5px; text-underline-offset: 3px; transition: color .2s; }
-.psec > p a:not(.btn):hover, .psec > ul:not([class]) li a:hover { color: var(--color-gold); }
+.psec > p a:not(.btn), .psec > ul:not([class]) li a, .csec > p a, .csec > ul:not([class]) li a { color: var(--color-silk); text-decoration: underline; text-decoration-color: var(--color-gold); text-decoration-thickness: 1.5px; text-underline-offset: 3px; transition: color .2s; }
+.psec > p a:not(.btn):hover, .psec > ul:not([class]) li a:hover, .csec > p a:hover, .csec > ul:not([class]) li a:hover { color: var(--color-gold); }
 
 /* What's next: the project that continues this one, as one whole-card link (Jason, 2026-10-24) */
 .nextcard { margin-top: 18px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 24px; align-items: center; padding: clamp(8px, 3.5vw, 14px); color: var(--color-silk); text-decoration: none; transition: background-color .25s; --ring: var(--color-panel); }

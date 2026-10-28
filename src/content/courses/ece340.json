@@ -5,5 +5,6 @@
   "sequence": false,
   "order": 11,
   "rank": 11,
-  "featuredProject": "smith-waterman"
+  "featuredProject": "smith-waterman",
+  "intro": "Speeding up DNA sequence alignment in C, then moving it onto the FPGA of a Zynq board."
 }

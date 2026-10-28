@@ -5,5 +5,6 @@
   "sequence": false,
   "order": 9,
   "rank": 1,
-  "featuredProject": "gpgpu"
+  "featuredProject": "gpgpu",
+  "intro": "Our own 32-core RISC-V GPGPU, designed in Verilog and running on a real FPGA."
 }

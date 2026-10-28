@@ -3,6 +3,7 @@ title: "User-level threads"
 kind: "course"
 course: "ece321"
 main: true
+step: 4
 order: 7
 headline: "A thread library with its own preemptive scheduler"
 summary: "A user-level thread runtime with round-robin scheduling, timer-based preemption, yield, sleep, join and semaphores."

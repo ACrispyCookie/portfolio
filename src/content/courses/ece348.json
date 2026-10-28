@@ -5,5 +5,6 @@
   "sequence": false,
   "order": 8,
   "rank": 6,
-  "featuredProject": "runtime"
+  "featuredProject": "runtime",
+  "intro": "Four systems on my own: calls over an unreliable network, group chat in one order, a cached network file system, and a runtime that moves running programs between machines."
 }

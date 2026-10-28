@@ -13,7 +13,8 @@ const sideways = (page: Page) => page.evaluate(() => document.documentElement.sc
 test('header: breadcrumb to All projects, the course name, its intro and its grade', async ({ page }) => {
   await page.goto(HPC);
   const crumb = page.locator('main nav.crumb');
-  expect(text(await crumb.textContent())).toBe('Projects / ECE415'); // every course lives on /projects (ruling, 2026-10-27)
+  // every course lives on /projects (ruling, 2026-10-27); named as a project page's breadcrumb names it (Jason, 2026-10-28)
+  expect(text(await crumb.textContent())).toBe('Projects / ECE415 High Performance Computing');
   await expect(crumb.locator('a')).toHaveAttribute('href', '/projects');
   await expect(page.locator('main h1')).toHaveText('High Performance Computing');
   await expect(page.locator('main .chead .lead')).toHaveText('Five projects that build on each other, from tuning C code on one CPU to running a galaxy simulation on four GPUs at once.');
@@ -260,6 +261,7 @@ test('choosing a section lands it right under the bar, and only that link is hig
 
 // Jason, 2026-10-28: between 640 and 760px wide the copper started on "CUDA convolution", whose name wraps in the strip
 test('the trace starts clear of the header: its start pad never touches the strip\'s names, at any width', async ({ page }) => {
+  test.setTimeout(240_000); // a fresh page at 28 widths; Safari's engine on this machine needs about a minute
   for (let w = 320; w <= 1440; w += 40) {
     await page.setViewportSize({ width: w, height: 900 });
     await page.goto(HPC);
@@ -270,5 +272,27 @@ test('the trace starts clear of the header: its start pad never touches the stri
         .filter((r) => r.right > pad.left && r.left < pad.right).map((r) => pad.top - r.bottom));
     });
     expect(gap, `${w}px: room between the start pad and the text above it`).toBeGreaterThanOrEqual(8);
+  }
+});
+
+// a link inside a project's text looks like a link, as on the project pages (2026-10-28: ECE333's links to DVD Logo FPGA
+// looked like plain text)
+test('a link in a project\'s text is underlined in gold, like the project pages\'', async ({ page }) => {
+  await page.goto('/courses/ece333');
+  const a = page.locator('#vga-what-it-is a[href="/projects/dvd-logo-fpga"]');
+  await expect(a).toHaveCount(1);
+  const s = await a.evaluate((e) => { const c = getComputedStyle(e); return [c.textDecorationLine, c.textDecorationColor]; });
+  const gold = await page.evaluate(() => { const i = document.createElement('i'); i.style.color = 'var(--color-gold)'; document.body.append(i); const c = getComputedStyle(i).color; i.remove(); return c; });
+  expect(s).toEqual(['underline', gold]);
+});
+
+// C preprocessor lines sit at the file's left edge whatever the code's indent; they don't count (2026-10-28: ECE348's
+// excerpts kept their whole indent because of #ifdef DEBUG)
+test('code starts at its box\'s edge even with preprocessor lines at the file\'s edge', async ({ page }) => {
+  await page.goto('/courses/ece348');
+  for (const id of ['rpc', 'nfs']) {
+    const lines = await page.locator(`#${id} .excerpt pre .line`).allTextContents();
+    expect(lines.filter((l) => l.trim() && !l.startsWith('#')).some((l) => !/^\s/.test(l)), id).toBe(true);
+    expect(lines.filter((l) => l.trim().startsWith('#')).every((l) => l.startsWith('#')), id).toBe(true);
   }
 });

@@ -5,5 +5,6 @@
   "sequence": false,
   "order": 3,
   "rank": 5,
-  "featuredProject": "house"
+  "featuredProject": "house",
+  "intro": "A 3D engine we wrote from scratch in C++ and OpenGL, and a house to walk through in it."
 }

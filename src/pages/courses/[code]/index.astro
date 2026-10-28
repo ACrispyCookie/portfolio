@@ -39,7 +39,7 @@ const tools = index.filter((e) => used.has(e.tool));
 ---
 <Base title={`${c.code} ${c.name} | Jason Nikas`} description={c.intro ?? `${c.code} ${c.name}: every project, in full.`}>
   <header class="phead chead" data-trace-start>
-    <nav class="crumb" aria-label="Breadcrumb"><a href="/projects">Projects</a> / <span aria-current="page">{c.code}</span></nav>
+    <nav class="crumb" aria-label="Breadcrumb"><a href="/projects">Projects</a> / <span aria-current="page">{c.code} {c.name}</span></nav>
     <div class="top">
       <div class="txt">
         <h1>{c.name}</h1>

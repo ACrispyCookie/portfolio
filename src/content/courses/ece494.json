@@ -5,5 +5,6 @@
   "sequence": false,
   "order": 1,
   "rank": 10,
-  "featuredProject": "cv32"
+  "featuredProject": "cv32",
+  "intro": "Making a small RISC-V processor run at a faster clock on an FPGA, by taking one shortcut out of its pipeline."
 }

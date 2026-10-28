@@ -189,9 +189,17 @@ test('each smaller project has its own contents: one link per section, each land
     for (const href of await links.evaluateAll((as) => as.map((a) => a.getAttribute('href')!))) await expect(page.locator(href), `${id} ${href}`).toHaveCount(1);
   }
   const last = page.locator('#clahe nav.toc a').last();
+  // a project the copper hasn't reached yet still sits lower, waiting to rise into place: the jump must land where it
+  // stays, not where it waits (2026-10-28: it landed 16px high, under the bar)
+  await expect(page.locator('svg.trace .t-drawn')).toBeAttached();
+  await expect(page.locator('#clahe')).not.toHaveClass(/lit/);
   await last.click();
   const bar = await page.locator('.topbar').evaluate((e) => e.getBoundingClientRect().bottom);
-  await expect.poll(() => page.locator('#clahe-code h3').evaluate((e) => e.getBoundingClientRect().top)).toBeGreaterThanOrEqual(bar - 1);
+  // where the smooth scroll stops, not a moment on its way there
+  let y = -1;
+  await expect.poll(async () => { const was = y; y = await page.evaluate(() => scrollY); await page.waitForTimeout(150); return y === was && y === (await page.evaluate(() => scrollY)); }).toBe(true);
+  await page.waitForTimeout(500); // and after the rise into place has ended
+  expect(await page.locator('#clahe-code h3').evaluate((e) => e.getBoundingClientRect().top)).toBeGreaterThanOrEqual(bar - 1);
   if (await page.locator('#clahe nav.toc').evaluate((e) => getComputedStyle(e).position === 'sticky')) {
     // where there is room beside the text, the contents stay there while the project scrolls past
     await page.locator('#clahe-results').scrollIntoViewIfNeeded();
@@ -248,4 +256,19 @@ test('choosing a section lands it right under the bar, and only that link is hig
   await expect.poll(() => page.locator('#clahe-results').evaluate((e) => Math.round(e.getBoundingClientRect().top))).toBeLessThanOrEqual(Math.round(bar) + 24);
   await expect.poll(() => page.locator('#clahe nav.toc a').evaluateAll((as) => as.filter((a) => getComputedStyle(a).backgroundColor !== 'rgba(0, 0, 0, 0)').map((a) => a.textContent))).toEqual(['Results']);
   await expect(page.locator('#clahe nav.toc a[aria-current]')).toHaveText('Results');
+});
+
+// Jason, 2026-10-28: between 640 and 760px wide the copper started on "CUDA convolution", whose name wraps in the strip
+test('the trace starts clear of the header: its start pad never touches the strip\'s names, at any width', async ({ page }) => {
+  for (let w = 320; w <= 1440; w += 40) {
+    await page.setViewportSize({ width: w, height: 900 });
+    await page.goto(HPC);
+    await expect(page.locator('svg.trace circle.t-pad:not([data-i])')).toBeAttached();
+    const gap = await page.evaluate(() => {
+      const pad = document.querySelector('svg.trace circle.t-pad:not([data-i])')!.getBoundingClientRect();
+      return Math.min(...[...document.querySelectorAll('.chead a, .chead p, .chead h1')].flatMap((e) => [...e.getClientRects()])
+        .filter((r) => r.right > pad.left && r.left < pad.right).map((r) => pad.top - r.bottom));
+    });
+    expect(gap, `${w}px: room between the start pad and the text above it`).toBeGreaterThanOrEqual(8);
+  }
 });

@@ -53,7 +53,7 @@
 @media (max-width: 760px) {
   /* the trace starts under the video on a phone, so nothing runs between the buttons and it: a normal gap, not a
      section's (Jason, 2026-10-24) */
-  .phead { padding-bottom: 0; }
+  .phead:not(.chead) { padding-bottom: 0; } /* a course page's trace starts at its header, so it keeps the room (Jason, 2026-10-28) */
   .phead + .ptop { margin-top: calc(24px - var(--gap)); }
   .ptop { gap: 16px; }
 }

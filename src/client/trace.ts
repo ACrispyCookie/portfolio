@@ -169,6 +169,19 @@ export function initTrace(host: HTMLElement): void {
     requestAnimationFrame(frame);
   }
 
+  // a link into a section that hasn't risen into place (the copper hasn't reached it, or it is still rising): put it
+  // there at once, so the browser scrolls to where it stays; it landed 16px high, under the bar (2026-10-28)
+  document.addEventListener('click', (e) => {
+    const a = (e.target as Element).closest?.<HTMLAnchorElement>('a[href^="#"]');
+    const sec = a && document.getElementById(a.hash.slice(1))?.closest<HTMLElement>('main > section');
+    if (!sec) return;
+    const kids = [...sec.children] as HTMLElement[];
+    for (const k of kids) k.style.transition = 'none';
+    sec.classList.add('lit');
+    void sec.offsetHeight; // apply it before the browser measures where to scroll
+    for (const k of kids) k.style.transition = '';
+  });
+
   addEventListener('scroll', measure, { passive: true });
   // rebuild only on a real size change, at most once per frame (never on scroll or the address bar)
   let queued = false, lastW = 0, lastH = 0;

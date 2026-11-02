@@ -1,0 +1,13 @@
+---
+interface Props { label?: string }
+const { label = 'Diagram: three threads taking turns on one CPU' } = Astro.props;
+---
+<svg class="diagram" viewBox="0 0 320 200" role="img" aria-label={label} preserveAspectRatio="xMidYMid slice">
+  <rect width="320" height="200" fill="#183539" />
+  <g font-family="Hanken Grotesk Variable, Hanken Grotesk, sans-serif" font-size="13" fill="#9db6b8"><text x="24" y="62">T1</text><text x="24" y="106">T2</text><text x="24" y="150">T3</text></g>
+  <g stroke-linecap="round" stroke-width="14" fill="none">
+    <path d="M56 58 H110 M200 58 H236" stroke="#41e2f2" /><path d="M114 102 H160 M240 102 H290" stroke="#d8b46a" /><path d="M164 146 H196" stroke="#86e3bd" />
+  </g>
+  <path d="M56 176 H296" stroke="#3b7a82" stroke-width="2" />
+  <g fill="#3b7a82"><circle cx="112" cy="176" r="4" /><circle cx="162" cy="176" r="4" /><circle cx="198" cy="176" r="4" /><circle cx="238" cy="176" r="4" /></g>
+</svg>

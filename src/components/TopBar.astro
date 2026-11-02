@@ -1,0 +1,36 @@
+---
+interface Props {
+  current?: 'Projects' | 'Timeline' | 'Skills' | 'Contact';
+  home: boolean;
+}
+const { current, home } = Astro.props;
+const base = home ? '' : '/';
+const items = [
+  ['Projects', `${base}#projects`],
+  ['Timeline', `${base}#timeline`],
+  ['Skills', `${base}#skills`],
+  ['Contact', `${base}#contact`],
+] as const;
+---
+<header class="topbar">
+  <div class="in">
+    <a class="name" href={home ? '#top' : '/'}>Jason Nikas</a>
+    <nav aria-label="Main">
+      {items.map(([label, href]) => <a href={href} aria-current={label === current ? 'page' : undefined}>{label}</a>)}
+    </nav>
+    {/* on home it starts off (invisible, keeping its place), so a slow script can never show it fading away; pill.ts
+        takes over once it knows where the widget is. Without JS the noscript rule, later in the page, shows it. */}
+    <a class={home ? 'labpill off' : 'labpill'} href="https://fpga.njason.dev"><i class="sdot" aria-hidden="true"></i><span>Live <span class="lg">FPGA </span>Lab</span></a>
+    {home && <noscript><style set:html=".topbar .labpill.off { opacity: 1; pointer-events: auto; display: inline-flex; }" /></noscript>}
+    <details class="menu">
+      <summary>Menu</summary>
+      <div class="menu-sheet">
+        {items.map(([label, href]) => <a href={href}>{label}</a>)}
+      </div>
+    </details>
+  </div>
+</header>
+<script>
+  // Picking a section closes the sheet so the glide to it is visible.
+  for (const a of document.querySelectorAll<HTMLAnchorElement>('.menu-sheet a')) a.addEventListener('click', () => a.closest('details')!.removeAttribute('open'));
+</script>

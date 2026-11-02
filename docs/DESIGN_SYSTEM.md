@@ -58,9 +58,11 @@ Tailwind `@theme` tokens in `src/styles/global.css`:
 
 ## Layout
 
-- Content max 1200 px. One left content edge on every page.
+- Content max 1200 px including the trace gutter (1132 px of content), centred.
 - The trace gutter is 68 px with the trace at 18.5 px (desktop), and 42 px with the trace at 11 px (≤760 px).
-- Page gutters are 20/20 px on desktop and 12/16 px on phone, combined with safe-area insets via `max()`.
+- Page gutters are 20/20 px on desktop and 16/16 px on phone, combined with safe-area insets via `max()`.
+- The trace gutter is mirrored on the right on desktop and tablet, so the frame is centred.
+- On phone only the sections beside the trace sit in its gutter; the top bar, hero and footer are centred (Jason, 2026-10-21).
 
 ## Motion
 

@@ -1,0 +1,25 @@
+---
+// Overlapping collaborator avatars (CLAUDE.md showpiece). Images come from the prebuild fetch; initials if missing.
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import { getEntry } from 'astro:content';
+import { initialsOf } from '../lib/avatars';
+
+interface Props { handles: string[] }
+const { handles } = Astro.props;
+const files = import.meta.glob<{ default: ImageMetadata }>('../assets/avatars/*.jpg', { eager: true });
+const people = await Promise.all(
+  handles.map(async (id) => {
+    const c = await getEntry('collaborators', id);
+    if (!c) throw new Error(`unknown collaborator ${id}`);
+    return { ...c.data, img: files[`../assets/avatars/${c.data.github}.jpg`]?.default };
+  }),
+);
+---
+<span class="av">
+  {people.map((p) => (
+    <a href={p.website ?? `https://github.com/${p.github}`} title={p.name}>
+      {p.img ? <Image src={p.img} alt={p.name} width={30} height={30} densities={[1, 2]} /> : <span role="img" aria-label={p.name}>{initialsOf(p.name)}</span>}
+    </a>
+  ))}
+</span>

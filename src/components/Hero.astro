@@ -1,0 +1,36 @@
+---
+import { Picture } from 'astro:assets';
+import photo from '../assets/profile-fuji.jpg';
+import NowRow from './NowRow.astro';
+import LabWidget from './LabWidget.astro';
+import GitHub from './icons/GitHub.astro';
+import LinkedIn from './icons/LinkedIn.astro';
+import now from '../data/now.json';
+import '../styles/hero.css';
+---
+<section class="hero" aria-label="About me">
+  <div class="top">
+    <div class="lcol">
+      <div class="cover">
+        <Picture src={photo} formats={['avif', 'webp']} widths={[360, 560, 820, 1120]} sizes="(max-width: 760px) 100vw, 50vw" alt="Jason from behind, facing Mount Fuji at dusk" loading="eager" fetchpriority="high" />
+      </div>
+      <div class="now" data-trace-start>
+        <p>Currently working on</p>
+        {now.map((n) => <NowRow title={n.title} sub={n.sub} href={n.href} thumb={n.thumb as 'gpgpu-block' | 'homelab-diagram'} />)}
+      </div>
+    </div>
+    <div class="rcol">
+      <div class="who">
+        <h1>Jason<br />Nikas</h1>
+        <p class="does">I build systems from code down to hardware: GPUs on FPGAs, CUDA programs, filesystems and distributed runtimes.</p>
+        <p class="school">Electrical and Computer Engineering student at the University of Thessaly</p>
+        <div class="cta">
+          <a class="btn btn-primary" href="#projects">See my projects</a>
+          <a class="btn btn-secondary" href="https://github.com/ACrispyCookie"><GitHub />GitHub</a>
+          <a class="btn btn-secondary" href="https://www.linkedin.com/in/jason-nikas-b64163255"><LinkedIn />LinkedIn</a>
+        </div>
+      </div>
+      <div class="side"><LabWidget /></div>
+    </div>
+  </div>
+</section>

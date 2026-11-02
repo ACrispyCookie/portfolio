@@ -1,0 +1,14 @@
+---
+import { Image } from 'astro:assets';
+import Homelab from './diagrams/Homelab.astro';
+import gpgpu from '../assets/projects/gpgpu-block.jpg';
+
+interface Props { title: string; sub: string; href: string; thumb: 'gpgpu-block' | 'homelab-diagram' }
+const { title, sub, href, thumb } = Astro.props;
+---
+<a class="w" href={href}>
+  <div class="t" aria-hidden="true">
+    {thumb === 'gpgpu-block' ? <Image src={gpgpu} alt="" width={112} class="shift" /> : <Homelab label="" />}
+  </div>
+  <div><h3>{title}</h3><p>{sub}</p></div>
+</a>

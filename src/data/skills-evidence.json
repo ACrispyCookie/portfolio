@@ -1,0 +1,279 @@
+{
+  "projects": {
+    "dvd-logo-fpga": [
+      "Verilog",
+      "Vivado/Vitis",
+      "Git"
+    ],
+    "scheduler": [
+      "C",
+      "Python",
+      "Bash",
+      "Git"
+    ],
+    "fuse": [
+      "C",
+      "Python",
+      "Bash",
+      "FUSE",
+      "Git"
+    ],
+    "busy-wait": [
+      "C",
+      "Bash",
+      "pthreads",
+      "Git"
+    ],
+    "semaphores": [
+      "C",
+      "Bash",
+      "pthreads",
+      "Git"
+    ],
+    "monitors": [
+      "C",
+      "Java",
+      "Bash",
+      "pthreads",
+      "Git"
+    ],
+    "threads": [
+      "C",
+      "Bash",
+      "pthreads",
+      "Git"
+    ],
+    "seven-seg": [
+      "Bash",
+      "Verilog",
+      "Vivado/Vitis",
+      "Git"
+    ],
+    "uart": [
+      "Bash",
+      "Verilog",
+      "Vivado/Vitis",
+      "Git"
+    ],
+    "vga": [
+      "Python",
+      "Bash",
+      "Verilog",
+      "Vivado/Vitis",
+      "Git"
+    ],
+    "spi": [
+      "Bash",
+      "Verilog",
+      "Vivado/Vitis",
+      "Git"
+    ],
+    "gpgpu": [
+      "C",
+      "Python",
+      "JavaScript",
+      "HTML/CSS",
+      "Tcl",
+      "Bash",
+      "SystemVerilog",
+      "Vivado/Vitis",
+      "ARM/Zynq",
+      "RISC-V",
+      "Git"
+    ],
+    "smith-waterman": [
+      "C",
+      "C++",
+      "Python",
+      "Tcl",
+      "Bash",
+      "Verilog",
+      "OpenCL",
+      "OpenMP",
+      "Vivado/Vitis",
+      "Vitis HLS",
+      "ARM/Zynq",
+      "Git"
+    ],
+    "rpc": [
+      "C",
+      "Python",
+      "Bash",
+      "pthreads",
+      "Git"
+    ],
+    "multicast": [
+      "Python",
+      "Java",
+      "Bash",
+      "Gradle",
+      "Git"
+    ],
+    "nfs": [
+      "C",
+      "Python",
+      "Bash",
+      "pthreads",
+      "Git"
+    ],
+    "runtime": [
+      "Python",
+      "Bash",
+      "Git"
+    ],
+    "sobel": [
+      "C",
+      "Python",
+      "Bash",
+      "OpenMP",
+      "Git"
+    ],
+    "kmeans": [
+      "C",
+      "Python",
+      "Bash",
+      "OpenMP",
+      "Git"
+    ],
+    "conv": [
+      "C",
+      "Python",
+      "Bash",
+      "CUDA",
+      "Git"
+    ],
+    "clahe": [
+      "C++",
+      "Python",
+      "Bash",
+      "CUDA",
+      "Git"
+    ],
+    "nbody": [
+      "C",
+      "Python",
+      "Bash",
+      "CUDA",
+      "OpenMP",
+      "Git"
+    ],
+    "house": [
+      "C",
+      "C++",
+      "Python",
+      "OpenGL",
+      "Git"
+    ],
+    "wifi": [
+      "C",
+      "Bash",
+      "ath9k",
+      "Git"
+    ],
+    "rambo": [
+      "C",
+      "Python",
+      "pthreads",
+      "SDR (ADALM-PLUTO)",
+      "GNU Radio",
+      "Git"
+    ],
+    "cv32": [
+      "C",
+      "Python",
+      "Tcl",
+      "Bash",
+      "SystemVerilog",
+      "Vivado/Vitis",
+      "RISC-V",
+      "Git"
+    ],
+    "live-fpga-lab": [
+      "C",
+      "Python",
+      "HTML/CSS",
+      "TypeScript",
+      "React",
+      "Tcl",
+      "Vivado/Vitis",
+      "ARM/Zynq",
+      "Docker",
+      "Git"
+    ],
+    "homelab": [
+      "JavaScript",
+      "Bash",
+      "Docker",
+      "Nginx",
+      "WireGuard",
+      "Pi-hole",
+      "Ansible",
+      "Proxmox",
+      "PostgreSQL",
+      "MySQL",
+      "Git",
+      "Traefik",
+      "SQLite"
+    ]
+  },
+  "coursework": {
+    "ECE115 Programming I": [
+      "C",
+      "Bash"
+    ],
+    "ECE116 Programming II": [
+      "C",
+      "Python",
+      "Bash"
+    ],
+    "ECE119 Digital Design": [
+      "Verilog",
+      "Multisim"
+    ],
+    "ECE120 Engineering Drawing": [
+      "AutoCAD"
+    ],
+    "ECE216 Algorithms": [
+      "C",
+      "Python",
+      "Java",
+      "Maven"
+    ],
+    "ECE219 Computer Organization": [
+      "C",
+      "Bash",
+      "Verilog",
+      "MIPS assembly"
+    ],
+    "ECE311 Databases": [
+      "Python",
+      "SQL",
+      "Bash",
+      "Docker",
+      "MySQL",
+      "SQLite"
+    ],
+    "ECE318 Operating Systems (Project 1)": [
+      "C",
+      "Bash",
+      "Linux kernel modules"
+    ],
+    "ECE433 Computer Graphics (Homeworks 1–2)": [
+      "C++",
+      "OpenGL"
+    ],
+    "Numerical Analysis": [
+      "MATLAB"
+    ]
+  },
+  "outside": [
+    "ECE115 Programming I",
+    "ECE116 Programming II",
+    "ECE119 Digital Design",
+    "ECE120 Engineering Drawing",
+    "ECE216 Algorithms",
+    "ECE219 Computer Organization",
+    "ECE311 Databases",
+    "Numerical Analysis"
+  ]
+}

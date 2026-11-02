@@ -1,0 +1,27 @@
+---
+// Folded "Course grades" report card (spec §5.1, §7.5): a native <details>, flat bars, each row linking to its project.
+import { getCollection, getEntry } from 'astro:content';
+import { projectHref } from '../lib/links';
+
+const courses = (await getCollection('courses')).sort((a, b) => a.data.order - b.data.order);
+const rows = await Promise.all(
+  courses.map(async (c) => {
+    const p = await getEntry(c.data.featuredProject);
+    if (!p) throw new Error(`${c.id}: featured project missing`);
+    return { code: c.data.code, name: c.data.name, grade: c.data.grade, title: p.data.title, href: projectHref({ id: p.id, kind: p.data.kind, course: p.data.course?.id }) };
+  }),
+);
+---
+<details class="rc panel">
+  <summary>Course grades <span>{rows.length} courses<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg></span></summary>
+  <ul>
+    {rows.map((r) => (
+      <li>
+        <b>{r.code}</b>
+        <span class="bars" aria-hidden="true"><i style={`width:${r.grade * 10}%`}></i></span>
+        <span class="g">{r.grade}</span>
+        <small>{r.name}, <a href={r.href}>{r.title}</a></small>
+      </li>
+    ))}
+  </ul>
+</details>

@@ -1,0 +1,8 @@
+{
+  "code": "ECE321",
+  "name": "Concurrent Programming",
+  "grade": 10,
+  "sequence": false,
+  "order": 5,
+  "featuredProject": "threads"
+}

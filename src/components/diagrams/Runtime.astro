@@ -1,0 +1,16 @@
+---
+interface Props { label?: string }
+const { label = 'Diagram: a running program moving from one machine to another' } = Astro.props;
+---
+<svg class="diagram" viewBox="0 0 320 200" role="img" aria-label={label} preserveAspectRatio="xMidYMid slice">
+  <rect width="320" height="200" fill="#183539" />
+  <rect x="28" y="58" width="104" height="84" rx="16" fill="#11282d" stroke="#3b7a82" stroke-width="2" />
+  <rect x="188" y="58" width="104" height="84" rx="16" fill="#11282d" stroke="#3b7a82" stroke-width="2" />
+  <rect x="46" y="80" width="40" height="40" rx="10" fill="#2c5f66" />
+  <rect x="210" y="80" width="40" height="40" rx="10" fill="#41e2f2" />
+  <path d="M90 100 C130 100 150 100 204 100" fill="none" stroke="#d8b46a" stroke-width="3" stroke-dasharray="6 7" stroke-linecap="round" />
+  <circle cx="204" cy="100" r="5" fill="#d8b46a" />
+  <g font-family="Hanken Grotesk Variable, Hanken Grotesk, sans-serif" font-size="13" fill="#9db6b8" text-anchor="middle">
+    <text x="80" y="166">machine A</text><text x="240" y="166">machine B</text>
+  </g>
+</svg>

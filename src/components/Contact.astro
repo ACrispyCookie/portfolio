@@ -1,0 +1,41 @@
+---
+// Contact card (spec §5.1 item 8): the email with Copy on the left, link rows on the right. Last traced section.
+import '../styles/contact.css';
+
+const EMAIL = 'nikasjason1@gmail.com';
+const rows = [
+  ['GitHub', 'ACrispyCookie', 'https://github.com/ACrispyCookie'],
+  ['LinkedIn', 'Jason Nikas', 'https://www.linkedin.com/in/jason-nikas-b64163255'],
+  ['Older portfolio', 'acrispycookie.dev', 'https://acrispycookie.dev'],
+];
+---
+<section id="contact" class="sec" aria-labelledby="contact-h">
+  <h2 id="contact-h" data-pad>Contact</h2>
+  <div class="ccard panel">
+    <div class="cl">
+      <p class="lead">Questions about a project, or want to talk? Email me.</p>
+      <div class="mail"><span>{EMAIL}</span><button class="copy btn btn-secondary" type="button">Copy</button></div>
+      <!-- TODO(jason): a CV button goes here once a CV exists. -->
+    </div>
+    <div class="cr">
+      {rows.map(([name, sub, href]) => <a class="clink" href={href}><b>{name}</b><small>{sub}</small></a>)}
+    </div>
+  </div>
+</section>
+<script>
+  // Copy the email; if the clipboard is refused, select it so the visitor can copy it by hand.
+  const btn = document.querySelector<HTMLButtonElement>('#contact .copy');
+  const mail = document.querySelector<HTMLElement>('#contact .mail span');
+  btn?.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(mail!.textContent!);
+      btn.textContent = 'Copied';
+      setTimeout(() => (btn.textContent = 'Copy'), 2000);
+    } catch {
+      const r = document.createRange();
+      r.selectNodeContents(mail!);
+      getSelection()?.removeAllRanges();
+      getSelection()?.addRange(r);
+    }
+  });
+</script>

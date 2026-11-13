@@ -34,7 +34,7 @@ test('desktop: the pill is hidden at the very top', async ({ page }, info) => {
 });
 
 test('other pages show the pill at once', async ({ page }) => {
-  await page.goto('/pill-test/');
+  await page.goto('/projects');
   await expect(page.locator('.topbar .labpill')).toBeVisible();
 });
 

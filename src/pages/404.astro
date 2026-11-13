@@ -1,0 +1,28 @@
+---
+// The page nginx serves for an address the site doesn't have (plan Task 7): a project page's header, the trace
+// starting under its title, and one section with the two ways back. Kept out of the sitemap and search results.
+import Base from '../layouts/Base.astro';
+import '../styles/project.css';
+---
+<Base title="Page not found | Jason Nikas" description="This address isn't a page on njason.dev. The home page and the list of every project are one click away." index={false}>
+  <header class="phead" data-trace-start>
+    <h1>This page isn't on the board</h1>
+    <p class="lead">The address may be mistyped, or the page has moved.</p>
+  </header>
+  <section id="back" class="sec" aria-labelledby="back-h">
+    <h2 id="back-h" data-pad>Where to go from here</h2>
+    <p class="nf">Every project I've written up is on the projects page, and the home page has the short version.</p>
+    <div class="btns nf-btns">
+      <a class="btn btn-primary" href="/projects">See all projects</a>
+      <a class="btn btn-secondary" href="/">Go to the home page</a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* a page shorter than the window: the footer sits at the window's foot, not above a bare band */
+  :global(body) { min-height: 100dvh; display: flex; flex-direction: column; }
+  :global(body > .wrap) { flex: 1 0 auto; width: 100%; } /* auto side margins would shrink it to its content */
+  .nf { max-width: 56ch; color: var(--color-silk); }
+  .nf-btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+</style>

@@ -108,7 +108,7 @@ test('home: the status updates live, even with the widget scrolled away', async 
 
 test('other pages: the pill updates live too', async ({ page }) => {
   await serveSequence(page, [event({ mode: 'project' }), event({ mode: 'project' }), event({ mode: 'project' }), event({ mode: 'project' }), event()]);
-  await page.goto('/pill-test/');
+  await page.goto('/projects');
   const [amber, cyan] = [await cssColor(page, '--color-amber'), await cssColor(page, '--color-cyan')];
   const dot = () => page.locator('.topbar .labpill .sdot').evaluate((d) => getComputedStyle(d).backgroundColor);
   await expect.poll(dot, { timeout: 5000 }).toBe(amber);
@@ -255,7 +255,7 @@ test("other pages: the pill's dot shows the lab's status from one request", asyn
   let calls = 0;
   await page.route(STREAM, (r) => r.abort());
   await page.route(JSON_URL, (r) => { calls++; return r.fulfill({ status: 200, headers: { 'access-control-allow-origin': '*' }, contentType: 'application/json', body: JSON.stringify(event({ mode: 'project' })) }); });
-  await page.goto('/pill-test/');
+  await page.goto('/projects');
   const amber = await page.evaluate(() => { const p = document.createElement('i'); p.style.color = 'var(--color-amber)'; document.body.append(p); const c = getComputedStyle(p).color; p.remove(); return c; });
   await expect.poll(() => page.locator('.topbar .labpill .sdot').evaluate((d) => getComputedStyle(d).backgroundColor)).toBe(amber);
   expect(calls).toBe(1);

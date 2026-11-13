@@ -11,6 +11,8 @@ tools: ["C", "pthreads", "Java", "Bash", "Git"]
 team: ["tsogkas", "tvangos"]
 group: "The same problems, with monitors"
 code: { file: "monitors.c", lang: "c", url: "https://github.com/ACrispyCookie/ECE321-Concurrent-Programming/blob/f840faa556c2f3d867830648c341e346bfedf01f/Project3/assignment3/src/assignment3.c#L113-L135", caption: "A car arriving at the bridge: it claims it, waits, or goes, then wakes the next car of its colour if there is room and it is still their turn." }
+figures:
+  - { section: "the-bridge-and-the-roller-coaster", src: "../../assets/projects/monitors-bridge.png", alt: "The bridge as the monitor sees it: three red and three blue cars waiting at either end, the entry queue, a queue per colour, and counts of cars on the bridge, waiting and passed" }
 ---
 
 ## What it is

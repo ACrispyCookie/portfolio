@@ -1,6 +1,6 @@
 ---
 // A course's page (spec §5.3): /courses/ece415. Its projects in full, newest first (Jason, 2026-10-27); where they
-// build on each other, a strip lists them in the same order. A project that grew out of the course follows as what came next (ECE333 → DVD).
+// are more than one, a strip lists them in the same order (Jason, 2026-11-12: every course, not only sequences). A project that grew out of the course follows as what came next (ECE333 → DVD).
 import { getCollection, type CollectionEntry } from 'astro:content';
 import Base from '../../../layouts/Base.astro';
 import CourseProject from '../../../components/CourseProject.astro';
@@ -27,7 +27,7 @@ const mine = all.filter((p) => p.data.course?.id === course.id);
 // newest first by its place in the course; a project without one keeps the main project first, then course order
 const rank = (p: CollectionEntry<'projects'>) => [-(p.data.step ?? -Infinity), p.data.main ? 0 : 1, p.data.order];
 const cards = mine.sort((a, b) => { const [x, y] = [rank(a), rank(b)]; return x[0] - y[0] || x[1] - y[1] || x[2] - y[2]; });
-const steps = c.sequence ? cards.map((p) => ({ id: p.id, title: p.data.title, headline: p.data.headline })) : [];
+const steps = cards.length > 1 ? cards.map((p) => ({ id: p.id, title: p.data.title, headline: p.data.headline })) : [];
 const after = all.filter((p) => p.data.fromCourse?.id === course.id);
 
 // Tools: the skills explorer limited to this course's projects' tools

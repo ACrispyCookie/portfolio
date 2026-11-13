@@ -25,6 +25,8 @@
 .hero-media > video, .hero-media > img, .hero-media > picture img, .hero-media > svg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
 .hero-media picture { display: contents; }
 .pfig { margin: 20px 0 0; border-radius: var(--radius-inner); overflow: hidden; background: var(--color-panel); }
+/* a picture is never shown wider than its file, so a small one stays sharp (Jason, 2026-11-12) */
+.psec > .pfig:not(.drawn), .csec > .pfig:not(.drawn) { width: min(100%, var(--w, 100%)); }
 .pfig img { display: block; width: 100%; height: auto; }
 /* every figure at most --pic-h tall, whatever its shape; --ar is its width over its height */
 /* a picture may use the column's whole width, not just the text's (Jason, 2026-10-24: hard to see) */
@@ -66,7 +68,7 @@
 .pgrid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 28px; }
 .pgrid > * { min-width: 0; } /* the contents strip scrolls inside itself instead of widening the page */
 .psecs { display: grid; grid-template-columns: minmax(0, 1fr); gap: 64px; min-width: 0; }
-.psec > :not(h2, .pfig, .docs) { max-width: 65ch; }
+.psec > :not(h2, .pfig, .docs) { max-width: 56ch; } /* under 80 characters a line in this face; 65ch ran to 88 (2026-11-12) */
 .psec p + p { margin-top: 14px; }
 .psec > ul:not([class]) { margin: 0; padding-left: 20px; display: grid; gap: 8px; list-style: disc; } /* the Markdown's lists */
 .psec > ul:not([class]) li::marker { color: var(--color-gold); }

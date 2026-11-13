@@ -142,8 +142,8 @@ svg.diagram { background: #183539; }
 @container hero (max-width: 259px) { .onfpga { display: none; } }
 /* a drawing in a page section never shrinks below the width where its words read at 13px; a narrower column scrolls it
    sideways inside its own frame, as tables do */
-.psec > .pfig.drawn { overflow-x: auto; overscroll-behavior-x: contain; }
-.psec > .pfig.drawn svg { min-width: 340px; }
+:is(.psec, .csec) > .pfig.drawn { overflow-x: auto; overscroll-behavior-x: contain; }
+:is(.psec, .csec) > .pfig.drawn svg { min-width: 340px; }
 
 /* top bar: solid, sticky */
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--color-mask); }

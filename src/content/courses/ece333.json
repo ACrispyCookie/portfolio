@@ -2,7 +2,6 @@
   "code": "ECE333",
   "name": "Digital Systems Lab",
   "grade": 9,
-  "sequence": true,
   "order": 10,
   "rank": 7,
   "featuredProject": "dvd-logo-fpga",

@@ -13,6 +13,7 @@ import ResultBars from './ResultBars.astro';
 import ProjectFigure from './ProjectFigure.astro';
 import CodeExcerpt from './CodeExcerpt.astro';
 import Toc from './Toc.astro';
+import { diagrams, shapes } from './diagrams';
 import { pageHref } from '../lib/links';
 import { docsFor } from '../lib/docs';
 
@@ -43,7 +44,9 @@ const intro = p.main ? /<p>[\s\S]*?<\/p>/.exec(sections[0]?.html ?? '')?.[0] : u
 
 // the main project's picture keeps its own shape, as on its page
 const own = p.main && p.media?.video ? await sharp(`public${p.media.video.replace(/\.mp4$/, '.jpg')}`).metadata() : p.main ? p.media?.src : undefined;
-const ar = own ? Math.min(2.4, Math.max(4 / 3, own.width! / own.height!)) : 16 / 10;
+// a main project without a photo or video shows its drawing in the same place, so the panel never has an empty half
+const Diagram = p.main && !p.media && p.diagram ? diagrams[p.diagram] : undefined;
+const ar = own ? Math.min(2.4, Math.max(4 / 3, own.width! / own.height!)) : Diagram ? (shapes[p.diagram!] ?? 16 / 10) : 16 / 10;
 ---
 <section id={id} data-id={id} class:list={['cproj', { main: p.main }]} aria-labelledby={`${id}-h`}>
   <h2 id={`${id}-h`} data-pad>{p.title}</h2>
@@ -64,6 +67,7 @@ const ar = own ? Math.min(2.4, Math.max(4 / 3, own.width! / own.height!)) : 16 /
           )}
         </figure>
       )}
+      {Diagram && <figure class="cmedia diag"><Diagram milestones={p.milestones} /></figure>}
       <div class="side">
         {intro && <div class="intro" set:html={intro} />}
         {p.numbers && <KeyNumbers numbers={p.numbers} />}

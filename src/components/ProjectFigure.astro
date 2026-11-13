@@ -8,7 +8,7 @@ interface Props { f: NonNullable<CollectionEntry<'projects'>['data']['figures']>
 const { f } = Astro.props;
 const Drawing = f.diagram && diagrams[f.diagram];
 ---
-<figure class:list={['pfig', { drawn: Drawing }]} style={`--ar:${(f.src ? f.src.width / f.src.height : shapes[f.diagram!] ?? 1.6).toFixed(3)}`}>
+<figure class:list={['pfig', { drawn: Drawing }]} style={`--ar:${(f.src ? f.src.width / f.src.height : shapes[f.diagram!] ?? 1.6).toFixed(3)}${f.src ? `;--w:${f.src.width}px` : ''}`}>
   {Drawing ? <Drawing label={f.alt} /> : (
     // a picture opens full screen at its full size (Jason, 2026-10-24: hard to see on every device);
     // without JavaScript the link is the full-size file itself

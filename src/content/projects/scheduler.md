@@ -13,6 +13,8 @@ group: "SJF without starvation"
 code: { file: "scheduler.c", lang: "c", url: "https://github.com/ACrispyCookie/ECE318-Operating-Systems/blob/fc0be06d24cb4ccfb9e6a19f341ebae7d8031323/Project2/Scheduler_VM/src/schedule.c#L17-L21", caption: "The two formulas: each task's next burst predicted from its last one, and the score that adds how long it has waited." }
 figures:
   - { section: "adding-the-wait", src: "../../assets/projects/scheduler-goodness.png", alt: "Tasks plotted by expected burst against wait time: the scheduler prefers those that waited long and those with short bursts" }
+  - { section: "shortest-job-first", src: "../../assets/projects/scheduler-sjf-cpu.png", alt: "Chart of the long computation's share of the CPU over time under plain Shortest Job First, with 25 interactive tasks: a few early spikes, then nothing" }
+  - { section: "what-we-saw", src: "../../assets/projects/scheduler-ours-cpu.png", alt: "Chart of the long computation's share of the CPU over time under our scheduler, with the same 25 interactive tasks: regular spikes for the whole run" }
 ---
 
 ## What it is

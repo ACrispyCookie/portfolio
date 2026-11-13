@@ -56,7 +56,6 @@ const courses = defineCollection({
     name: z.string(),
     grade: z.number(),
     intro: z.string().optional(),
-    sequence: z.boolean(),
     order: z.number(),
     rank: z.number(), // its place on the All projects page, by importance (Jason, 2026-10-23)
     featuredProject: reference('projects'),

@@ -10,7 +10,7 @@ const score = (r: number, c: number) => (r >= 2 && c === r - 1 ? 0.35 + (r - 2) 
 ---
 <svg class="diagram" data-kind="alignment" viewBox="0 0 320 200" role="img" aria-label={label} preserveAspectRatio="xMidYMid meet">
   <rect width="320" height="200" fill="#183539" />
-  <g font-family="Hanken Grotesk Variable, Hanken Grotesk, sans-serif" font-size="11" fill="#9db6b8" text-anchor="middle">
+  <g font-family="Hanken Grotesk Variable, Hanken Grotesk, sans-serif" font-size="12" fill="#9db6b8" text-anchor="middle">
     {top.map((l, c) => <text x={x(c) + 10} y="30">{l}</text>)}
     {side.map((l, r) => <text x="60" y={y(r) + 14}>{l}</text>)}
   </g>
@@ -18,7 +18,7 @@ const score = (r: number, c: number) => (r >= 2 && c === r - 1 ? 0.35 + (r - 2) 
   <path d={`M${x(1) + 10} ${y(2) + 10} L${x(5) + 10} ${y(6) + 10}`} stroke="#d8b46a" stroke-width="3" stroke-linecap="round" />
   <circle cx={x(5) + 10} cy={y(6) + 10} r="4" fill="#d8b46a" />
   <g font-family="Hanken Grotesk Variable, Hanken Grotesk, sans-serif">
-    <text x="246" y="74" font-size="11" fill="#9db6b8">best match</text>
+    <text x="246" y="74" font-size="12" fill="#9db6b8">best match</text>
     <text x="246" y="100" font-size="13" fill="#eaf2f1" font-family="ui-monospace, monospace" letter-spacing="1">ATTAC</text>{/* taste-skill-ignore: aligned sequences need equal-width letters */}
     <text x="246" y="118" font-size="13" fill="#eaf2f1" font-family="ui-monospace, monospace" letter-spacing="1">ATTAC</text>{/* taste-skill-ignore: aligned sequences need equal-width letters */}
   </g>

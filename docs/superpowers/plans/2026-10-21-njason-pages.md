@@ -388,7 +388,63 @@
 - [ ] **Step 4: Run** `npx playwright test seo`. Expected: PASS.
 - [ ] **Step 5: Commit.** `feat: 404, share image, sitemap, canonical, favicon`.
 
-### Task 8: Every page through the sweep and the gate
+### Task 8: A responsive approach that holds at every size (added by Jason, 2026-11-12)
+
+**Why:** every round of new window sizes has turned up layout bugs that the tests missed, and each was fixed one at a time. Jason wants one approach that stops new resolutions from surprising us.
+
+**Binding history** (memory `layout-tests-every-size`, Plan 1 rulings):
+- Layouts are fluid, chosen by container queries on each component's own width, and sized with clamp/min/max (2026-10-26).
+- Pictures are sized by width alone (2026-10-26).
+- A single global breakpoint set was tried and rejected: "it was better before" (2026-10-27).
+- No sweeping layout rewrite without Jason's say.
+
+**Files:**
+- Create: `docs/proposals/03-responsive.md`
+- Modify: after approval, whatever the proposal names.
+
+- [ ] **Step 1: Audit, without changing any code.** List every layout switch:
+  - container queries (57 in 11 files today);
+  - window media queries, such as the 15 `max-width: 760px`;
+  - fixed pixel thresholds;
+  - script-measured layouts such as `timeline.ts`.
+
+  For each: its component, what it changes, and which neighbour it has to agree with. Then list every layout bug found since Plan 1, from the rulings, the ledgers and the test exceptions (for example RAMBO's table under 400px), and sort them by root cause, e.g.:
+  - two switches that must agree but use different thresholds;
+  - a layout half-applied;
+  - a height dependency;
+  - content longer than the layout assumed;
+  - a WebKit quirk.
+- [ ] **Step 2: Proposal** in `docs/proposals/03-responsive.md`:
+  - the root causes, ranked by how many bugs each explains;
+  - 2–3 approaches with their trade-offs and one recommendation;
+  - how the tests change, so that a size nobody picked is still checked. Candidates:
+    - a continuous width sweep;
+    - randomised sizes on every run, with the seed logged so a failure can be replayed;
+    - checks for kinds of breakage rather than single cases.
+
+  Include one component converted as a spike, with screenshots before and after at the fixed device list.
+- [ ] **Step 3: Stop until Jason approves the approach.**
+- [ ] **Step 4: Implement** component by component. Each change gets a test that fails first on the old CSS. Ledger a ruling for every deviation from the proposal.
+- [ ] **Step 5: Gate**, then commit: `refactor: responsive approach from proposal 03`.
+
+### Task 9: Clean the repository of what's unused (added by Jason, 2026-11-12)
+
+This runs after Task 8, so it also catches whatever the responsive work leaves behind.
+
+**Files:** Create `docs/proposals/04-cleanup.md`. Delete only what that list approves.
+
+- [ ] **Step 1: Inventory, with evidence for each item:**
+  - **Code:** unused files, exports and npm dependencies (`npx knip`).
+  - **CSS:** selectors that match nothing in the built pages.
+  - **Assets:** files in `src/assets/` and `public/` that no page or component references.
+  - **Tests:** tests that check things that no longer exist.
+  - **Docs:** stale docs (`docs/proposals/`, the mock check scripts, superseded mocks), and scratch scripts in `.gate/`.
+  - **Kept on purpose:** the approved mocks the spec cites, `docs/GRADES.md` (git-ignored), and `reports/` and `research/` (git-ignored and never touched).
+- [ ] **Step 2: List** each item with what it is, why it's unused, and delete / keep / archive. **Stop until Jason approves the list:** docs are his call.
+- [ ] **Step 3: Delete** what was approved. Record the built `dist/` file list before and after; only the intended files may disappear.
+- [ ] **Step 4: Gate**, then commit: `chore: remove unused code, assets and docs`.
+
+### Task 10: Every page through the sweep and the gate
 
 **Files:** Modify `tests/e2e/sweep.spec.ts`.
 
@@ -407,5 +463,6 @@
     - the ECE415 Lab 5 archive with student IDs, which must be removed before launch;
     - figure approvals;
     - a current lab screenshot.
+  - what Tasks 8 and 9 changed: the responsive approach as built, and the cleanup list with what was removed.
 
   **Stop until Jason approves.** Then run the final whole-branch review (executing-plans), then `superpowers:finishing-a-development-branch`.

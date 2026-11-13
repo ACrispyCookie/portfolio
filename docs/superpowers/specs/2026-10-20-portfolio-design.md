@@ -222,7 +222,7 @@ Example: ECE415 in `mocks/styled/course.html`.
   - Spacing (Jason: the header was cramped): about 64 px above the breadcrumb on desktop and 40 px on phone, and a clear gap (about 14 px) between breadcrumb and title.
   - No "Project 1 of 5" labels above project titles (eyebrow rule); the order shows in the step strip.
   - The step strip never scrolls sideways on phone; it wraps or stacks.
-- **Step strip:** only when the projects form a sequence, as ECE415's do. Other courses just list their projects.
+- **Step strip:** on every course with more than one project, listing them in page order; a course with a single project has none. (Changed by Jason, 2026-11-12: it was only on courses whose projects form a sequence, which left ECE318, ECE321 and ECE348 without a way to pick a project.)
 - **One card per project, main project first.** Each card has:
   - title, headline number and tools;
   - its own team (tag plus avatars, or "Solo");
@@ -412,7 +412,7 @@ The whole site is one dark circuit board. The live lab widget is the powered par
   | `code` | excerpt file, repo path |
   | `status` | |
 
-- **`courses`:** code, name, grade, intro, `sequence` (boolean, for the step strip), order.
+- **`courses`:** code, name, grade, intro, order.
 - **`collaborators`:** name, GitHub handle, optional website. Avatar fetched at build time.
 - **Timeline entries and At-a-glance numbers:** data files. The "27 / 10 / 17" and "8 courses ≥ 9.5" figures are computed from the collections, so they stay true.
 

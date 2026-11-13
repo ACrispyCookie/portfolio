@@ -43,10 +43,15 @@ test('step strip: the five projects newest first, each linking to its card; no "
   expect(await page.locator('main').textContent()).not.toMatch(/Project \d+ of \d+/);
 });
 
-test('a course that is not a sequence has no strip', async ({ page }) => {
-  await page.goto('/courses/ece436');
-  await expect(page.locator('main h1')).toBeVisible();
-  await expect(page.locator('main .strip')).toHaveCount(0);
+// every course with more than one project gets the strip, listing its cards in page order (Jason, 2026-11-12: the
+// selector was missing on ECE318, ECE321 and ECE348); a single project has nothing to choose between
+test('every course with two or more projects has a strip of its cards, in page order; a single project has none', async ({ page }) => {
+  for (const code of ['ece318', 'ece321', 'ece333', 'ece348', 'ece415', 'ece436', 'ece494']) {
+    await page.goto(`/courses/${code}`);
+    const cards = await page.locator('main section.cproj').evaluateAll((s) => s.map((x) => `#${x.id}`));
+    const strip = await page.locator('main .strip li a').evaluateAll((as) => as.map((a) => a.getAttribute('href')));
+    expect(strip, code).toEqual(cards.length > 1 ? cards : []);
+  }
 });
 
 test('at 320px the strip wraps inside its box and the page never scrolls sideways', async ({ page }) => {
@@ -294,5 +299,76 @@ test('code starts at its box\'s edge even with preprocessor lines at the file\'s
     const lines = await page.locator(`#${id} .excerpt pre .line`).allTextContents();
     expect(lines.filter((l) => l.trim() && !l.startsWith('#')).some((l) => !/^\s/.test(l)), id).toBe(true);
     expect(lines.filter((l) => l.trim().startsWith('#')).every((l) => l.startsWith('#')), id).toBe(true);
+  }
+});
+
+// beside the words, the main project's picture or video fills the panel's height: it never stops short of the
+// buttons and leaves an empty band under it (Jason, 2026-11-12, ECE338's GPGPU video)
+test('the main project\'s picture, or its drawing, reaches the bottom of its panel whenever it sits beside the words', async ({ page }) => {
+  test.setTimeout(180_000);
+  // a main project without a photo or video shows its drawing there (ECE321, ECE348), so the panel has no empty half
+  for (const code of ['ece338', 'ece415', 'ece433', 'ece321', 'ece348']) {
+    await page.goto(`/courses/${code}`);
+    await expect(page.locator('.cmain .cmedia :is(video, img, svg)').first(), code).toBeAttached();
+    for (let w = 900; w <= 2560; w += 60) {
+      await page.setViewportSize({ width: w, height: 900 });
+      const r = await page.evaluate(() => {
+        const m = document.querySelector('.cmain .cmedia')!.getBoundingClientRect(), s = document.querySelector('.cmain .side')!.getBoundingClientRect();
+        return { beside: m.right <= s.left, top: s.top - m.top, bottom: s.bottom - m.bottom };
+      });
+      if (!r.beside) continue;
+      expect(Math.abs(r.top), `${code} @${w}: top`).toBeLessThanOrEqual(1);
+      expect(r.bottom, `${code} @${w}: the picture stops short of the panel's bottom by`).toBeLessThanOrEqual(1);
+    }
+  }
+});
+
+// a picture is never shown wider than its file, so a small one stays sharp (Jason, 2026-11-12: ECE321's bridge)
+test('no figure is stretched past its file\'s own width', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  for (const code of ['ece318', 'ece321', 'ece333', 'ece348']) {
+    await page.goto(`/courses/${code}`);
+    const over = await page.locator('.pfig img').evaluateAll((imgs) => imgs.flatMap((img) => {
+      const widest = Math.max(...[...(img.closest('picture')?.querySelectorAll('source') ?? []), img].flatMap((s) =>
+        ((s as HTMLImageElement).srcset ?? s.getAttribute('srcset') ?? '').split(',').map((c) => Number(/(\d+)w\s*$/.exec(c.trim())?.[1] ?? 0))));
+      const w = img.getBoundingClientRect().width;
+      return w > widest + 1 ? [`${img.getAttribute('alt')?.slice(0, 40)}: ${Math.round(w)}px from a ${widest}px file`] : [];
+    }));
+    expect(over, code).toEqual([]);
+  }
+});
+
+// a drawing in a course section sits at a project page's drawing size: words that read, never a poster (Impeccable
+// tiny-text and the 835px Dedup on ECE318, 2026-11-12)
+test('a drawing in a course section is 340–520px wide, scrolling sideways in its frame on a narrow phone', async ({ page }) => {
+  for (const w of [390, 1440]) {
+    await page.setViewportSize({ width: w, height: 900 });
+    for (const code of ['ece318', 'ece340']) {
+      await page.goto(`/courses/${code}`);
+      const ws = await page.locator('.csec > .pfig.drawn svg').evaluateAll((s) => s.map((x) => Math.round(x.getBoundingClientRect().width)));
+      expect(ws.length, code).toBeGreaterThan(0);
+      for (const x of ws) { expect(x, `${code} @${w}`).toBeGreaterThanOrEqual(340); expect(x, `${code} @${w}`).toBeLessThanOrEqual(520); }
+      expect(await sideways(page), `${code} @${w}`).toBeLessThanOrEqual(0);
+    }
+  }
+});
+
+// running text keeps a readable measure: no rendered line of a course section's paragraphs passes 80 characters
+test('no line of a course or project section\'s text runs past 80 characters', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  for (const url of ['ece318', 'ece321', 'ece333', 'ece348', 'ece340', 'ece494'].map((c) => `/courses/${c}`).concat('/courses/ece415/nbody', '/courses/ece338/gpgpu', '/projects/live-fpga-lab')) {
+    await page.goto(url);
+    const code = url;
+    const long = await page.locator('.csec > p, .psec > p').evaluateAll((ps) => ps.flatMap((p) => {
+      const lines = new Map<number, number>();
+      const walk = document.createTreeWalker(p, NodeFilter.SHOW_TEXT);
+      for (let n = walk.nextNode(); n; n = walk.nextNode()) for (let i = 0; i < n.textContent!.length; i++) {
+        const r = document.createRange(); r.setStart(n, i); r.setEnd(n, i + 1);
+        const top = Math.round(r.getBoundingClientRect().top); lines.set(top, (lines.get(top) ?? 0) + 1);
+      }
+      const most = Math.max(0, ...lines.values());
+      return most > 80 ? [`${p.parentElement!.id}: ${most} characters`] : [];
+    }));
+    expect(long, code).toEqual([]);
   }
 });

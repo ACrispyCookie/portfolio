@@ -14,6 +14,8 @@ diagram: "dedup"
 code: { file: "fuse.c", lang: "c", url: "https://github.com/ACrispyCookie/ECE318-Operating-Systems/blob/fc0be06d24cb4ccfb9e6a19f341ebae7d8031323/Project3/final/filesystem/fs_manager.c#L344-L359", caption: "Deleting a file's block: it is freed only when no file uses it any more." }
 figures:
   - { section: "each-block-stored-once", diagram: "dedup", alt: "Two files made of 4 KB blocks; blocks with the same content are stored once and both files point to them" }
+  - { section: "deleting-safely", src: "../../assets/projects/fuse-free-list.png", alt: "The block store with blocks 2, 3, 4, 5 and 7 free, and a linked list of those free blocks, each pointing to its place in the store" }
+  - { section: "folders", src: "../../assets/projects/fuse-folders.png", alt: "Folder tables in memory: the root points to a table holding folder, which points to a table of its files and the folder settings, which points to one more file" }
 ---
 
 ## What it is

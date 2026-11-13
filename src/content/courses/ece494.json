@@ -2,7 +2,6 @@
   "code": "ECE494",
   "name": "Microprocessor Design",
   "grade": 10,
-  "sequence": false,
   "order": 1,
   "rank": 10,
   "featuredProject": "cv32",
